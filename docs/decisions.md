@@ -1,8 +1,17 @@
 # Decisions
 
-Non-trivial modelling, data and project decisions, in the order they were made. Each entry
-follows the template in `scope_and_rationale.md` Section 6, with a colon in the heading in place
-of the template's dash.
+Non-trivial modelling, data and project decisions, in the order they were made. Each entry uses
+this template:
+
+```
+## <date>: <decision>
+- Context:
+- Options considered:
+- Decision and rationale:
+```
+
+Section references in older entries mean the scope document as it was when the entry was
+written; git history keeps those versions.
 
 ## 2026-10-24: Strip zero-padding from bank IDs
 
@@ -36,7 +45,7 @@ of the template's dash.
 ## 2026-10-26: Rename `make validate` to `make validate-data`
 
 - **Context:** Stage 5 adds model validation, so a bare `validate` target would become ambiguous.
-  `scope_and_rationale.md` Section 6 lists `validate` among the planned Makefile targets.
+  The scope document's repository structure listed `validate` among the planned Makefile targets.
 - **Options considered:** keep `validate`; rename now; rename when Stage 5 starts.
 - **Decision and rationale:** Rename now to `validate-data`, while few files refer to it, and
   have `make data` run it after every download so unchecked data is never used. Later validation
@@ -65,21 +74,9 @@ of the template's dash.
   - Built by `make labels` into `data/processed/account_labels.parquet`
     (`src/mule_detection/data/labels.py`, tested in `tests/test_labels.py`).
 
-## 2026-10-26: Keep the learning log outside this repository
-
-- **Context:** `scope_and_rationale.md` Section 6 lists `docs/learning_log.md`, one entry per
-  stage.
-- **Options considered:** keep it in the repository; keep it locally but git-ignored; move it to a
-  separate private journal repository; keep it in a notes tool.
-- **Decision and rationale:** A separate private journal repository covering all projects. The
-  log's value is to the owner, as a record of what was learned and a source of material for
-  interviews and posts, rather than to readers of this repository; a private repository keeps
-  working notes out of public view and still backs them up. `docs/learning_log.md` was removed.
-  This departs from the scope document's repository structure.
-
 ## 2026-10-26: Defer pre-commit hooks
 
-- **Context:** `scope_and_rationale.md` Section 7 lists pre-commit with ruff, nbstripout,
+- **Context:** `scope_and_rationale.md` Section 6 lists pre-commit with ruff, nbstripout,
   end-of-file and trailing-whitespace hooks; the scaffold's `.pre-commit-config.yaml` was empty.
 - **Options considered:** set up pre-commit now; defer it.
 - **Decision and rationale:** Defer, and remove the empty file. `nbstripout` is installed directly
@@ -124,9 +121,8 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   before they receive within their own scheme in five of the eight typologies (counted as
   account and scheme pairs: 65 in cycle schemes, 43 in scatter-gather, 23 in gather-scatter, 15
   in stack, 3 in random). In scatter-gather schemes the middle accounts must receive before
-  passing money on, yet e.g.
-  `213952:806D47B10` sends on 1 September 08:40 and receives on 2 September 13:04 in the same
-  scheme. The strict rule therefore labelled some real middle accounts as non-mules because of
+  passing money on, yet e.g. `213952:806D47B10` sends on 1 September 08:40 and receives on
+  2 September 13:04 in the same scheme. The strict rule therefore labelled some real middle accounts as non-mules because of
   a simulator artefact rather than behaviour.
 - **Options considered:** keep the strict rule and describe it as "order as timestamped",
   accepting known label errors; return to the order-ignored rule.

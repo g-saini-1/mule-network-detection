@@ -14,9 +14,8 @@ licence as the Community Data License Agreement - Sharing - Version 1.0.
 "HI" means a higher illicit rate; the LI (lower illicit rate) datasets are a backlog item.
 
 **The data is synthetic.** The simulator models banks, companies and individuals carrying out
-ordinary financial activity over a few weeks, with laundering schemes inserted. Because the
-data is simulated, every transaction's laundering status is known exactly, which no real bank
-can achieve. This is what makes the data useful for learning, and also its main limitation.
+ordinary financial activity over 18 days, with laundering schemes inserted, so every
+laundering payment is known (see How the laundering flag is set).
 
 ## Getting the data
 

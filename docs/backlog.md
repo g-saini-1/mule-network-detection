@@ -7,7 +7,7 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
 ## Project tooling
 
 - **Pre-commit hooks.** ruff, nbstripout, end-of-file and trailing-whitespace hooks, as listed in
-  `scope_and_rationale.md` Section 7 (deferred; see `docs/decisions.md`, 2026-10-26).
+  `scope_and_rationale.md` Section 6 (deferred; see `docs/decisions.md`, 2026-10-26).
 - **Command sandbox for Claude Code.** Revisit when either trigger applies: running third-party
   code (e.g. the IBM Multi-GNN repository), or switching to a permission mode with fewer prompts.
 
@@ -19,6 +19,10 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
   which documents appear on the site.
 - **Portfolio.** A personal GitHub Pages hub with one card per project, project sites for depth,
   and LinkedIn posts and articles adapted from the project site, which stays the canonical copy.
+- **"How this was built" in the README at `v1.0`.** A short paragraph on how Claude Code was used
+  as an assistant under a written working agreement (plans approved before code, every number
+  verified by running code, independent reviews at each stage), since the agreement itself is
+  kept locally and not committed.
 - **Results chart for the README at `v1.0`.** Recall at a fixed alert budget, compared across the
   rules baseline, ML and ML with graph features.
 

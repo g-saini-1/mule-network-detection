@@ -12,18 +12,21 @@ of production performance.
 
 Figure 1. A typical bank mule-detection pipeline, marked by what the AMLworld dataset covers.
 Stage tags (S2 to S5) mark the parts this project builds; dashed boxes have no equivalent in the
-dataset. Explained in
-[docs/bank_detection_architecture.md](docs/bank_detection_architecture.md).
+dataset.
+
+**How banks detect mule accounts, and what this dataset can and can't show:**
+[the full walkthrough](docs/bank_detection_architecture.md) covers the detection pipeline, what
+AMLworld stands in for, and why one bank sees only part of a laundering chain.
 
 ## Stages
 
-| Stage | Focus | Status |
-|---|---|---|
-| 1 | Data understanding | Complete (`v0.1`) |
-| 2 | Rules baseline | Not started |
-| 3 | Machine learning model | Not started |
-| 4 | Graph features | Not started |
-| 5 | Validation and business case | Not started |
+| Stage | Focus | Status | Report |
+|---|---|---|---|
+| 1 | Data understanding | Complete (`v0.1`) | [reports/stage1_data_understanding.md](reports/stage1_data_understanding.md) |
+| 2 | Rules baseline | Not started | *Pending* |
+| 3 | Machine learning model | Not started | *Pending* |
+| 4 | Graph features | Not started | *Pending* |
+| 5 | Validation and business case | Not started | *Pending* |
 
 Table 1. Project stages.
 
@@ -55,9 +58,16 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 
 | Document | Contents |
 |---|---|
+| [docs/bank_detection_architecture.md](docs/bank_detection_architecture.md) | How a bank detects mule accounts, and what the dataset covers (start here) |
 | [scope_and_rationale.md](scope_and_rationale.md) | Rationale, stage plan and evaluation approach, fixed at the start |
-| [data/README.md](data/README.md) | Dataset source, structure, validation and limitations |
+| [data/README.md](data/README.md) | Dataset source, structure, validation, account labels and limitations |
+| [docs/decisions.md](docs/decisions.md) | Data and modelling decisions, with the options considered and why |
 | [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |
-| [docs/bank_detection_architecture.md](docs/bank_detection_architecture.md) | How a bank detects mule accounts, and what the dataset covers |
 
 Table 2. Project documentation.
+
+## Licence
+
+The code and documentation are released under the [MIT License](LICENSE). The data is not part
+of this repository: AMLworld is published by IBM on Kaggle under the Community Data License
+Agreement - Sharing - Version 1.0 (see [data/README.md](data/README.md)).

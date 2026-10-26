@@ -134,14 +134,12 @@ one step in a laundering cycle:
 
 Table 3. Transaction columns.
 
-Three details of the raw file shape how it is loaded (`src/mule_detection/data/load.py`):
+Two details of the raw file shape how it is loaded (`src/mule_detection/data/load.py`):
 
 - **Two columns share the name `Account`**, so columns are named by position, and validation
   checks the header matches the expected order exactly before loading.
 - **Bank IDs are zero-padded inconsistently** (e.g. `010` and `0010` both mean bank 10), so they
   are read as text and the padding is stripped to match the accounts file.
-- **An account is identified by bank ID plus account number.** Account numbers alone are not
-  unique across banks.
 
 The amounts paid and received differ only when a payment converts currency. Reinvestment
 payments move money between an account and itself.
@@ -173,7 +171,8 @@ Real labels differ from this dataset's flag in five ways:
 
 Table 4. Real-world labels compared with the AMLworld flag.
 
-This gap is why results on this data overstate real-world performance (see Limitations).
+This gap is one reason results on this data are likely to overstate real-world performance (see
+Limitations).
 
 ### Accounts
 
@@ -214,10 +213,13 @@ patterns file, is the label source.
 
 ## Validation
 
-`make validate-data` (also run by `make data`) stops on any hard failure: an unexpected header, missing values, unparseable
-timestamps, non-numeric, zero or negative amounts, labels other than 0 or 1, non-numeric bank IDs,
-duplicate account keys, a transacting account missing from the accounts file, or a malformed
-pattern block. All checks pass on HI-Small. It also reports:
+`make validate-data` (also run by `make data`) first checks each file's SHA-256 hash (Table 1)
+and, for the transactions and accounts files, the row count against the expected values in
+`configs/data.yaml`, so a changed or truncated download fails. It then stops on any hard failure
+in the content: an unexpected header, missing values, unparseable timestamps, non-numeric, zero
+or negative amounts, labels other than 0 or 1, non-numeric bank IDs, duplicate account keys, a
+transacting account missing from the accounts file, or a malformed pattern block. All checks
+pass on HI-Small. It also reports:
 
 | Check | Result |
 |---|---|
@@ -235,11 +237,12 @@ Figures from `notebooks/01_eda.ipynb`.
 
 **How rare is laundering.** 5,177 of 5,078,345 transactions (0.1019%) are laundering.
 
-**Transactions time period.** 1 to 18 September 2022, but normal activity stops after 10 September. The 8 days
-after that hold only 1,108 transactions, 655 of them laundering (59.12%), which is 12.65% of all
-laundering. These appear to be laundering schemes completing after the simulator's normal
-activity ends, so the tail is not a realistic evaluation period. Within 1-10 September, weekends
-carry about 207,000 transactions a day against about 482,000 on most weekdays.
+**Transactions time period.** 1 to 18 September 2022, but normal activity stops after
+10 September. The 8 days after that hold only 1,108 transactions, 655 of them laundering
+(59.12%), which is 12.65% of all laundering. These appear to be laundering schemes completing
+after the simulator's normal activity ends, so the tail is not a realistic evaluation period.
+Within 1-10 September, weekends carry about 207,000 transactions a day against about 482,000 on
+most weekdays.
 
 **Payment formats and currencies.**
 - ACH carries 86.59% of laundering but 11.83% of all transactions.
@@ -250,22 +253,113 @@ carry about 207,000 transactions a day against about 482,000 on most weekdays.
 **Amounts.** The median laundering amount is 8,667.21 against 1,410.99 for normal transactions, in
 mixed currencies, so this is a rough comparison only.
 
-**Accounts and laundering roles.** Of the 515,088 transacting accounts, 2,373 only send
-laundering payments, 2,981 only receive them, and 1,003 both receive and send them.
+## Account labels
 
-The account-level mule label built from these roles is recorded in `docs/decisions.md`.
+The data flags individual payments, but the project scores accounts, so each account gets a
+label built from its laundering payments. The reasoning behind the rules is recorded in
+`docs/decisions.md`; the rules themselves are below.
+
+### Rules
+
+**R1. Account.** An account is a bank ID plus an account number.
+*Example:* account number `80A7FD400` appears at bank 27755 and at bank 28248; these are two
+different accounts. Eight account numbers in HI-Small appear at more than one bank.
+
+**R2. Laundering payment.** A payment whose laundering flag is 1 (see How the laundering flag is
+set).
+*Example:* on 10 September 09:59, account `10057:80C3B78E0` receives 1,870,505.26 yen in a
+laundering payment.
+
+**R3. Self-transfers.** A laundering payment from an account to itself is ignored, because it
+neither receives money from nor passes money to anyone else.
+*Example:* 11 laundering payments are self-transfers; ignoring them changes no label in
+HI-Small.
+
+**R4. Mule.** An account is a mule if it receives at least one laundering payment and sends at
+least one laundering payment, in either order. Order is ignored because AMLworld's timestamps
+do not reliably follow the money: within a single laundering scheme, a payment that passes money
+on is often timestamped before the payment that brought it in.
+*Example:* `10057:80C3B78E0` receives on 10 September and sends on 11 September, so it is a mule.
+`213952:806D47B10` is a middle account in a scatter-gather scheme, where money must arrive before
+it is passed on, yet its send is timestamped 1 September 08:40 and its receipt 2 September 13:04;
+it is also a mule.
+
+**R5. Timing.** Each account records when it was first involved in laundering in each direction
+and, for mules, when it first met R4: the later of its first laundering receipt and its first
+laundering send.
+*Example:* for `10057:80C3B78E0`, `first_laundering_at` is 10 September 09:59 and `mule_at` is
+11 September 10:03. Between those two times the account had received laundering money but not
+yet sent any.
+
+**R6. Cut-off.** Labels built "as at" a point in time use only payments before it, so they show
+what was known at that point. Accounts whose first transaction is at or after the cut-off are
+left out (R7).
+*Example:* as at 11 September 00:00, `10057:80C3B78E0` is not yet a mule, and HI-Small has 795
+mules among 515,078 accounts, instead of 1,003 among 515,088.
+
+**R7. Population.** Every account that appears in at least one transaction (before the cut-off,
+if one is used) gets a label.
+*Example:* 515,088 accounts are labelled; the 3,493 accounts in the accounts file with no
+transactions are not.
+
+### Label columns
+
+| Column | Meaning |
+|---|---|
+| `bank_id`, `account_number` | The account (R1) |
+| `is_mule` | True if the account meets R4 |
+| `mule_at` | When the account first met R4; empty for non-mules |
+| `first_laundering_at` | First laundering payment in either direction; empty if none |
+| `first_received_at`, `first_sent_at` | First laundering payment received and sent; empty if none |
+| `laundering_received`, `laundering_sent` | Number of laundering payments received and sent |
+
+Table 8. Columns in `data/processed/account_labels.parquet`.
+
+### Accounts by laundering role
+
+| Role | Accounts | Label |
+|---|---|---|
+| No laundering payments | 508,731 | Not mule |
+| Send only | 2,373 | Not mule |
+| Receive only | 2,981 | Not mule |
+| Both directions, first receipt timestamped first | 862 | Mule |
+| Both directions, first send timestamped first | 141 | Mule |
+
+Table 9. Labelled accounts by role in laundering payments.
+
+1,003 of 515,088 accounts (0.1947%) are mules. Their `mule_at` runs from 1 September 02:52 to
+16 September 00:20, and 208 of them first meet R4 on or after 11 September, in the tail where
+normal activity has stopped. The split by which direction is timestamped first is shown for
+information only, since the timestamps do not reliably show the order money moved.
+
+The roles describe where an account sits in the laundering flows, not facts the data records.
+"Send only" accounts are likely where money enters a scheme. "Receive only" accounts are where a
+scheme ends in the data, which could be a cash-out account or the criminal's own. Some
+"both directions" accounts are not mules in the usual sense but the account where a scheme
+starts and its money returns, e.g. the start of a cycle; the data cannot reliably tell these
+apart from mules, so they are labelled mules.
+
+### Building and exploring the labels
+
+```bash
+make labels     # build data/processed/account_labels.parquet from the raw transactions
+```
+
+In Python, `mule_detection.data.labels.load_labels()` reads the file with account keys as text
+and timestamps as dates; `build_account_labels(transactions, as_at=...)` builds labels as at a
+point in time. To browse the file, open it in VS Code with the Data Wrangler extension.
 
 ## Limitations
 
 - **Synthetic data.** Laundering is generated from network patterns, so results on this data
-  overstate what a model would achieve on real bank data, especially for graph features.
-- **Simulator artefacts.** Some signals are cleaner than real behaviour is likely to be (e.g. no
-  laundering in Wire, Reinvestment or cross-currency payments). Features built on them can learn
-  the simulator rather than laundering.
+  are likely to overstate what a model would achieve on real bank data, especially for graph
+  features.
+- **Simulator artefacts.** Some signals are cleaner than real behaviour is likely to be (see Key
+  characteristics), and timestamps within a scheme do not follow the money (R4). Features built
+  on them can learn the simulator rather than laundering.
 - **Laundering in general, not scams.** There are no victim-side signals (scam reports, recall
   requests), which banks hold internally.
 - **No customer attributes.** There is no age, occupation, income or account-opening date.
-- **Perfect labels.** Real banks only know the outcome of cases they investigate, so real labels
-  are noisier, incomplete and arrive later.
+- **Perfect labels.** Real labels are later, less complete and less certain (Table 4).
 - **Short, uneven window.** 18 days, with normal activity ending after 10 September, limits how
   far stability over time can be tested.

@@ -1,5 +1,5 @@
 # Stage 1 targets. Later stages add rules, train, graph and evaluate.
-.PHONY: setup data validate-data test lint
+.PHONY: setup data validate-data labels test lint
 
 setup:  ## install dependencies into .venv
 	uv sync
@@ -10,6 +10,9 @@ data:  ## download the HI-Small files into data/raw (skips unchanged files), the
 
 validate-data:  ## run validation checks on the raw files
 	uv run python -m mule_detection.data.validate
+
+labels:  ## build account-level mule labels into data/processed
+	uv run python -m mule_detection.data.labels
 
 test:  ## run the test suite
 	uv run pytest

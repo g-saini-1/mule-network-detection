@@ -13,3 +13,4 @@ paths:
   interim: data/interim
   processed: data/processed
   manifest: data/raw/manifest.json
+  labels: data/processed/account_labels.parquet

@@ -9,6 +9,7 @@ dependencies = [
     "matplotlib",
     "numpy",
     "pandas",
+    "pyarrow>=26.0.0",
     "pyyaml",
 ]
 

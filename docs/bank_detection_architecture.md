@@ -47,10 +47,10 @@ and nothing in between. Details of each file are in [data/README.md](../data/REA
 
 | Bank component | AMLworld equivalent | Main difference |
 |---|---|---|
-| Payments | Transactions file: 5,078,345 payments with time, accounts, amount, currency and format | Covers every bank at once, over 18 days, with no channel detail beyond a payment format |
-| Accounts and owners | Accounts file: account, bank and owner (entity) for 518,581 accounts | Owners have only a simulated type (e.g. Corporation); there is no identity, age, income or opening date |
+| Payments | Transactions file: each payment's time, accounts, amount, currency and format | Covers every bank at once, over 18 days, with no channel detail beyond a payment format |
+| Accounts and owners | Accounts file: each account's bank and owner (entity) | Owners have only a simulated type (e.g. Corporation); there is no identity, age, income or opening date |
 | Confirmed labels | `is_laundering` flag on each payment | Complete, immediate and certain, unlike real labels (data/README.md, Table 4) |
-| Case and typology knowledge | Patterns file: 370 laundering schemes by typology | A clean answer key; in a bank this knowledge sits in case files and intelligence reports, and covers only what was caught |
+| Case and typology knowledge | Patterns file: laundering schemes by typology | A partial answer key; in a bank this knowledge sits in case files and intelligence reports, and covers only what was caught |
 | Transaction graph | Buildable from the transactions file | Shows the whole network across banks; a bank sees only its own side (Figure 2) |
 | Everything else | None | No devices, external intelligence, alerts, investigations or interventions |
 
@@ -77,6 +77,7 @@ could see, to measure how much of the full-view lift survives.
   features, ML and graph boxes in Figure 1; Stage 5 plays the validation box and prices the
   alert budget.
 - **Results describe the middle of the pipeline under ideal inputs.** Perfect labels and a full
-  network view make detection easier than in a bank, so results are an upper bound.
+  network view make detection easier than in a bank, so results are likely to overstate what a
+  bank would achieve.
 - **The missing boxes are where real banks get much of their signal.** Devices, identity checks
   and external reports are absent, so the project cannot say how much they would add.

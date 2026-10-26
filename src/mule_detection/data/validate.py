@@ -3,7 +3,8 @@
 Each check function takes unparsed (all-string) data and returns a `ValidationReport`:
 `errors` lists hard failures that would make later stages wrong, and `info` holds
 descriptive counts worth knowing but not failing on (e.g. duplicate rows). `validate_all`
-raises `ValidationError` if any file has errors.
+first confirms each file matches the hash and row count expected in `configs/data.yaml`, then
+runs the content checks, and raises `ValidationError` if any file has errors.
 
 Run with `python -m mule_detection.data.validate`.
 """
@@ -15,6 +16,8 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 from mule_detection.data import load
+from mule_detection.data.download import sha256
+from mule_detection.utils.config import load_config
 
 PATTERN_BEGIN = re.compile(r"^BEGIN LAUNDERING ATTEMPT - ([A-Z-]+)")
 PATTERN_END = "END LAUNDERING ATTEMPT"
@@ -32,6 +35,21 @@ class ValidationReport:
     @property
     def passed(self) -> bool:
         return not self.errors
+
+
+def check_expected(
+    name: str, actual_sha256: str, actual_rows: int | None, expected: dict
+) -> ValidationReport:
+    """Compare a file's hash, and its row count when one is expected, with the config."""
+    report = ValidationReport()
+    if actual_sha256 != expected["sha256"]:
+        report.errors.append(
+            f"{name}: SHA-256 {actual_sha256} does not match expected {expected['sha256']}"
+        )
+    if "rows" in expected and actual_rows != expected["rows"]:
+        report.errors.append(f"{name}: {actual_rows} rows, expected {expected['rows']}")
+    report.info = {"sha256": actual_sha256, "rows": actual_rows}
+    return report
 
 
 def check_transactions(raw: pd.DataFrame, header: list[str]) -> ValidationReport:
@@ -163,13 +181,21 @@ def check_patterns(lines: list[str]) -> ValidationReport:
 
 def validate_all() -> dict[str, ValidationReport]:
     """Run every check on the configured raw files; raise if any hard check fails."""
+    config = load_config("data")
     transactions = load.load_raw_transactions()
-    reports = {
+    accounts = load.load_raw_accounts()
+    rows = {"transactions": len(transactions), "accounts": len(accounts), "patterns": None}
+    reports = {}
+    for key, file_name in config["files"].items():
+        reports[f"{key} file"] = check_expected(
+            file_name, sha256(load.raw_file(key)), rows[key], config["expected"][file_name]
+        )
+    reports |= {
         "transactions": check_transactions(
             transactions, load.read_header(load.raw_file("transactions"))
         ),
         "accounts": check_accounts(
-            load.load_raw_accounts(), load.read_header(load.raw_file("accounts")), transactions
+            accounts, load.read_header(load.raw_file("accounts")), transactions
         ),
         "patterns": check_patterns(load.load_pattern_lines()),
     }

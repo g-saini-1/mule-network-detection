@@ -4,7 +4,12 @@ import pandas as pd
 import pytest
 
 from mule_detection.data import load
-from mule_detection.data.validate import check_accounts, check_patterns, check_transactions
+from mule_detection.data.validate import (
+    check_accounts,
+    check_expected,
+    check_patterns,
+    check_transactions,
+)
 
 GOOD_ROW = [
     "2022/09/01 00:20", "010", "8000EBD30", "0010", "8000F5340", "3697.34",
@@ -155,3 +160,28 @@ def test_clean_patterns_pass_and_count_typologies():
 )
 def test_malformed_patterns_fail(lines):
     assert not check_patterns(lines).passed
+
+
+# --- expected file contents --------------------------------------------------------------
+
+EXPECTED = {"sha256": "abc123", "rows": 10}
+
+
+def test_matching_hash_and_rows_pass():
+    assert check_expected("f.csv", "abc123", 10, EXPECTED).passed
+
+
+def test_changed_hash_fails():
+    report = check_expected("f.csv", "def456", 10, EXPECTED)
+    assert not report.passed
+    assert "SHA-256" in report.errors[0]
+
+
+def test_changed_row_count_fails():
+    report = check_expected("f.csv", "abc123", 9, EXPECTED)
+    assert not report.passed
+    assert "rows" in report.errors[0]
+
+
+def test_row_count_is_optional():
+    assert check_expected("patterns.txt", "abc123", None, {"sha256": "abc123"}).passed

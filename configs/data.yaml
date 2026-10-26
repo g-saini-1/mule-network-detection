@@ -8,6 +8,18 @@ files:
   accounts: HI-Small_accounts.csv
   patterns: HI-Small_Patterns.txt
 
+# Expected contents of each downloaded file, from the first download on 24 October 2026.
+# Validation fails on any mismatch, so a changed or truncated download cannot pass silently.
+expected:
+  HI-Small_Trans.csv:
+    sha256: b19d39f515523373f991b689c07e11e7b0b95c17a2c27a87d91584ae16c5b040
+    rows: 5078345
+  HI-Small_accounts.csv:
+    sha256: 786808526e33cfc441212dd6fccda7edfc24172149bed59c6ef59b186836b014
+    rows: 518581
+  HI-Small_Patterns.txt:
+    sha256: 2c546b5ce6009e73851f0139af053cf845f08bf92f3bc82fe1eb937dec2ef39b
+
 paths:
   raw: data/raw
   interim: data/interim

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 330" role="img" aria-label="Two views of the same laundering chain A1 to B1 to B2 to A2. In AMLworld every hop is visible. From Bank A only the first and last hops are visible, and the B1 to B2 hop inside Bank B is hidden, so the chain looks like two unrelated payments.">
+  <style>
+    svg { --bg: #ffffff; --fg: #1b2230; --muted: #5a6475; --line: #c4cad5; --risk: #b3261e; }
+    @media (prefers-color-scheme: dark) {
+      svg { --bg: #1a202a; --fg: #e4e8ef; --muted: #9aa4b5; --line: #3a4352; --risk: #f2837a; }
+    }
+    .bg { fill: var(--bg); }
+    text { font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; }
+    .ah { fill: var(--fg); }
+    .ah-risk { fill: var(--risk); }
+    .bank { fill: none; stroke: var(--line); stroke-width: 1.2; }
+    .bank.unseen { stroke-dasharray: 5 4; }
+    .bank-t { font-size: 12px; font-weight: 600; fill: var(--muted); }
+    .node { fill: var(--bg); stroke: var(--fg); stroke-width: 1.4; }
+    .node.ghost { fill: none; stroke: var(--muted); stroke-dasharray: 3 3; }
+    .node-t { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 11px; font-weight: 600; fill: var(--fg); }
+    .node-t.ghost { fill: var(--muted); }
+    .edge { stroke: var(--fg); stroke-width: 1.2; opacity: 0.55; }
+    .edge.risk { stroke: var(--risk); stroke-width: 2.2; opacity: 1; }
+    .edge.hidden { stroke: var(--muted); stroke-dasharray: 2 4; opacity: 0.8; }
+    .hid-l { font-size: 11px; font-style: italic; font-weight: 500; fill: var(--muted); }
+    .panel-t { font-size: 13px; font-weight: 600; fill: var(--fg); }
+  </style>
+  <defs>
+    <marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0 L10 5 L0 10 z"/></marker>
+    <marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="ah-risk" d="M0 0 L10 5 L0 10 z"/></marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1000" height="330"/>
+
+  <!-- Panel 1: AMLworld -->
+  <text class="panel-t" x="245" y="20" text-anchor="middle">AMLworld: every bank visible</text>
+  <rect class="bank" x="10" y="36" width="215" height="280" rx="6"/>
+  <rect class="bank" x="255" y="36" width="225" height="280" rx="6"/>
+  <text class="bank-t" x="117" y="58" text-anchor="middle">Bank A</text>
+  <text class="bank-t" x="367" y="58" text-anchor="middle">Bank B</text>
+  <line class="edge" x1="82.5" y1="120" x2="154.4" y2="177.5" marker-end="url(#b1)"/>
+  <line class="edge" x1="157.4" y1="199.8" x2="95.8" y2="247.7" marker-end="url(#b1)"/>
+  <line class="edge" x1="318.9" y1="116" x2="311.3" y2="230" marker-end="url(#b1)"/>
+  <line class="edge" x1="323.5" y1="241.4" x2="403.1" y2="190.7" marker-end="url(#b1)"/>
+  <line class="edge risk" x1="86" y1="109.4" x2="300" y2="100.8" marker-end="url(#b2)"/>
+  <line class="edge risk" x1="332.5" y1="110" x2="404.4" y2="167.5" marker-end="url(#b2)"/>
+  <line class="edge risk" x1="404.4" y1="183.7" x2="99.5" y2="255.4" marker-end="url(#b2)"/>
+  <circle class="node" cx="70" cy="110" r="16"/><text class="node-t" x="70" y="114" text-anchor="middle">A1</text>
+  <circle class="node" cx="170" cy="190" r="16"/><text class="node-t" x="170" y="194" text-anchor="middle">A3</text>
+  <circle class="node" cx="80" cy="260" r="16"/><text class="node-t" x="80" y="264" text-anchor="middle">A2</text>
+  <circle class="node" cx="320" cy="100" r="16"/><text class="node-t" x="320" y="104" text-anchor="middle">B1</text>
+  <circle class="node" cx="310" cy="250" r="16"/><text class="node-t" x="310" y="254" text-anchor="middle">B3</text>
+  <circle class="node" cx="420" cy="180" r="16"/><text class="node-t" x="420" y="184" text-anchor="middle">B2</text>
+
+  <!-- Panel 2: Bank A's view -->
+  <text class="panel-t" x="755" y="20" text-anchor="middle">Bank A's view of the same payments</text>
+  <rect class="bank" x="520" y="36" width="215" height="280" rx="6"/>
+  <rect class="bank unseen" x="765" y="36" width="225" height="280" rx="6"/>
+  <text class="bank-t" x="627" y="58" text-anchor="middle">Bank A (own customers)</text>
+  <text class="bank-t" x="877" y="58" text-anchor="middle">Bank B (account numbers only)</text>
+  <line class="edge" x1="592.5" y1="120" x2="664.4" y2="177.5" marker-end="url(#b1)"/>
+  <line class="edge" x1="667.4" y1="199.8" x2="605.8" y2="247.7" marker-end="url(#b1)"/>
+  <line class="edge risk" x1="596" y1="109.4" x2="810" y2="100.8" marker-end="url(#b2)"/>
+  <line class="edge hidden" x1="842.5" y1="110" x2="914.4" y2="167.5"/>
+  <text class="hid-l" x="890" y="128">not visible</text>
+  <line class="edge risk" x1="914.4" y1="183.7" x2="609.5" y2="255.4" marker-end="url(#b2)"/>
+  <circle class="node" cx="580" cy="110" r="16"/><text class="node-t" x="580" y="114" text-anchor="middle">A1</text>
+  <circle class="node" cx="680" cy="190" r="16"/><text class="node-t" x="680" y="194" text-anchor="middle">A3</text>
+  <circle class="node" cx="590" cy="260" r="16"/><text class="node-t" x="590" y="264" text-anchor="middle">A2</text>
+  <circle class="node ghost" cx="830" cy="100" r="16"/><text class="node-t ghost" x="830" y="104" text-anchor="middle">B1</text>
+  <circle class="node ghost" cx="930" cy="180" r="16"/><text class="node-t ghost" x="930" y="184" text-anchor="middle">B2</text>
+  <text class="hid-l" x="877" y="290" text-anchor="middle">B3 is never seen</text>
+</svg>

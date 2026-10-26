@@ -7,7 +7,7 @@ data/**
 !data/**/.gitkeep
 
 # --- Drafts: working notes, not part of the repository -----------------------------------
-draft/
+drafts/
 
 # --- Claude Code: local assistant instructions and settings, not shared ------------------
 /CLAUDE.md
@@ -16,7 +16,6 @@ draft/
 # --- Credentials -------------------------------------------------------------------------
 .env
 .env.*
-!.env.example
 kaggle.json
 access_token
 .kaggle/

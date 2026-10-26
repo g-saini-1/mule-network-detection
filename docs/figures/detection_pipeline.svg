@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 630" role="img" aria-label="A bank's mule detection pipeline: data sources feed a data platform, which feeds rules, machine learning and graph detection; alerts are ranked to an alert budget, investigated, and lead to outcomes whose confirmed labels loop back for retraining. Only payments, accounts and confirmed labels have equivalents in AMLworld.">
+  <style>
+    svg { --bg: #ffffff; --fg: #1b2230; --muted: #5a6475; --line: #c4cad5; --accent: #0d6b62; --accent-soft: #e3f1ef; --tag: #e9ecf2; }
+    @media (prefers-color-scheme: dark) {
+      svg { --bg: #1a202a; --fg: #e4e8ef; --muted: #9aa4b5; --line: #3a4352; --accent: #5cc8b8; --accent-soft: #173a36; --tag: #273041; }
+    }
+    .bg { fill: var(--bg); }
+    text { font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; }
+    .grp { fill: none; stroke: var(--line); stroke-width: 1; }
+    .grp-t { font-size: 13px; font-weight: 600; fill: var(--muted); letter-spacing: 0.06em; }
+    .box { fill: var(--bg); stroke: var(--fg); stroke-width: 1.3; }
+    .box.has { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+    .box.none { fill: none; stroke: var(--muted); stroke-dasharray: 5 4; }
+    .t { font-size: 13px; font-weight: 600; fill: var(--fg); }
+    .none-t { fill: var(--muted); }
+    .s { font-size: 11px; fill: var(--muted); }
+    .pill { fill: var(--tag); }
+    .pill-t { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 10px; font-weight: 500; fill: var(--fg); }
+    .flow { stroke: var(--fg); stroke-width: 1.4; fill: none; }
+    .flow-l { font-size: 11px; font-weight: 500; fill: var(--muted); }
+    .loop { stroke: var(--accent); stroke-width: 1.6; fill: none; stroke-dasharray: 6 4; }
+    .loop-l { font-size: 11px; font-weight: 500; fill: var(--accent); }
+    .ah { fill: var(--fg); }
+    .ah-acc { fill: var(--accent); }
+    .leg { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0 L10 5 L0 10 z"/></marker>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0 0 L10 5 L0 10 z"/></marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1150" height="630"/>
+
+  <!-- Group frames -->
+  <rect class="grp" x="16" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="262" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="508" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="754" y="40" width="170" height="380" rx="6"/>
+  <rect class="grp" x="980" y="40" width="154" height="380" rx="6"/>
+  <text class="grp-t" x="111" y="66" text-anchor="middle">DATA SOURCES</text>
+  <text class="grp-t" x="357" y="66" text-anchor="middle">DATA PLATFORM</text>
+  <text class="grp-t" x="603" y="66" text-anchor="middle">DETECTION</text>
+  <text class="grp-t" x="839" y="66" text-anchor="middle">ALERTS AND CASES</text>
+  <text class="grp-t" x="1057" y="66" text-anchor="middle">OUTCOMES</text>
+
+  <!-- Data sources -->
+  <rect class="box has" x="31" y="84" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="110" text-anchor="middle">Payments</text>
+  <text class="s" x="111" y="128" text-anchor="middle">transfers, cards, cash</text>
+  <rect class="box has" x="31" y="160" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="186" text-anchor="middle">Accounts and owners</text>
+  <text class="s" x="111" y="204" text-anchor="middle">account master, KYC</text>
+  <rect class="box none" x="31" y="236" width="160" height="62" rx="4"/>
+  <text class="t none-t" x="111" y="262" text-anchor="middle">Digital banking</text>
+  <text class="s" x="111" y="280" text-anchor="middle">devices, logins, IPs</text>
+  <rect class="box none" x="31" y="312" width="160" height="62" rx="4"/>
+  <text class="t none-t" x="111" y="338" text-anchor="middle">External intelligence</text>
+  <text class="s" x="111" y="356" text-anchor="middle">scam reports, recalls</text>
+
+  <!-- Data platform -->
+  <rect class="box none" x="277" y="84" width="160" height="62" rx="4"/>
+  <text class="t none-t" x="357" y="110" text-anchor="middle">Entity resolution</text>
+  <text class="s" x="357" y="128" text-anchor="middle">people, accounts, devices</text>
+  <rect class="box" x="277" y="160" width="160" height="62" rx="4"/>
+  <text class="t" x="357" y="186" text-anchor="middle">Feature store</text>
+  <text class="s" x="357" y="204" text-anchor="middle">velocity, behaviour</text>
+  <rect class="pill" x="403" y="152" width="28" height="16" rx="3"/><text class="pill-t" x="417" y="164" text-anchor="middle">S3</text>
+  <rect class="box" x="277" y="236" width="160" height="62" rx="4"/>
+  <text class="t" x="357" y="262" text-anchor="middle">Transaction graph</text>
+  <text class="s" x="357" y="280" text-anchor="middle">who pays whom</text>
+  <rect class="pill" x="403" y="228" width="28" height="16" rx="3"/><text class="pill-t" x="417" y="240" text-anchor="middle">S4</text>
+
+  <!-- Detection -->
+  <rect class="box" x="523" y="84" width="160" height="62" rx="4"/>
+  <text class="t" x="603" y="110" text-anchor="middle">Rules engine</text>
+  <text class="s" x="603" y="128" text-anchor="middle">explainable thresholds</text>
+  <rect class="pill" x="649" y="76" width="28" height="16" rx="3"/><text class="pill-t" x="663" y="88" text-anchor="middle">S2</text>
+  <rect class="box" x="523" y="160" width="160" height="62" rx="4"/>
+  <text class="t" x="603" y="186" text-anchor="middle">ML scoring</text>
+  <text class="s" x="603" y="204" text-anchor="middle">account risk score</text>
+  <rect class="pill" x="649" y="152" width="28" height="16" rx="3"/><text class="pill-t" x="663" y="164" text-anchor="middle">S3</text>
+  <rect class="box" x="523" y="236" width="160" height="62" rx="4"/>
+  <text class="t" x="603" y="262" text-anchor="middle">Graph analytics</text>
+  <text class="s" x="603" y="280" text-anchor="middle">network features</text>
+  <rect class="pill" x="649" y="228" width="28" height="16" rx="3"/><text class="pill-t" x="663" y="240" text-anchor="middle">S4</text>
+  <text class="s" x="603" y="338" text-anchor="middle">real-time at payment,</text>
+  <text class="s" x="603" y="354" text-anchor="middle">daily batch for accounts</text>
+
+  <!-- Alerts and cases -->
+  <rect class="box" x="769" y="84" width="140" height="62" rx="4"/>
+  <text class="t" x="839" y="110" text-anchor="middle">Alert queue</text>
+  <text class="s" x="839" y="128" text-anchor="middle">fits alert budget</text>
+  <rect class="pill" x="843" y="76" width="28" height="16" rx="3"/><text class="pill-t" x="857" y="88" text-anchor="middle">S2</text>
+  <rect class="pill" x="875" y="76" width="28" height="16" rx="3"/><text class="pill-t" x="889" y="88" text-anchor="middle">S5</text>
+  <rect class="box none" x="769" y="170" width="140" height="62" rx="4"/>
+  <text class="t none-t" x="839" y="196" text-anchor="middle">Investigation</text>
+  <text class="s" x="839" y="214" text-anchor="middle">analyst case review</text>
+  <line class="flow" x1="839" y1="146" x2="839" y2="168" marker-end="url(#a1)"/>
+
+  <!-- Outcomes -->
+  <rect class="box none" x="995" y="84" width="124" height="62" rx="4"/>
+  <text class="t none-t" x="1057" y="120" text-anchor="middle">Restrict or close</text>
+  <rect class="box none" x="995" y="160" width="124" height="62" rx="4"/>
+  <text class="t none-t" x="1057" y="196" text-anchor="middle">Recall funds</text>
+  <rect class="box none" x="995" y="236" width="124" height="62" rx="4"/>
+  <text class="t none-t" x="1057" y="272" text-anchor="middle">SMR to AUSTRAC</text>
+  <rect class="box has" x="995" y="312" width="124" height="62" rx="4"/>
+  <text class="t" x="1057" y="338" text-anchor="middle">Confirmed labels</text>
+  <text class="s" x="1057" y="356" text-anchor="middle">mule or not</text>
+
+  <!-- Flows between groups -->
+  <line class="flow" x1="206" y1="230" x2="260" y2="230" marker-end="url(#a1)"/>
+  <text class="flow-l" x="233" y="221" text-anchor="middle">ingest</text>
+  <line class="flow" x1="452" y1="230" x2="506" y2="230" marker-end="url(#a1)"/>
+  <text class="flow-l" x="479" y="221" text-anchor="middle">features</text>
+  <line class="flow" x1="698" y1="230" x2="752" y2="230" marker-end="url(#a1)"/>
+  <text class="flow-l" x="725" y="221" text-anchor="middle">alerts</text>
+  <line class="flow" x1="924" y1="230" x2="978" y2="230" marker-end="url(#a1)"/>
+  <text class="flow-l" x="951" y="221" text-anchor="middle">decide</text>
+
+  <!-- Governance -->
+  <rect class="box" x="523" y="460" width="160" height="56" rx="4"/>
+  <text class="t" x="603" y="484" text-anchor="middle">Model validation</text>
+  <text class="s" x="603" y="502" text-anchor="middle">independent review</text>
+  <rect class="pill" x="649" y="452" width="28" height="16" rx="3"/><text class="pill-t" x="663" y="464" text-anchor="middle">S5</text>
+  <line class="flow" x1="603" y1="460" x2="603" y2="424" marker-end="url(#a1)"/>
+  <text class="flow-l" x="612" y="446">oversees</text>
+
+  <!-- Feedback loop -->
+  <path class="loop" d="M1057 374 V560 H357 V424" marker-end="url(#a2)"/>
+  <text class="loop-l" x="820" y="551" text-anchor="middle">confirmed outcomes become training labels, weeks or months later</text>
+
+  <!-- Legend -->
+  <rect class="box has" x="16" y="596" width="26" height="14" rx="3"/>
+  <text class="leg" x="50" y="607">Has an equivalent in AMLworld</text>
+  <rect class="box" x="260" y="596" width="26" height="14" rx="3"/>
+  <text class="leg" x="294" y="607">Built in this project from AMLworld</text>
+  <rect class="box none" x="530" y="596" width="26" height="14" rx="3"/>
+  <text class="leg" x="564" y="607">Absent from AMLworld</text>
+  <rect class="pill" x="740" y="595" width="28" height="16" rx="3"/><text class="pill-t" x="754" y="607" text-anchor="middle">S3</text>
+  <text class="leg" x="776" y="607">Project stage that builds it</text>
+</svg>

@@ -6,6 +6,12 @@ proceeds) in bank transfer networks, using synthetic public data.
 **Status:** self-directed learning project, Stage 1 (data understanding) in progress. Results
 come from synthetic data and are illustrative only, not claims of production performance.
 
+![A bank's mule detection pipeline, marked by what this project's data covers and which stage builds each part](docs/figures/detection_pipeline.svg)
+
+Figure 1. A typical bank mule-detection pipeline. Stage tags (S2 to S5) mark the parts this
+project builds; dashed boxes are outside the dataset. Explained in
+[docs/bank_detection_architecture.md](docs/bank_detection_architecture.md).
+
 ## Stages
 
 | Stage | Focus | Status |

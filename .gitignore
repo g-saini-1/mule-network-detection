@@ -1,0 +1,51 @@
+# --- Data: never commit downloaded or derived data ---------------------------------------
+# Everything under data/ is ignored except the README and the .gitkeep placeholders.
+# Directories are re-included so the negations below can apply.
+data/**
+!data/**/
+!data/README.md
+!data/**/.gitkeep
+
+# --- Drafts: working notes, not part of the repository -----------------------------------
+draft/
+
+# --- Claude Code: local assistant instructions and settings, not shared ------------------
+/CLAUDE.md
+.claude/
+
+# --- Credentials -------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+kaggle.json
+access_token
+.kaggle/
+
+# --- Python ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# --- Tooling caches ----------------------------------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Notebooks ---------------------------------------------------------------------------
+.ipynb_checkpoints/
+
+# --- Model artefacts (top-level folder only, not the src/mule_detection/models package) --
+/models/
+*.pkl
+*.joblib
+*.lgb
+
+# --- OS and editors ----------------------------------------------------------------------
+.DS_Store
+.vscode/
+.idea/

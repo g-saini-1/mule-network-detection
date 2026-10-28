@@ -134,4 +134,5 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   apart, and counting them is closer to the broad way banks label mules from confirmed cases.
   The timing columns and `as_at` cut-off are kept; `mule_at` is now the later of the account's
   first laundering receipt and first laundering send. As at 11 September 00:00 there are 795
-  mules, and 208 mules first meet the rule on or after 11 September.
+  mules, and 208 mules first meet the rule on or after 11 September. Rules R1 to R3, R6 and R7
+  (`data/README.md`, Account labels) carry over unchanged from the earlier label entries.

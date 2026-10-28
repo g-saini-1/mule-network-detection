@@ -40,7 +40,7 @@ def label_of(labels, bank, account):
 # --- the mule rule ---------------------------------------------------------------------
 
 
-def test_receiving_and_sending_makes_a_mule_and_its_neighbours_are_not():
+def test_r4_receiving_and_sending_makes_a_mule_and_its_neighbours_are_not():
     labels = build_account_labels(
         tx((T1, "1", "SRC", "2", "MULE", 1), (T2, "2", "MULE", "3", "DST", 1))
     )
@@ -51,15 +51,15 @@ def test_receiving_and_sending_makes_a_mule_and_its_neighbours_are_not():
     assert not label_of(labels, "3", "DST")["is_mule"]  # receives only
 
 
-def test_order_of_receipt_and_send_does_not_matter():
-    # AMLworld timestamps do not reliably follow the money, so a send timestamped first counts.
+def test_r4_order_of_receipt_and_send_does_not_matter():
+    # A send timestamped before the receipt still counts.
     labels = build_account_labels(tx((T1, "2", "X", "3", "DST", 1), (T2, "1", "SRC", "2", "X", 1)))
     x = label_of(labels, "2", "X")
     assert x["is_mule"]
     assert (x["first_sent_at"], x["first_received_at"]) == (T1, T2)
 
 
-def test_normal_transactions_do_not_make_a_mule():
+def test_r2_normal_transactions_do_not_make_a_mule():
     labels = build_account_labels(tx((T1, "1", "A", "2", "B", 0), (T2, "2", "B", "3", "C", 0)))
     b = label_of(labels, "2", "B")
     assert not b["is_mule"]
@@ -70,7 +70,7 @@ def test_normal_transactions_do_not_make_a_mule():
 # --- timing ----------------------------------------------------------------------------
 
 
-def test_mule_at_is_when_both_directions_have_happened():
+def test_r5_mule_at_is_when_both_directions_have_happened():
     # Sends at T1, receives at T2, sends again at T3: a mule from T2.
     labels = build_account_labels(
         tx(
@@ -84,12 +84,12 @@ def test_mule_at_is_when_both_directions_have_happened():
     assert x["first_laundering_at"] == T1
 
 
-def test_receipt_and_send_in_the_same_minute_make_a_mule_at_that_minute():
+def test_r5_receipt_and_send_in_the_same_minute_make_a_mule_at_that_minute():
     labels = build_account_labels(tx((T1, "1", "SRC", "2", "X", 1), (T1, "2", "X", "3", "DST", 1)))
     assert label_of(labels, "2", "X")["mule_at"] == T1
 
 
-def test_as_at_ignores_payments_from_that_time_onwards():
+def test_r6_as_at_ignores_payments_from_that_time_onwards():
     rows = (T1, "1", "SRC", "2", "X", 1), (T3, "2", "X", "3", "DST", 1)
     before = build_account_labels(tx(*rows), as_at=T2)
     assert not label_of(before, "2", "X")["is_mule"]  # has only received so far
@@ -98,12 +98,12 @@ def test_as_at_ignores_payments_from_that_time_onwards():
     assert label_of(after, "2", "X")["mule_at"] == T3
 
 
-def test_as_at_excludes_payments_at_exactly_the_cut_off():
+def test_r6_as_at_excludes_payments_at_exactly_the_cut_off():
     rows = (T1, "1", "SRC", "2", "X", 1), (T2, "2", "X", "3", "DST", 1)
     assert not label_of(build_account_labels(tx(*rows), as_at=T2), "2", "X")["is_mule"]
 
 
-def test_as_at_leaves_out_accounts_that_first_appear_after_the_cut_off():
+def test_r7_as_at_leaves_out_accounts_that_first_appear_after_the_cut_off():
     labels = build_account_labels(
         tx((T1, "1", "A", "2", "B", 0), (T3, "3", "LATE", "2", "B", 0)), as_at=T2
     )
@@ -128,48 +128,48 @@ def test_row_order_does_not_change_the_labels():
 # --- self-transfers and account identity -----------------------------------------------
 
 
-def test_laundering_self_transfer_alone_does_not_make_a_mule():
+def test_r3_laundering_self_transfer_alone_does_not_make_a_mule():
     labels = build_account_labels(tx((T1, "1", "SELF", "1", "SELF", 1)))
     assert not label_of(labels, "1", "SELF")["is_mule"]
 
 
-def test_self_transfer_does_not_count_as_passing_money_on():
+def test_r3_self_transfer_does_not_count_as_passing_money_on():
     labels = build_account_labels(tx((T1, "1", "SRC", "2", "X", 1), (T2, "2", "X", "2", "X", 1)))
     assert not label_of(labels, "2", "X")["is_mule"]
 
 
-def test_self_transfer_does_not_count_as_a_receipt():
+def test_r3_self_transfer_does_not_count_as_a_receipt():
     labels = build_account_labels(tx((T1, "2", "X", "2", "X", 1), (T2, "2", "X", "3", "DST", 1)))
     x = label_of(labels, "2", "X")
     assert not x["is_mule"]
     assert pd.isna(x["first_received_at"])
 
 
-def test_same_account_number_at_another_bank_is_not_a_self_transfer():
+def test_r1_same_account_number_at_another_bank_is_not_a_self_transfer():
     # 1:Z pays 2:Z: a real payment between two accounts, so 2:Z receives and then sends.
     labels = build_account_labels(tx((T1, "1", "Z", "2", "Z", 1), (T2, "2", "Z", "3", "DST", 1)))
     assert label_of(labels, "2", "Z")["is_mule"]
     assert label_of(labels, "1", "Z")["first_sent_at"] == T1
 
 
-def test_counting_self_transfers_changes_the_result():
+def test_r3_counting_self_transfers_changes_the_result():
     rows = (T1, "1", "SRC", "2", "X", 1), (T2, "2", "X", "2", "X", 1)
     labels = build_account_labels(tx(*rows), ignore_self_transfers=False)
     assert label_of(labels, "2", "X")["is_mule"]
 
 
-def test_same_account_number_at_two_banks_is_two_accounts():
+def test_r1_same_account_number_at_two_banks_is_two_accounts():
     labels = build_account_labels(tx((T1, "1", "SRC", "2", "Z", 1), (T2, "3", "Z", "4", "DST", 1)))
     assert not label_of(labels, "2", "Z")["is_mule"]  # receives only
     assert not label_of(labels, "3", "Z")["is_mule"]  # sends only
 
 
-def test_padded_bank_ids_are_rejected():
+def test_r1_padded_bank_ids_are_rejected():
     with pytest.raises(ValueError, match="zero-padded"):
         build_account_labels(tx((T1, "010", "A", "2", "B", 0)))
 
 
-def test_padded_bank_ids_are_the_same_account_once_loaded(tmp_path):
+def test_r1_padded_bank_ids_are_the_same_account_once_loaded(tmp_path):
     # "010" and "0010" are both bank 10 once loaded, so this account receives and sends.
     header = ",".join(load.TRANSACTION_HEADER)
     rows = [
@@ -185,7 +185,7 @@ def test_padded_bank_ids_are_the_same_account_once_loaded(tmp_path):
 # --- output ----------------------------------------------------------------------------
 
 
-def test_every_transacting_account_gets_exactly_one_row():
+def test_r7_every_transacting_account_gets_exactly_one_row():
     labels = build_account_labels(
         tx((T1, "1", "A", "2", "B", 0), (T2, "2", "B", "1", "A", 1), (T3, "1", "A", "1", "A", 0))
     )

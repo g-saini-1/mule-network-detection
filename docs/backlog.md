@@ -8,6 +8,10 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
 
 - **Pre-commit hooks.** ruff, nbstripout, end-of-file and trailing-whitespace hooks, as listed in
   `scope_and_rationale.md` Section 6 (deferred; see `docs/decisions.md`, 2026-10-26).
+- **`make docs-check` at the start of Stage 2.** A script for the mechanical documentation checks:
+  links and section anchors resolve, file paths and `make` targets exist, house-style patterns
+  (em-dashes, "include", common American spellings), personal email addresses and local paths,
+  and placeholder words such as TODO or TBD.
 - **Command sandbox for Claude Code.** Revisit when either trigger applies: running third-party
   code (e.g. the IBM Multi-GNN repository), or switching to a permission mode with fewer prompts.
 
@@ -39,6 +43,10 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
   accounts, so a split by account could put one owner on both sides; consider splitting by owner.
 - **Stage 2 and 3: the transactions file is not in time order.** Sort by timestamp before any
   rolling-window or as-at computation.
+- **Stage 2 and 3: which label timestamp marks the leakage cut-off.** The first label version
+  named one timestamp for leakage tests (`mule_since`, the first laundering payment). The final
+  labels have both `mule_at` and `first_laundering_at`, and no decision yet says which one
+  features must precede.
 - **Stage 3: simulator artefacts.** ACH, Wire, Reinvestment and cross-currency signals are cleaner
   than real behaviour is likely to be; compare model performance with and without payment format
   and currency features.

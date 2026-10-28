@@ -1,18 +1,16 @@
 """Account-level mule labels: an account that both receives and sends laundering money.
 
-The rules, with examples, are in `data/README.md` ("Account labels"); the reasoning is in
-`docs/decisions.md`. In short:
+The rules R1 to R7, with examples, are in `data/README.md` ("Account labels"); the reasoning
+is in `docs/decisions.md`. Tests in `tests/test_labels.py` are named by rule number.
 
-- An account is (bank_id, account_number), with bank IDs unpadded.
-- Every account in at least one transaction gets a label.
-- Laundering self-transfers (same sender and receiver account) are ignored.
-- An account is a mule if it receives and sends at least one laundering payment, in any order.
-  Order is ignored because AMLworld's timestamps within a laundering scheme do not reliably
-  follow the order the money moves. `mule_at` is when both have happened (the later of the
-  first receipt and the first send); `first_laundering_at`, `first_received_at` and
-  `first_sent_at` record when the account was first involved in each direction.
-- With `as_at`, only payments strictly before that time are used, so the labels show what was
-  known at that point.
+- R1: an account is (bank_id, account_number), with bank IDs unpadded.
+- R2: a laundering payment has `is_laundering == 1`.
+- R3: laundering self-transfers are ignored.
+- R4: a mule receives and sends at least one laundering payment, in either order.
+- R5: `mule_at` is the later of the first receipt and the first send; `first_*` columns record
+  first involvement.
+- R6: with `as_at`, only payments strictly before that time are used.
+- R7: every account in at least one transaction (before `as_at`, if given) gets a label.
 
 Run with `python -m mule_detection.data.labels`.
 """

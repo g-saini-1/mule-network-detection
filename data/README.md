@@ -275,9 +275,8 @@ neither receives money from nor passes money to anyone else.
 HI-Small.
 
 **R4. Mule.** An account is a mule if it receives at least one laundering payment and sends at
-least one laundering payment, in either order. Order is ignored because AMLworld's timestamps
-do not reliably follow the money: within a single laundering scheme, a payment that passes money
-on is often timestamped before the payment that brought it in.
+least one laundering payment, in either order. Why order is ignored: `docs/decisions.md`
+("Mule label returned to both directions, order ignored").
 *Example:* `10057:80C3B78E0` receives on 10 September and sends on 11 September, so it is a mule.
 `213952:806D47B10` is a middle account in a scatter-gather scheme, where money must arrive before
 it is passed on, yet its send is timestamped 1 September 08:40 and its receipt 2 September 13:04;
@@ -291,7 +290,7 @@ laundering send.
 yet sent any.
 
 **R6. Cut-off.** Labels built "as at" a point in time use only payments before it, so they show
-what was known at that point. Accounts whose first transaction is at or after the cut-off are
+what had happened by that point. Accounts whose first transaction is at or after the cut-off are
 left out (R7).
 *Example:* as at 11 September 00:00, `10057:80C3B78E0` is not yet a mule, and HI-Small has 795
 mules among 515,078 accounts, instead of 1,003 among 515,088.

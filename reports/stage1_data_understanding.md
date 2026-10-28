@@ -3,29 +3,26 @@
 **Status:** complete (`v0.1`). Data: AMLworld HI-Small, a synthetic dataset (see
 [data/README.md](../data/README.md)).
 
-## What was built
+## Learn
 
-- **`make data`:** downloads HI-Small from Kaggle and validates it against expected file hashes,
-  row counts and content checks (`data/README.md`, Validation).
-- **[notebooks/01_eda.ipynb](../notebooks/01_eda.ipynb):** the exploratory analysis.
-- **`make labels`:** tested account-level mule labels, with rules R1 to R7 documented in
-  `data/README.md` (Account labels).
-
-## Findings
-
-- **Laundering is rare.** 5,177 of 5,078,345 payments (0.1019%) are laundering, so a model that
+- **Dataset structure.** Three files (transactions, accounts and laundering patterns) describe
+  payments between accounts at simulated banks. An account is a bank ID plus an account number,
+  since the same account number can appear at more than one bank
+  ([data/README.md](../data/README.md), Structure).
+- **Label construction.** 1,003 of 515,088 accounts (0.1947%) are mules: they receive and send
+  laundering money, in either order. The label went through three versions (see How the label
+  was decided).
+- **Class imbalance.** 5,177 of 5,078,345 payments (0.1019%) are laundering, so a model that
   flags nothing would be about 99.9% accurate. Evaluation therefore uses precision and recall at
   an alert budget, not accuracy.
-- **The timeline has a trap.** Normal activity stops after 10 September; the 8 days after that
-  hold 1,108 transactions, 59.12% of them laundering. They are not a realistic test period.
-- **Some signals are too clean.** ACH carries 86.59% of laundering but 11.83% of transactions, and
-  Wire, Reinvestment and all 72,170 cross-currency payments carry none. These are likely
-  simulator artefacts rather than laundering behaviour.
-- **Timestamps do not follow the money.** Within laundering schemes, a payment that passes money
-  on is often timestamped before the payment that brought it in (five of the eight typologies).
-- **1,003 of 515,088 accounts (0.1947%) are mules** under the final label.
+- **Time coverage.** The data runs from 1 to 18 September 2022, but normal activity stops after
+  10 September. The 8 days after that hold 1,108 transactions, 59.12% of them laundering, so they
+  are not a realistic test period.
+- **Some signals are too clean.** ACH carries 86.59% of laundering but 11.83% of payments. This
+  and similar format and currency patterns ([data/README.md](../data/README.md), Key
+  characteristics) are likely simulator artefacts rather than laundering behaviour.
 
-## How the label was decided
+### How the label was decided
 
 The data flags payments, but the project scores accounts, so the label had to be built. It went
 through three versions:
@@ -39,6 +36,21 @@ through three versions:
 The final labels also record when each account became a mule and can be built as at any point in
 time. An independent rebuild of the final labels matched with no differing rows. Reasoning for
 each version: [docs/decisions.md](../docs/decisions.md).
+
+## Build
+
+- **`make data`:** downloads HI-Small from Kaggle and validates it against expected file hashes,
+  row counts and content checks (`data/README.md`, Validation).
+- **[notebooks/01_eda.ipynb](../notebooks/01_eda.ipynb):** the exploratory analysis: volumes,
+  the laundering rate, time span, payment formats, and worked examples of fan-out, fan-in and
+  cycle schemes.
+- **`make labels`:** tested account-level mule labels, with rules R1 to R7 documented in
+  `data/README.md` (Account labels).
+
+## Done when
+
+Met. [data/README.md](../data/README.md) describes the data, its time span and its limitations,
+and the label definition is logged in [docs/decisions.md](../docs/decisions.md).
 
 ## What this stage does not show
 

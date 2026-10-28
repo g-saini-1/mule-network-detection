@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(make setup)",
+      "Bash(make test)",
+      "Bash(make lint)",
+      "Bash(make format)",
+      "Bash(make typecheck)",
+      "Bash(make check)",
+      "Bash(make validate-data)",
+      "Bash(uv sync)",
+      "Bash(uv run pytest *)",
+      "Bash(uv run ruff *)",
+      "Bash(uv run mypy *)",
+      "Bash(uv run pre-commit run *)",
+      "Bash(grep *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch --show-current)"
+    ],
+    "ask": [
+      "Bash(make data)",
+      "Bash(make labels)",
+      "Bash(uv add *)",
+      "Bash(uv remove *)",
+      "Bash(uv lock *)",
+      "Edit(./docs/domain_primer.md)"
+    ],
+    "deny": [
+      "Bash(pip install *)",
+      "Bash(uv pip install *)",
+      "Bash(python -m pip *)",
+      "Edit(./scope_and_rationale.md)",
+      "Edit(./uv.lock)",
+      "Edit(./data/raw/**)",
+      "Read(./data/raw/**)",
+      "Read(~/.kaggle/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.py) cd \"$CLAUDE_PROJECT_DIR\" && uv run ruff format \"$f\" && uv run ruff check --fix --quiet \"$f\" ;; esac; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -12,8 +12,17 @@ from mule_detection.data.validate import (
 )
 
 GOOD_ROW = [
-    "2022/09/01 00:20", "010", "8000EBD30", "0010", "8000F5340", "3697.34",
-    "US Dollar", "3697.34", "US Dollar", "Reinvestment", "0",
+    "2022/09/01 00:20",
+    "010",
+    "8000EBD30",
+    "0010",
+    "8000F5340",
+    "3697.34",
+    "US Dollar",
+    "3697.34",
+    "US Dollar",
+    "Reinvestment",
+    "0",
 ]
 
 
@@ -22,7 +31,7 @@ def transactions(*rows: list[str]) -> pd.DataFrame:
 
 
 def row(**changes: str | None) -> list[str]:
-    values = dict(zip(load.TRANSACTION_COLUMNS, GOOD_ROW))
+    values = dict(zip(load.TRANSACTION_COLUMNS, GOOD_ROW, strict=True))
     values.update(changes)
     return list(values.values())
 
@@ -64,13 +73,15 @@ def test_load_transactions_parses_types(tmp_path):
 
 
 def test_clean_transactions_pass():
-    report = check_transactions(transactions(row(), row(is_laundering="1")), load.TRANSACTION_HEADER)
+    report = check_transactions(
+        transactions(row(), row(is_laundering="1")), load.TRANSACTION_HEADER
+    )
     assert report.passed, report.errors
     assert report.info["rows"] == 2
 
 
 def test_unexpected_header_fails():
-    header = load.TRANSACTION_HEADER[:-1] + ["Label"]
+    header = [*load.TRANSACTION_HEADER[:-1], "Label"]
     assert not check_transactions(transactions(row()), header).passed
 
 
@@ -129,7 +140,7 @@ def test_transacting_account_missing_from_accounts_file_fails():
 
 # --- patterns ------------------------------------------------------------------------------
 
-PATTERN_TXN = ",".join(GOOD_ROW[:-1] + ["1"])
+PATTERN_TXN = ",".join([*GOOD_ROW[:-1], "1"])
 
 
 def test_clean_patterns_pass_and_count_typologies():

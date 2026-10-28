@@ -1,5 +1,5 @@
 # Stage 1 targets. Later stages add rules, train, graph and evaluate.
-.PHONY: setup data validate-data labels test lint
+.PHONY: setup data validate-data labels test lint format typecheck check
 
 setup:  ## install dependencies into .venv
 	uv sync
@@ -19,3 +19,15 @@ test:  ## run the test suite
 
 lint:  ## check code style
 	uv run ruff check src tests
+
+format:  ## reformat code in place
+	uv run ruff format src tests
+
+typecheck:  ## type-check the package
+	uv run mypy
+
+check:  ## everything CI runs: format check, lint, type check, tests
+	uv run ruff format --check src tests
+	$(MAKE) lint
+	$(MAKE) typecheck
+	$(MAKE) test

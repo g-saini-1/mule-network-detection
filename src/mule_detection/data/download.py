@@ -13,6 +13,7 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from mule_detection.utils.config import load_config, repo_path
 
@@ -22,7 +23,7 @@ CHUNK_BYTES = 1 << 20
 def sha256(path: Path) -> str:
     """Return the SHA-256 hex digest of a file, read in chunks."""
     digest = hashlib.sha256()
-    with open(path, "rb") as fh:
+    with path.open("rb") as fh:
         for chunk in iter(lambda: fh.read(CHUNK_BYTES), b""):
             digest.update(chunk)
     return digest.hexdigest()
@@ -32,7 +33,8 @@ def read_manifest(path: Path) -> dict:
     """Return the manifest at `path`, or an empty one if it doesn't exist yet."""
     if not path.exists():
         return {}
-    return json.loads(path.read_text())
+    manifest: dict = json.loads(path.read_text())
+    return manifest
 
 
 def is_current(target: Path, entry: dict | None) -> bool:
@@ -40,7 +42,8 @@ def is_current(target: Path, entry: dict | None) -> bool:
     return target.exists() and entry is not None and entry.get("sha256") == sha256(target)
 
 
-def _authenticated_api():
+def _authenticated_api() -> Any:
+    # The Kaggle client is untyped, so it is passed around as `Any`.
     from kaggle.api.kaggle_api_extended import KaggleApi
 
     api = KaggleApi()
@@ -48,7 +51,7 @@ def _authenticated_api():
     return api
 
 
-def download_dataset(config: dict | None = None, force: bool = False, api=None) -> dict:
+def download_dataset(config: dict | None = None, force: bool = False, api: Any = None) -> dict:
     """Download each configured file unless an unchanged copy is already present.
 
     Returns the updated manifest. `api` can be injected for testing; by default an
@@ -74,7 +77,9 @@ def download_dataset(config: dict | None = None, force: bool = False, api=None) 
             continue
 
         print(f"{file_name}: downloading")
-        api.dataset_download_file(slug, file_name, path=raw_dir, force=True, quiet=False, unzip=True)
+        api.dataset_download_file(
+            slug, file_name, path=raw_dir, force=True, quiet=False, unzip=True
+        )
         manifest[file_name] = {
             "sha256": sha256(target),
             "bytes": target.stat().st_size,
@@ -88,6 +93,7 @@ def download_dataset(config: dict | None = None, force: bool = False, api=None) 
 
 
 def main() -> None:
+    """Command-line entry point."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--force", action="store_true", help="re-download even if unchanged")
     args = parser.parse_args()

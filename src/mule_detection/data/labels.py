@@ -15,6 +15,7 @@ is in `docs/decisions.md`. Tests in `tests/test_labels.py` are named by rule num
 Run with `python -m mule_detection.data.labels`.
 """
 
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -23,7 +24,8 @@ from mule_detection.data import load
 from mule_detection.utils.config import load_config, repo_path
 
 KEY = ["bank_id", "account_number"]
-LABEL_COLUMNS = KEY + [
+LABEL_COLUMNS = [
+    *KEY,
     "is_mule",
     "mule_at",
     "first_laundering_at",
@@ -49,7 +51,7 @@ def _check_unpadded(tx: pd.DataFrame) -> None:
 
 
 def build_account_labels(
-    tx: pd.DataFrame, as_at=None, ignore_self_transfers: bool = True
+    tx: pd.DataFrame, as_at: str | datetime | None = None, ignore_self_transfers: bool = True
 ) -> pd.DataFrame:
     """One row per transacting account with its mule label and laundering timeline.
 
@@ -127,6 +129,7 @@ def load_labels(path: Path | None = None) -> pd.DataFrame:
 
 
 def main() -> None:
+    """Command-line entry point: build, save and summarise the labels."""
     tx = load.load_transactions()
     labels = build_account_labels(tx)
     path = labels_path()

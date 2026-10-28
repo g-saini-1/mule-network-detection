@@ -10,8 +10,9 @@ CONFIG_DIR = REPO_ROOT / "configs"
 
 def load_config(name: str) -> dict:
     """Return the parsed contents of `configs/<name>.yaml`."""
-    with open(CONFIG_DIR / f"{name}.yaml") as fh:
-        return yaml.safe_load(fh)
+    with (CONFIG_DIR / f"{name}.yaml").open() as fh:
+        config: dict = yaml.safe_load(fh)
+    return config
 
 
 def repo_path(relative: str | Path) -> Path:

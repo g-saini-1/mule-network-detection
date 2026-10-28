@@ -6,8 +6,6 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
 
 ## Project tooling
 
-- **Pre-commit hooks.** ruff, nbstripout, end-of-file and trailing-whitespace hooks, as listed in
-  `scope_and_rationale.md` Section 6 (deferred; see `docs/decisions.md`, 2026-10-26).
 - **`make docs-check` at the start of Stage 2.** A script for the mechanical documentation checks:
   links and section anchors resolve, file paths and `make` targets exist, house-style patterns
   (em-dashes, "include", common American spellings), personal email addresses and local paths,

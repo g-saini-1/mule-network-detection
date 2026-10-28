@@ -13,12 +13,30 @@ import pandas as pd
 from mule_detection.utils.config import load_config, repo_path
 
 TRANSACTION_HEADER = [
-    "Timestamp", "From Bank", "Account", "To Bank", "Account", "Amount Received",
-    "Receiving Currency", "Amount Paid", "Payment Currency", "Payment Format", "Is Laundering",
+    "Timestamp",
+    "From Bank",
+    "Account",
+    "To Bank",
+    "Account",
+    "Amount Received",
+    "Receiving Currency",
+    "Amount Paid",
+    "Payment Currency",
+    "Payment Format",
+    "Is Laundering",
 ]
 TRANSACTION_COLUMNS = [
-    "timestamp", "from_bank", "from_account", "to_bank", "to_account", "amount_received",
-    "receiving_currency", "amount_paid", "payment_currency", "payment_format", "is_laundering",
+    "timestamp",
+    "from_bank",
+    "from_account",
+    "to_bank",
+    "to_account",
+    "amount_received",
+    "receiving_currency",
+    "amount_paid",
+    "payment_currency",
+    "payment_format",
+    "is_laundering",
 ]
 ACCOUNT_HEADER = ["Bank Name", "Bank ID", "Account Number", "Entity ID", "Entity Name"]
 ACCOUNT_COLUMNS = ["bank_name", "bank_id", "account_number", "entity_id", "entity_name"]
@@ -29,12 +47,13 @@ TIMESTAMP_FORMAT = "%Y/%m/%d %H:%M"
 def raw_file(key: str) -> Path:
     """Absolute path of a configured raw file, e.g. `raw_file("transactions")`."""
     config = load_config("data")
-    return repo_path(config["paths"]["raw"]) / config["files"][key]
+    file_name: str = config["files"][key]
+    return repo_path(config["paths"]["raw"]) / file_name
 
 
 def read_header(path: Path) -> list[str]:
     """Return a CSV file's header row exactly as written, duplicates included."""
-    with open(path) as fh:
+    with path.open() as fh:
         return fh.readline().rstrip("\r\n").split(",")
 
 

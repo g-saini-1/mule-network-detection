@@ -29,11 +29,14 @@ class ValidationError(Exception):
 
 @dataclass
 class ValidationReport:
+    """Hard failures (`errors`) and descriptive counts (`info`) from one check."""
+
     errors: list[str] = field(default_factory=list)
     info: dict = field(default_factory=dict)
 
     @property
     def passed(self) -> bool:
+        """True if the check found no hard failures."""
         return not self.errors
 
 
@@ -104,8 +107,11 @@ def check_transactions(raw: pd.DataFrame, header: list[str]) -> ValidationReport
 def check_accounts(
     raw: pd.DataFrame, header: list[str], transactions: pd.DataFrame | None = None
 ) -> ValidationReport:
-    """Schema, completeness and key-uniqueness checks; optionally, that every account seen in
-    `transactions` (raw, all-string) is present in the accounts file."""
+    """Schema, completeness and key-uniqueness checks for the accounts file.
+
+    If `transactions` (raw, all-string) is given, also checks that every account seen there is
+    present in the accounts file.
+    """
     report = ValidationReport()
     if header != load.ACCOUNT_HEADER:
         report.errors.append(f"unexpected header: {header}")
@@ -142,8 +148,11 @@ def check_accounts(
 
 
 def check_patterns(lines: list[str]) -> ValidationReport:
-    """BEGIN/END blocks are balanced and not nested, and every transaction line inside a block
-    has the transaction file's field count and a laundering label of 1."""
+    """Structure checks for the laundering patterns file.
+
+    BEGIN/END blocks are balanced and not nested, and every transaction line inside a block has
+    the transaction file's field count and a laundering label of 1.
+    """
     report = ValidationReport()
     n_fields = len(load.TRANSACTION_HEADER)
     typologies: dict[str, int] = {}
@@ -206,6 +215,7 @@ def validate_all() -> dict[str, ValidationReport]:
 
 
 def main() -> None:
+    """Command-line entry point: validate and print each file's summary."""
     reports = validate_all()
     for name, report in reports.items():
         print(f"{name}: passed")

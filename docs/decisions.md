@@ -136,3 +136,31 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   first laundering receipt and first laundering send. As at 11 September 00:00 there are 795
   mules, and 208 mules first meet the rule on or after 11 September. Rules R1 to R3, R6 and R7
   (`data/README.md`, Account labels) carry over unchanged from the earlier label entries.
+
+## 2026-10-28: Adopt automated code-quality checks
+
+- **Context:** Before Stage 2 adds rule and feature code, the only automated checks were ruff's
+  default lint rules and the test suite. The 2026-10-26 entry deferred pre-commit hooks;
+  `scope_and_rationale.md` Section 6 lists pytest, ruff, pre-commit and nbstripout as the dev
+  tools. `pyproject.toml` allowed Python 3.11 while `.python-version` pins 3.12.
+- **Options considered:** keep the current checks; add pre-commit, a wider ruff rule set, a type
+  checker and CI now; add them later as needed. Type checker: mypy or pyright. Data schemas:
+  `pandera` or hand-written column checks. Leakage tests: hand-picked examples only, or
+  property-based tests with `hypothesis` as well.
+- **Decision and rationale:** Add them now, before Stage 2, so new code starts under the
+  standards rather than being brought up to them afterwards. This reverses the 2026-10-26
+  deferral of pre-commit. Choices, set out in `docs/development.md`:
+  - a wider ruff rule set and `ruff format`;
+  - mypy on `src/`, chosen over pyright because it runs from the uv environment with no Node.js
+    dependency and has mature pandas stubs (`pandas-stubs`); this adds mypy to the dev tools in
+    `scope_and_rationale.md` Section 6;
+  - pre-commit, with ruff and nbstripout run from the uv environment so `uv.lock` sets their
+    versions;
+  - GitHub Actions running `make check`;
+  - Python 3.12 only, departing from the "3.11+" in `scope_and_rationale.md` Section 6; the
+    project has only ever run on 3.12, and testing one version keeps CI simple.
+
+  `pandera` (schemas at stage boundaries) and `hypothesis` (property-based leakage tests) are
+  adopted from Stage 2, when the code they check is written. `pandera` checks a frame against a
+  declared schema in one call, where hand-written checks would be repeated in every stage, and
+  `hypothesis` tests the leakage rule over many generated cases rather than a few chosen ones.

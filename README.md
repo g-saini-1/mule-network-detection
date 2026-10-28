@@ -49,7 +49,10 @@ make setup          # create .venv with Python 3.12 and install dependencies
 make data           # download HI-Small into data/raw (about 510 MB), then validate it
 make labels         # build the account-level mule labels
 make test           # run the test suite
+make check          # format check, lint, type check and tests (what CI runs)
 ```
+
+Contributors install the pre-commit hooks once per clone with `uv run pre-commit install`.
 
 The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb); run it with the
 `.venv` interpreter after `make data`.
@@ -63,6 +66,7 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | [data/README.md](data/README.md) | Dataset source, structure, validation, account labels and limitations |
 | [docs/decisions.md](docs/decisions.md) | Data and modelling decisions, with the options considered and why |
 | [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |
+| [docs/development.md](docs/development.md) | Coding, testing and reproducibility standards |
 
 Table 2. Project documentation.
 

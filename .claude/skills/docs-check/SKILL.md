@@ -1,6 +1,6 @@
 ---
 name: docs-check
-description: Documentation quality checks for this repository. Use whenever documentation changes (README, data/README.md, docs/, reports/, CLAUDE.md, docstrings) and as part of the validator review at the end of every stage.
+description: Documentation quality checks for this repository. Use whenever documentation changes (README, WORKFLOW.md, DEVELOPMENT.md, data/README.md, docs/, reports/, CLAUDE.md, docstrings) and as part of the validator review at the end of every stage.
 ---
 
 # Documentation checks

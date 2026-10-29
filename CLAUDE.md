@@ -34,7 +34,7 @@ plan and evaluation approach are in `scope_and_rationale.md`.
   within a scheme don't follow the money, so don't build rules on payment order without checking
   this first.
 - **Environment:** `uv` with Python 3.12, virtual environment in `.venv`. Only Stage 1
-  dependencies are installed; add each later stage's dependencies when that stage starts.
+  dependencies are installed so far.
 
 ## Commands
 
@@ -51,7 +51,7 @@ make check          # format check, lint, type check and tests (what CI runs)
 ```
 
 - **Definition of done for code:** `make check` passes before handing over. Coding and testing
-  standards are in `docs/development.md`.
+  standards are in `DEVELOPMENT.md`.
 - **Planned targets:** `make rules`, `make train`, `make graph`, `make evaluate`. Add each here
   only once the Makefile wires it up.
 - **Run a notebook from the terminal**, keeping the repository copy free of outputs:
@@ -77,8 +77,8 @@ make check          # format check, lint, type check and tests (what CI runs)
 - **Data access:** datasets are downloaded only through `src/mule_detection/data/download.py`.
 - **Notebooks** follow the stages: `01_eda`, `02_rules_baseline`, `03_ml_model`,
   `04_graph_features`, `05_validation`.
-- **Reports:** each stage adds `reports/stageN_<name>.md` (what was built, findings, what it
-  doesn't show, what it means for the next stage), linked from the README's stage table.
+- **Reports:** each stage adds `reports/stageN_<name>.md` (contents set in `WORKFLOW.md`), linked
+  from the README's stage table.
   `model_card.md` and `business_case.md` are written in Stage 5 from actual run output.
 
 ## Where information lives
@@ -89,7 +89,8 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `data/README.md` | Data facts and figures, label rules R1 to R7, validation results, limitations |
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
-| `docs/development.md` | Coding, testing, data and reproducibility standards |
+| `WORKFLOW.md` | The steps each stage follows, from branch to release tag |
+| `DEVELOPMENT.md` | Coding, testing, data and reproducibility standards |
 | `reports/stageN_*.md` | What each stage found and what it means next; links for detail |
 | `README.md` | Project summary, status and navigation |
 | Code docstrings and test names | Cite rule numbers; don't restate reasoning |
@@ -102,22 +103,17 @@ covers.
 
 ## How to work
 
-1. **One stage at a time**, and only the stage asked for. Each stage has its own branch
-   (`stage-2-rules`, ...) and ends with a merge to `main` and a release tag; `main` holds verified
-   work only. Commits are small, single-purpose Conventional Commits.
-2. **Explain before coding.** At the start of a stage, explain the key concepts in plain language
-   and check understanding before proposing code.
-3. **Plan, then wait.** State the plan and the files to change, then wait for explicit
+Each stage follows the steps in `WORKFLOW.md`, imported below so it loads in every session:
+
+@WORKFLOW.md
+
+On top of it:
+
+1. **One stage at a time**, and only the stage asked for.
+2. **Plan, then wait.** State the plan and the files to change, then wait for explicit
    confirmation. Never propose and execute in the same turn.
-4. **Test what matters:** label logic, data validation, every feature function, and a leakage test
-   for every time-based feature. The leakage rule (features use only information available before
-   the scoring timestamp) has its own automated test.
-5. **Flag assumptions** instead of silently choosing one, and suggest a `docs/decisions.md` entry
-   (template at the top of that file) for each. Any departure from `scope_and_rationale.md` also
-   gets an entry.
-6. **Park scope creep** in `docs/backlog.md`.
-7. **Check documentation** with the `docs-check` skill whenever documentation changes and at the
-   end of every stage.
+3. **Suggest, don't decide.** For each assumption, suggest a `docs/decisions.md` entry (template
+   at the top of that file) for the owner to confirm.
 
 ## Personas
 
@@ -136,7 +132,6 @@ Table 2. Personas used in this project.
 
 - **The domain educator explains from public sources** (AUSTRAC, FATF, NASC, the IBM AMLworld
   paper). It isn't a compliance authority, and its explanations aren't claims of domain expertise.
-- **The validator stays separate from the builder.** Run a validator review at the end of every
-  stage before treating it as done. Self-review leans towards agreement, so offer a fresh-context
-  review (a new session or a separate agent that sees only code and results) when the owner wants
-  stronger independence.
+- **The validator stays separate from the builder.** Self-review leans towards agreement, so the
+  end-of-stage validator review (`WORKFLOW.md`) offers a fresh-context review when the owner
+  wants stronger independence.

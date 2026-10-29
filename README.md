@@ -66,7 +66,8 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | [data/README.md](data/README.md) | Dataset source, structure, validation, account labels and limitations |
 | [docs/decisions.md](docs/decisions.md) | Data and modelling decisions, with the options considered and why |
 | [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |
-| [docs/development.md](docs/development.md) | Coding, testing and reproducibility standards |
+| [WORKFLOW.md](WORKFLOW.md) | The steps each stage follows, from branch to release |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Coding, testing and reproducibility standards |
 
 Table 2. Project documentation.
 

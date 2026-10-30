@@ -39,6 +39,15 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
   each class has rather than from behaviour.
 - **Stage 2: split by owner.** 637 of the 945 entities that own a mule account also own non-mule
   accounts, so a split by account could put one owner on both sides; consider splitting by owner.
+- **Stage 2: write the rules in SQL.** Express each rule as a SQL query over the transactions, run
+  from Python (e.g. with DuckDB), so the rules read like the detection scenarios bank monitoring
+  teams write and tune. Needs a `docs/decisions.md` entry (tooling choice, new dependency) and
+  tests that run each query on small fixture tables.
+- **Stage 2: typology coverage matrix.** For each typology in the patterns file
+  (`data/README.md`, Table 6), the share of its mule accounts each rule flags at the alert budget;
+  uncovered typologies are the detection gaps. Needs a decision on attributing accounts to
+  typologies: 38.01% of laundering transactions sit in no scheme (`data/README.md`, Patterns), so
+  the matrix needs a "no typology" row, and one account can sit in schemes of several typologies.
 - **Stage 2 and 3: the transactions file is not in time order.** Sort by timestamp before any
   rolling-window or as-at computation.
 - **Stage 2 and 3: which label timestamp marks the leakage cut-off.** The first label version
@@ -48,6 +57,17 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
 - **Stage 3: simulator artefacts.** ACH, Wire, Reinvestment and cross-currency signals are cleaner
   than real behaviour is likely to be; compare model performance with and without payment format
   and currency features.
+- **Stage 3: add the model to the coverage matrix,** on the same split, alert budget and typology
+  attribution as Stage 2, to show which gaps the model closes.
+- **Stage 4: add ML with graph features to the coverage matrix,** for both the full and the
+  partial view, to show which typologies network context helps with and how much of that survives
+  when one bank sees only part of the network.
+- **Stage 5: detection effectiveness report.** A one-page report generated from the code: for each
+  detection approach (rules, ML, ML with graph features), alert volume at the budget, precision,
+  recall, the false positive ratio (false positives per true mule) and the final coverage matrix.
+  Section 3 commits Stage 5 to `model_card.md` and `business_case.md` only, so a
+  `docs/decisions.md` entry should settle whether this is a separate report or a section of the
+  business case.
 - **Stage 5: scheme-starting accounts in the mule label.** The label cannot separate mules from
   accounts where a scheme starts and its money returns (e.g. the start of a cycle), because
   AMLworld's timestamps do not follow the money. If an error analysis needs them, identify them

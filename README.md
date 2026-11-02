@@ -36,8 +36,9 @@ AMLworld is a synthetic dataset from IBM Research
 ([Altman et al., NeurIPS 2023](https://arxiv.org/abs/2306.16424)) in which every laundering
 payment is known. That makes it useful for learning, and means results here are likely to
 overstate real-world performance. The project uses the HI-Small version, downloaded from Kaggle
-by script; no data is committed to this repository. Files, structure, validation results,
-account labels and limitations are described in [data/README.md](data/README.md).
+by script; no data is committed to this repository. Files, structure, validation results and
+limitations are described in [data/README.md](data/README.md), and the account-level mule label
+in [docs/account_labelling_guide.md](docs/account_labelling_guide.md).
 
 ## Setup
 
@@ -59,17 +60,20 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 
 ## Documentation
 
-| Document | Contents |
-|---|---|
-| [docs/bank_detection_architecture.md](docs/bank_detection_architecture.md) | How a bank detects mule accounts, and what the dataset covers (start here) |
-| [scope_and_rationale.md](scope_and_rationale.md) | Rationale, stage plan and evaluation approach, fixed at the start |
-| [data/README.md](data/README.md) | Dataset source, structure, validation, account labels and limitations |
-| [docs/decisions.md](docs/decisions.md) | Data and modelling decisions, with the options considered and why |
-| [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |
-| [WORKFLOW.md](WORKFLOW.md) | The steps each stage follows, from branch to release |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Coding, testing and reproducibility standards |
+| Type | Document | Contents |
+|---|---|---|
+| Explanation | [docs/bank_detection_architecture.md](docs/bank_detection_architecture.md) | How a bank detects mule accounts, and what the dataset covers (start here) |
+| Explanation | [docs/solution_architecture.md](docs/solution_architecture.md) | How this project's parts, rules engine and data layers fit together, and which stage builds each |
+| Explanation | [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |
+| Plan and records | [scope_and_rationale.md](scope_and_rationale.md) | Rationale, stage plan and evaluation approach, fixed at the start |
+| Plan and records | [docs/decisions.md](docs/decisions.md) | Data and modelling decisions, with the options considered and why |
+| Plan and records | [docs/backlog.md](docs/backlog.md) | Parked ideas and open questions for later stages |
+| Reference | [data/README.md](data/README.md) | Dataset source, structure, validation and limitations |
+| Reference | [docs/account_labelling_guide.md](docs/account_labelling_guide.md) | How each account gets its mule label: rules R1 to R7, label columns and counts |
+| Reference | [DEVELOPMENT.md](DEVELOPMENT.md) | Coding, testing and reproducibility standards |
+| How-to | [WORKFLOW.md](WORKFLOW.md) | The steps each stage follows, from branch to release |
 
-Table 2. Project documentation.
+Table 2. Project documentation, grouped by type.
 
 ## Licence
 

@@ -164,3 +164,31 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   adopted from Stage 2, when the code they check is written. `pandera` checks a frame against a
   declared schema in one call, where hand-written checks would be repeated in every stage, and
   `hypothesis` tests the leakage rule over many generated cases rather than a few chosen ones.
+
+## 2026-11-02: Keep `docs/` flat, with a naming convention
+
+- **Context:** Adding `docs/solution_architecture.md` brings `docs/` to five documents and five
+  figures. `docs/decisions.md` and `docs/backlog.md` are linked from many files, e.g.
+  `scope_and_rationale.md`, which is frozen, and the Stage 1 report tagged in `v0.1`.
+- **Options considered:** keep `docs/` flat with a naming convention; add sub-folders by document
+  type now (e.g. `docs/explanation/`); add sub-folders by subject (e.g. `docs/architecture/`).
+- **Decision and rationale:** Keep it flat, with the naming convention in `CLAUDE.md` ("Where
+  information lives"). Sub-folders holding one or two files each would make documents harder to
+  find, and moving the two most-linked files would break links that cannot all be fixed. The
+  README's documentation table groups documents by type (explanation, plan and records,
+  reference, how-to), loosely following the Diátaxis framework, so it serves as the index without
+  a separate one. Revisit when the GitHub Pages site in `docs/backlog.md` is built, or if `docs/`
+  grows past about ten documents; the README groups would then become the sub-folders.
+
+## 2026-11-03: Move account labels into their own document
+
+- **Context:** The account label rules R1 to R7, the label columns and the label counts sat in
+  `data/README.md` ("Account labels") because labels were built in Stage 1, alongside data
+  understanding. They define the target every later stage scores against, not a fact about the
+  raw data.
+- **Options considered:** keep them in `data/README.md`; move them to their own document in
+  `docs/`.
+- **Decision and rationale:** Move them to `docs/account_labelling_guide.md`, unchanged apart from
+  headings, cross-links and table numbers (Tables 8 and 9 become Tables 1 and 2), and leave a
+  pointer in `data/README.md`. References in earlier entries to "`data/README.md`, Account labels" now mean
+  `docs/account_labelling_guide.md`; those entries are kept as written.

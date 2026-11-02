@@ -1,7 +1,7 @@
 """Account-level mule labels: an account that both receives and sends laundering money.
 
-The rules R1 to R7, with examples, are in `data/README.md` ("Account labels"); the reasoning
-is in `docs/decisions.md`. Tests in `tests/test_labels.py` are named by rule number.
+The rules R1 to R7, with examples, are in `docs/account_labelling_guide.md`; the reasoning is in
+`docs/decisions.md`. Tests in `tests/test_labels.py` are named by rule number.
 
 - R1: an account is (bank_id, account_number), with bank IDs unpadded.
 - R2: a laundering payment has `is_laundering == 1`.
@@ -95,7 +95,7 @@ def build_account_labels(
 
 
 def role_counts(labels: pd.DataFrame) -> pd.Series:
-    """Accounts by laundering role, as described in data/README.md."""
+    """Accounts by laundering role, as described in docs/account_labelling_guide.md."""
     received = labels["laundering_received"] > 0
     sent = labels["laundering_sent"] > 0
     receipt_first = labels["first_received_at"] <= labels["first_sent_at"]

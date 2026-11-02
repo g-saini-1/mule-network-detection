@@ -34,7 +34,7 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
   remaining days are mostly laundering, so the temporal split must not use them as a realistic
   test period (see `data/README.md`, Key characteristics).
 - **Stage 2: when accounts are scored.** Labels can be built as at any point in time
-  (`data/README.md`, Account labels, R6). Decide one scoring time rule for every account, mules
+  (`docs/account_labelling_guide.md`, R6). Decide one scoring time rule for every account, mules
   and non-mules alike; giving only mules a cut-off would let a model learn from how much history
   each class has rather than from behaviour.
 - **Stage 2: split by owner.** 637 of the 945 entities that own a mule account also own non-mule

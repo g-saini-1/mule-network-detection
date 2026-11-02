@@ -45,7 +45,7 @@ each version: [docs/decisions.md](../docs/decisions.md).
   the laundering rate, time span, payment formats, and worked examples of fan-out, fan-in and
   cycle schemes.
 - **`make labels`:** tested account-level mule labels, with rules R1 to R7 documented in
-  `data/README.md` (Account labels).
+  [docs/account_labelling_guide.md](../docs/account_labelling_guide.md).
 
 ## Done when
 

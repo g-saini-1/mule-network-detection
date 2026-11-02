@@ -3,9 +3,10 @@
 How each stage is carried out. What each stage learns, builds and counts as done is set in the
 stage plan in `scope_and_rationale.md`.
 
-The owner makes the decisions and runs every git operation. The AI coding assistant (Claude Code)
-explains, proposes and implements plans under the owner's direction, following
-[CLAUDE.md](CLAUDE.md). Coding and testing standards are in [DEVELOPMENT.md](DEVELOPMENT.md).
+The model owner makes the decisions and runs every git operation. The AI coding assistant
+(Claude Code) explains, proposes and implements plans under the model owner's direction,
+following [CLAUDE.md](CLAUDE.md). Coding and testing standards are in
+[DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Start a stage
 
@@ -16,11 +17,11 @@ explains, proposes and implements plans under the owner's direction, following
 3. **Review the parked notes** for the stage in `docs/backlog.md`.
 4. **Plan, review, then confirm.** The plan states what will be built and which files change. The
    financial crime practitioner reviews it for realism and typology coverage, and work starts once
-   the owner confirms.
+   the model owner confirms.
 5. **Add only the dependencies the stage needs.**
 
-Findings from every review, here and at the close of the stage, are fixed once the owner approves,
-drafted as a `docs/decisions.md` entry, or parked in `docs/backlog.md`.
+Findings from every review, here and at the close of the stage, are fixed once the model owner
+approves, drafted as a `docs/decisions.md` entry, or parked in `docs/backlog.md`.
 
 ## Build
 
@@ -45,5 +46,5 @@ drafted as a `docs/decisions.md` entry, or parked in `docs/backlog.md`.
 5. **Run the practitioner review, then the validator review last,** each covering its remit in
    CLAUDE.md ("Personas"). Either can run in a fresh context for stronger independence.
 6. **Complete the pre-merge checklist** in DEVELOPMENT.md ("Before a pull request").
-7. **Merge and tag.** The owner merges the stage branch into `main` and tags the release named in
-   the stage plan (e.g. `v0.2`).
+7. **Merge and tag.** The model owner merges the stage branch into `main` and tags the release
+   named in the stage plan (e.g. `v0.2`).

@@ -48,10 +48,6 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
   uncovered typologies are the detection gaps. Needs a decision on attributing accounts to
   typologies: 38.01% of laundering transactions sit in no scheme (`data/README.md`, Patterns), so
   the matrix needs a "no typology" row, and one account can sit in schemes of several typologies.
-- **Stage 2: review the test strategy.** Review how the project tests its code, e.g. the test
-  pyramid principles, unit tests on hand-built frames, integration and end-to-end tests, tests on
-  the downloaded data, leakage tests and coverage, and record any changes in `DEVELOPMENT.md`
-  ("Tests").
 - **Stage 2: explain account labelling in financial crime.** Add an explanation of how account
   labels work in financial crime to `docs/account_labelling_guide.md`.
 - **Stage 2: review the account labelling tests.**

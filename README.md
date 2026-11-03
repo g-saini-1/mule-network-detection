@@ -71,6 +71,7 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | Reference | [data/README.md](data/README.md) | Dataset source, structure, validation and limitations |
 | Reference | [docs/account_labelling_guide.md](docs/account_labelling_guide.md) | How each account gets its mule label: rules R1 to R7, label columns and counts |
 | Reference | [DEVELOPMENT.md](DEVELOPMENT.md) | Coding, testing and reproducibility standards |
+| Reference | [docs/test_strategy.md](docs/test_strategy.md) | How the system is tested: principles, test levels, test types, test data and quality gates |
 | How-to | [WORKFLOW.md](WORKFLOW.md) | The steps each stage follows, from branch to release |
 
 Table 2. Project documentation, grouped by type.

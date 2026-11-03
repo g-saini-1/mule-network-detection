@@ -91,6 +91,7 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
 | `docs/solution_architecture.md` | How the system's containers, components, data layers and rules engine design fit together |
+| `docs/test_strategy.md` | Test approach: principles, test levels by C4 view, test types, test data, quality gates |
 | `WORKFLOW.md` | The steps each stage follows, from branch to release tag |
 | `DEVELOPMENT.md` | Coding, testing, data and reproducibility standards |
 | `reports/stageN_*.md` | What each stage found and what it means next; links for detail |
@@ -154,6 +155,13 @@ Table 2. Personas used in this project.
   components, data, then the internal design of individual components; cross-cutting concerns
   get their own section, and status is document metadata. Each fact appears once: a caption says
   what its figure shows, and text doesn't restate a figure or another section.
+- **The engineer designs tests to recognised practice:** shift-left (tests with or before the
+  code, fastest checks first), the test pyramid, a risk-based focus (most effort where failure
+  costs most, e.g. labels, leakage and the temporal split), automated quality gates rather than
+  entry and exit criteria, and for ML code, Google's ML Test Score rubric. Test levels follow the
+  C4 views of the solution architecture (code, component, container, context). Most tests are fast
+  unit tests on hand-built data, slower tests on the downloaded data are marked and kept few, and
+  every test names the rule or risk it covers.
 - **The independent validator applies effective challenge,** as model risk guidance describes it
   (e.g. SR 11-7): every claim needs evidence from run output or a cited source, and anything
   unverified is reported as such.

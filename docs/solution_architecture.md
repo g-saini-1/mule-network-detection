@@ -64,13 +64,10 @@ built so far and the stage that builds each part.
 
 Figure 2. Arrows show lineage: the datasets each one is built from.
 
-The entities in the raw zone and the relationships between them are shown in the entity
-relationship diagram in [data/README.md](../data/README.md) (Structure).
-
 Four principles shape the layers:
 
 - **Immutable raw zone.** Files stay as downloaded and are checked against their expected file
-  hashes and row counts (data/README.md, Validation).
+  hashes and row counts ([data/README.md](../data/README.md), Validation).
 - **Rebuildable derived layers.** Every interim and processed dataset is rebuilt by script from
   earlier layers and never edited by hand, so the derived layers can be deleted and rebuilt
   without loss.
@@ -79,20 +76,23 @@ Four principles shape the layers:
 - **Only aggregates are committed.** No data file enters the repository
   ([scope_and_rationale.md](../scope_and_rationale.md) Section 4); reports hold summary results.
 
-| Dataset | Zone | Built by | Used by | Status |
-|---|---|---|---|---|
-| Transactions, accounts and patterns | Raw | Data ingestion and validation | Data preparation | Built |
-| Download manifest | Raw | Data ingestion and validation | Data ingestion and validation | Built |
-| Prepared transactions | Interim | Data preparation, Stage 2 | Rules engine, feature pipeline | Planned |
-| Account labels | Processed | Data preparation | Evaluation harness | Built |
-| Temporal split | Processed | Evaluation harness, Stage 2 | Rules engine, ML model, evaluation harness | Planned |
-| Rule scores | Processed | Rules engine, Stage 2 | Evaluation harness | Planned |
+The raw datasets, their entities and the relationships between them are described in
+data/README.md, with an entity relationship diagram under Structure.
 
-Table 4. Data lineage: where each dataset comes from and what uses it.
+| Dataset | Zone | Contents | Built by | Used by |
+|---|---|---|---|---|
+| Transactions, accounts and patterns | Raw | Source files as downloaded | Data ingestion and validation | Data preparation |
+| Download manifest | Raw | Record of each download | Data ingestion and validation | Data ingestion and validation |
+| Prepared transactions | Interim | The transactions with proper data types, sorted by time, and each laundering payment tagged with its scheme's typology | Data preparation, Stage 2 | Rules engine, feature pipeline |
+| Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Data preparation | Evaluation harness |
+| Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness, Stage 2 | Rules engine, ML model, evaluation harness |
+| Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine, Stage 2 | Evaluation harness |
+
+Table 4. Datasets: what each holds, which component builds it and which use it.
 
 ## Rules engine design
 
-![Figure 3. Internal design of the rules engine, with its inputs and outputs](figures/rules_engine_components.svg)
+![Figure 3. Internal design of the rules engine, with its inputs and outputs](figures/rules_engine_design.svg)
 
 Figure 3. The parts follow a typical transaction monitoring design, trimmed to what AMLworld
 supports. Account labels are never an input: only the evaluation harness reads them.

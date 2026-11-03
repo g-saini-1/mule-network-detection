@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 942 480" role="img" aria-label="The project's data layers. The three HI-Small files are downloaded from Kaggle into the raw zone with a manifest. The account labels are built from the raw transactions into the processed zone. A planned interim Parquet file of transactions, with typologies from the patterns file, feeds planned split and rule score files in the processed zone.">
+  <style>
+    svg { --bg: #ffffff; --fg: #1b2230; --muted: #5a6475; --line: #c4cad5; --accent: #0d6b62; --accent-soft: #e3f1ef; --tag: #e9ecf2; }
+    @media (prefers-color-scheme: dark) {
+      svg { --bg: #1a202a; --fg: #e4e8ef; --muted: #9aa4b5; --line: #3a4352; --accent: #5cc8b8; --accent-soft: #173a36; --tag: #273041; }
+    }
+    .bg { fill: var(--bg); }
+    text { font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; }
+    .grp { fill: none; stroke: var(--line); stroke-width: 1; }
+    .grp-t { font-size: 13px; font-weight: 600; fill: var(--muted); letter-spacing: 0.06em; }
+    .box { fill: var(--bg); stroke: var(--fg); stroke-width: 1.3; }
+    .box.has { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+    .t { font-size: 13px; font-weight: 600; fill: var(--fg); }
+    .s { font-size: 11px; fill: var(--muted); }
+    .pill { fill: var(--tag); }
+    .pill-t { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 10px; font-weight: 500; fill: var(--fg); }
+    .flow { stroke: var(--fg); stroke-width: 1.4; fill: none; }
+    .flow-l { font-size: 11px; font-weight: 500; fill: var(--muted); }
+    .ah { fill: var(--fg); }
+    .leg { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0 L10 5 L0 10 z"/></marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="942" height="480"/>
+
+  <!-- Group frames -->
+  <rect class="grp" x="16" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="256" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="496" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="736" y="40" width="190" height="380" rx="6"/>
+  <text class="grp-t" x="111" y="66" text-anchor="middle">SOURCE</text>
+  <text class="grp-t" x="351" y="66" text-anchor="middle">RAW ZONE</text>
+  <text class="grp-t" x="591" y="66" text-anchor="middle">INTERIM ZONE</text>
+  <text class="grp-t" x="831" y="66" text-anchor="middle">PROCESSED ZONE</text>
+  <text class="s" x="111" y="84" text-anchor="middle">Kaggle</text>
+  <text class="s" x="351" y="84" text-anchor="middle">as downloaded, git-ignored</text>
+  <text class="s" x="591" y="84" text-anchor="middle">prepared, git-ignored</text>
+  <text class="s" x="831" y="84" text-anchor="middle">model-ready, git-ignored</text>
+
+  <!-- Source -->
+  <rect class="box has" x="31" y="100" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="126" text-anchor="middle">AMLworld HI-Small</text>
+  <text class="s" x="111" y="144" text-anchor="middle">three files</text>
+  <rect class="pill" x="149" y="92" width="28" height="16" rx="3"/><text class="pill-t" x="163" y="104" text-anchor="middle">S1</text>
+
+  <!-- Raw zone -->
+  <rect class="box has" x="271" y="100" width="160" height="62" rx="4"/>
+  <text class="t" x="351" y="126" text-anchor="middle">Transactions</text>
+  <text class="s" x="351" y="144" text-anchor="middle">who paid whom, and when</text>
+  <rect class="box has" x="271" y="176" width="160" height="62" rx="4"/>
+  <text class="t" x="351" y="202" text-anchor="middle">Accounts</text>
+  <text class="s" x="351" y="220" text-anchor="middle">bank and owner</text>
+  <rect class="box has" x="271" y="252" width="160" height="62" rx="4"/>
+  <text class="t" x="351" y="278" text-anchor="middle">Patterns</text>
+  <text class="s" x="351" y="296" text-anchor="middle">laundering schemes</text>
+  <rect class="box has" x="271" y="328" width="160" height="62" rx="4"/>
+  <text class="t" x="351" y="354" text-anchor="middle">Download manifest</text>
+  <text class="s" x="351" y="372" text-anchor="middle">hash, size, creation date</text>
+
+  <!-- Interim zone -->
+  <rect class="box" x="511" y="176" width="160" height="62" rx="4"/>
+  <text class="t" x="591" y="202" text-anchor="middle">Prepared transactions</text>
+  <text class="s" x="591" y="220" text-anchor="middle">typed, sorted, typology</text>
+  <rect class="pill" x="629" y="168" width="28" height="16" rx="3"/><text class="pill-t" x="643" y="180" text-anchor="middle">S2</text>
+
+  <!-- Processed zone -->
+  <rect class="box has" x="751" y="100" width="160" height="62" rx="4"/>
+  <text class="t" x="831" y="126" text-anchor="middle">Account labels</text>
+  <text class="s" x="831" y="144" text-anchor="middle">mule label per account</text>
+  <rect class="pill" x="869" y="92" width="28" height="16" rx="3"/><text class="pill-t" x="883" y="104" text-anchor="middle">S1</text>
+  <rect class="box" x="751" y="176" width="160" height="62" rx="4"/>
+  <text class="t" x="831" y="202" text-anchor="middle">Temporal split</text>
+  <text class="s" x="831" y="220" text-anchor="middle">split and scoring time</text>
+  <rect class="pill" x="869" y="168" width="28" height="16" rx="3"/><text class="pill-t" x="883" y="180" text-anchor="middle">S2</text>
+  <rect class="box" x="751" y="252" width="160" height="62" rx="4"/>
+  <text class="t" x="831" y="278" text-anchor="middle">Rule scores</text>
+  <text class="s" x="831" y="296" text-anchor="middle">rule hits and rank</text>
+  <rect class="pill" x="869" y="244" width="28" height="16" rx="3"/><text class="pill-t" x="883" y="256" text-anchor="middle">S2</text>
+
+  <!-- Lineage -->
+  <line class="flow" x1="206" y1="131" x2="269" y2="131" marker-end="url(#a1)"/>
+  <text class="flow-l" x="238" y="122" text-anchor="middle">download</text>
+  <line class="flow" x1="431" y1="131" x2="749" y2="131" marker-end="url(#a1)"/>
+  <text class="flow-l" x="591" y="122" text-anchor="middle">build labels</text>
+  <line class="flow" x1="431" y1="150" x2="509" y2="196" marker-end="url(#a1)"/>
+  <line class="flow" x1="431" y1="270" x2="509" y2="222" marker-end="url(#a1)"/>
+  <line class="flow" x1="671" y1="207" x2="749" y2="207" marker-end="url(#a1)"/>
+  <line class="flow" x1="671" y1="222" x2="749" y2="270" marker-end="url(#a1)"/>
+
+  <!-- Legend -->
+  <rect class="box has" x="16" y="446" width="26" height="14" rx="3"/>
+  <text class="leg" x="50" y="457">Built so far</text>
+  <rect class="box" x="170" y="446" width="26" height="14" rx="3"/>
+  <text class="leg" x="204" y="457">Planned</text>
+  <rect class="pill" x="300" y="445" width="28" height="16" rx="3"/><text class="pill-t" x="314" y="457" text-anchor="middle">S2</text>
+  <text class="leg" x="336" y="457">Project stage that builds it</text>
+</svg>

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 490" role="img" aria-label="Internal design of the project's rules engine. Inputs are transactions, accounts and owners, rule parameters and scoring times; account labels never enter the engine. Inside, a run controller feeds window aggregation, a population filter, a rule evaluator, alert consolidation and prioritisation, with a run record of each run. The output is ranked rule scores for the evaluation harness. Alert suppression and case management are outside the project.">
+  <style>
+    svg { --bg: #ffffff; --fg: #1b2230; --muted: #5a6475; --line: #c4cad5; --accent: #0d6b62; --accent-soft: #e3f1ef; --tag: #e9ecf2; }
+    @media (prefers-color-scheme: dark) {
+      svg { --bg: #1a202a; --fg: #e4e8ef; --muted: #9aa4b5; --line: #3a4352; --accent: #5cc8b8; --accent-soft: #173a36; --tag: #273041; }
+    }
+    .bg { fill: var(--bg); }
+    text { font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; }
+    .grp { fill: none; stroke: var(--line); stroke-width: 1; }
+    .grp-t { font-size: 13px; font-weight: 600; fill: var(--muted); letter-spacing: 0.06em; }
+    .box { fill: var(--bg); stroke: var(--fg); stroke-width: 1.3; }
+    .box.has { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+    .box.none { fill: none; stroke: var(--muted); stroke-dasharray: 5 4; }
+    .t { font-size: 13px; font-weight: 600; fill: var(--fg); }
+    .none-t { fill: var(--muted); }
+    .s { font-size: 11px; fill: var(--muted); }
+    .pill { fill: var(--tag); }
+    .pill-t { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 10px; font-weight: 500; fill: var(--fg); }
+    .flow { stroke: var(--fg); stroke-width: 1.4; fill: none; }
+    .flow-l { font-size: 11px; font-weight: 500; fill: var(--muted); }
+    .ah { fill: var(--fg); }
+    .leg { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0 L10 5 L0 10 z"/></marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1180" height="490"/>
+
+  <!-- Group frames -->
+  <rect class="grp" x="16" y="40" width="190" height="380" rx="6"/>
+  <rect class="grp" x="256" y="40" width="670" height="380" rx="6"/>
+  <rect class="grp" x="976" y="40" width="190" height="380" rx="6"/>
+  <text class="grp-t" x="111" y="66" text-anchor="middle">INPUTS</text>
+  <text class="grp-t" x="591" y="66" text-anchor="middle">RULES ENGINE</text>
+  <text class="grp-t" x="1071" y="66" text-anchor="middle">OUTPUTS</text>
+
+  <!-- Inputs -->
+  <rect class="box" x="31" y="84" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="110" text-anchor="middle">Transactions</text>
+  <text class="s" x="111" y="128" text-anchor="middle">interim zone, sorted</text>
+  <rect class="pill" x="149" y="76" width="28" height="16" rx="3"/><text class="pill-t" x="163" y="88" text-anchor="middle">S2</text>
+  <rect class="box has" x="31" y="160" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="186" text-anchor="middle">Accounts and owners</text>
+  <text class="s" x="111" y="204" text-anchor="middle">raw zone</text>
+  <rect class="pill" x="149" y="152" width="28" height="16" rx="3"/><text class="pill-t" x="163" y="164" text-anchor="middle">S1</text>
+  <rect class="box" x="31" y="236" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="262" text-anchor="middle">Rule parameters</text>
+  <text class="s" x="111" y="280" text-anchor="middle">thresholds and windows</text>
+  <rect class="pill" x="149" y="228" width="28" height="16" rx="3"/><text class="pill-t" x="163" y="240" text-anchor="middle">S2</text>
+  <rect class="box" x="31" y="312" width="160" height="62" rx="4"/>
+  <text class="t" x="111" y="338" text-anchor="middle">Scoring times</text>
+  <text class="s" x="111" y="356" text-anchor="middle">from the temporal split</text>
+  <rect class="pill" x="149" y="304" width="28" height="16" rx="3"/><text class="pill-t" x="163" y="316" text-anchor="middle">S2</text>
+  <text class="s" x="111" y="402" text-anchor="middle">labels never enter the engine</text>
+
+  <!-- Engine, row 1 -->
+  <rect class="box" x="286" y="84" width="170" height="62" rx="4"/>
+  <text class="t" x="371" y="110" text-anchor="middle">Run controller</text>
+  <text class="s" x="371" y="128" text-anchor="middle">scoring time, windows</text>
+  <rect class="box" x="506" y="84" width="170" height="62" rx="4"/>
+  <text class="t" x="591" y="110" text-anchor="middle">Window aggregation</text>
+  <text class="s" x="591" y="128" text-anchor="middle">per-account values</text>
+  <rect class="box" x="726" y="84" width="170" height="62" rx="4"/>
+  <text class="t" x="811" y="110" text-anchor="middle">Population filter</text>
+  <text class="s" x="811" y="128" text-anchor="middle">accounts each rule covers</text>
+  <line class="flow" x1="456" y1="115" x2="504" y2="115" marker-end="url(#a1)"/>
+  <line class="flow" x1="676" y1="115" x2="724" y2="115" marker-end="url(#a1)"/>
+
+  <!-- Wrap to row 2 -->
+  <path class="flow" d="M811 146 V173 H371 V198" marker-end="url(#a1)"/>
+
+  <!-- Engine, row 2 -->
+  <rect class="box" x="286" y="200" width="170" height="62" rx="4"/>
+  <text class="t" x="371" y="226" text-anchor="middle">Rule evaluator</text>
+  <text class="s" x="371" y="244" text-anchor="middle">thresholds and AND/OR</text>
+  <rect class="box" x="506" y="200" width="170" height="62" rx="4"/>
+  <text class="t" x="591" y="226" text-anchor="middle">Alert consolidation</text>
+  <text class="s" x="591" y="244" text-anchor="middle">one alert per account</text>
+  <rect class="box" x="726" y="200" width="170" height="62" rx="4"/>
+  <text class="t" x="811" y="226" text-anchor="middle">Prioritisation</text>
+  <text class="s" x="811" y="244" text-anchor="middle">rank, cut at budget K</text>
+  <line class="flow" x1="456" y1="231" x2="504" y2="231" marker-end="url(#a1)"/>
+  <line class="flow" x1="676" y1="231" x2="724" y2="231" marker-end="url(#a1)"/>
+
+  <!-- Engine, run record -->
+  <rect class="box" x="286" y="312" width="610" height="62" rx="4"/>
+  <text class="t" x="591" y="338" text-anchor="middle">Run record</text>
+  <text class="s" x="591" y="356" text-anchor="middle">what produced each alert: config and git tag in Stage 2, run manifest from Stage 3</text>
+  <rect class="pill" x="822" y="304" width="28" height="16" rx="3"/><text class="pill-t" x="836" y="316" text-anchor="middle">S2</text>
+  <rect class="pill" x="854" y="304" width="28" height="16" rx="3"/><text class="pill-t" x="868" y="316" text-anchor="middle">S3</text>
+  <line class="flow" x1="591" y1="262" x2="591" y2="310" marker-end="url(#a1)"/>
+  <text class="flow-l" x="600" y="290">run details</text>
+
+  <!-- Outputs -->
+  <rect class="box none" x="991" y="84" width="160" height="62" rx="4"/>
+  <text class="t none-t" x="1071" y="110" text-anchor="middle">Alert suppression</text>
+  <text class="s" x="1071" y="128" text-anchor="middle">no alert history in data</text>
+  <rect class="box" x="991" y="200" width="160" height="62" rx="4"/>
+  <text class="t" x="1071" y="226" text-anchor="middle">Rule scores</text>
+  <text class="s" x="1071" y="244" text-anchor="middle">to the evaluation harness</text>
+  <rect class="pill" x="1109" y="192" width="28" height="16" rx="3"/><text class="pill-t" x="1123" y="204" text-anchor="middle">S2</text>
+  <rect class="box none" x="991" y="312" width="160" height="62" rx="4"/>
+  <text class="t none-t" x="1071" y="338" text-anchor="middle">Case management</text>
+  <text class="s" x="1071" y="356" text-anchor="middle">no investigators in data</text>
+
+  <!-- Flows in and out -->
+  <line class="flow" x1="206" y1="115" x2="284" y2="115" marker-end="url(#a1)"/>
+  <text class="flow-l" x="245" y="106" text-anchor="middle">read</text>
+  <line class="flow" x1="896" y1="231" x2="989" y2="231" marker-end="url(#a1)"/>
+  <text class="flow-l" x="942" y="222" text-anchor="middle">ranked</text>
+
+  <!-- Legend -->
+  <rect class="box has" x="16" y="456" width="26" height="14" rx="3"/>
+  <text class="leg" x="50" y="467">Built so far</text>
+  <rect class="box" x="170" y="456" width="26" height="14" rx="3"/>
+  <text class="leg" x="204" y="467">Planned</text>
+  <rect class="box none" x="300" y="456" width="26" height="14" rx="3"/>
+  <text class="leg" x="334" y="467">Outside the project</text>
+  <rect class="pill" x="490" y="455" width="28" height="16" rx="3"/><text class="pill-t" x="504" y="467" text-anchor="middle">S2</text>
+  <text class="leg" x="526" y="467">Project stage that builds it</text>
+</svg>

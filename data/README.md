@@ -252,19 +252,13 @@ most weekdays.
 **Amounts.** The median laundering amount is 8,667.21 against 1,410.99 for normal transactions, in
 mixed currencies, so this is a rough comparison only.
 
-## Account labels
-
-The account-level mule label, its rules R1 to R7 and the label file are described in
-[docs/account_labelling_guide.md](../docs/account_labelling_guide.md).
-
 ## Limitations
 
 - **Synthetic data.** Laundering is generated from network patterns, so results on this data
   are likely to overstate what a model would achieve on real bank data, especially for graph
   features.
 - **Simulator artefacts.** Some signals are cleaner than real behaviour is likely to be (see Key
-  characteristics), and timestamps within a scheme do not follow the money
-  ([docs/account_labelling_guide.md](../docs/account_labelling_guide.md), R4). Features built
+  characteristics), and timestamps within a scheme do not follow the money. Features built
   on them can learn the simulator rather than laundering.
 - **Laundering in general, not scams.** There are no victim-side signals (scam reports, recall
   requests), which banks hold internally.

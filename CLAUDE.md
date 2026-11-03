@@ -90,7 +90,7 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `docs/account_labelling_guide.md` | Account label rules R1 to R7, label columns and label counts |
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
-| `docs/solution_architecture.md` | How the project's containers, rules engine components and data layers fit together |
+| `docs/solution_architecture.md` | How the system's containers, components, data layers and rules engine design fit together |
 | `WORKFLOW.md` | The steps each stage follows, from branch to release tag |
 | `DEVELOPMENT.md` | Coding, testing, data and reproducibility standards |
 | `reports/stageN_*.md` | What each stage found and what it means next; links for detail |
@@ -151,9 +151,9 @@ Table 2. Personas used in this project.
 - **The solution architect works to recognised frameworks** (e.g. the C4 model, arc42). It
   describes the system, not the project (no deliverables, repository or workflow), and stays at
   architecture level (no code, file paths or commands). Views run system context, containers,
-  data, then components; cross-cutting concerns get their own section, and status is document
-  metadata. Each fact appears once: a caption says what its figure shows, and text doesn't restate
-  a figure or another section.
+  components, data, then the internal design of individual components; cross-cutting concerns
+  get their own section, and status is document metadata. Each fact appears once: a caption says
+  what its figure shows, and text doesn't restate a figure or another section.
 - **The independent validator applies effective challenge,** as model risk guidance describes it
   (e.g. SR 11-7): every claim needs evidence from run output or a cited source, and anything
   unverified is reported as such.

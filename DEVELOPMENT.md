@@ -8,16 +8,18 @@ Standards marked **from Stage N** apply to new code from that stage onwards.
 
 ## Checks and tooling
 
-| Check | Tool | Runs in |
-|---|---|---|
-| Formatting | `ruff format` (line length 100) | pre-commit, `make check`, CI |
-| Lint | `ruff check` with the rule set in `pyproject.toml` | pre-commit, `make check`, CI |
-| Types | `mypy` on `src/` | `make check`, CI |
-| Tests | `pytest` | `make check`, CI (without `data` tests) |
-| Notebook outputs stripped | `nbstripout` | pre-commit |
-| Large files, private keys, YAML/TOML syntax | `pre-commit-hooks` | pre-commit |
+| Check | Tool |
+|---|---|
+| Formatting | `ruff format` (line length 100) |
+| Lint | `ruff check` with the rule set in `pyproject.toml` |
+| Types | `mypy` on `src/` |
+| Tests | `pytest` |
+| Property-based tests (from Stage 2) | `hypothesis` |
+| Notebook outputs stripped | `nbstripout` |
+| Large files, private keys, YAML/TOML syntax | `pre-commit-hooks` |
 
-Table 1. Automated checks.
+Table 1. Automated checks and their tools. Where each runs is set out in
+[docs/test_strategy.md](docs/test_strategy.md) ("Quality gates").
 
 - **`make check` is the definition of done** for any code change. CI runs the same target on
   every push to `main` and every pull request.
@@ -42,16 +44,14 @@ Table 1. Automated checks.
 
 ## Tests
 
+The testing approach (test levels, test types, test data and quality gates) is in
+[docs/test_strategy.md](docs/test_strategy.md); the conventions for writing tests are below.
+
 - **Layout:** `tests/test_<module>.py`, one file per module.
 - **Naming:** a test that checks a numbered rule starts with that rule, e.g.
   `test_r4_order_of_receipt_and_send_does_not_matter`.
-- **Small, hand-built frames.** Unit tests build the few rows they need; they never read
-  `data/raw`.
 - **Enforced: registered markers only.** A test that needs the downloaded dataset is marked
   `@pytest.mark.data`; CI skips these.
-- **From Stage 2: a leakage test for every time-based feature**, and property-based tests
-  (`hypothesis`) for the general rule that adding payments at or after `as_at` never changes a
-  feature value.
 - **From Stage 2: coverage measured** with `pytest-cov` on `src/`. A minimum is set from the first
   measured figure, not chosen in advance.
 

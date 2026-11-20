@@ -192,3 +192,57 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   headings, cross-links and table numbers (Tables 8 and 9 become Tables 1 and 2), and leave a
   pointer in `data/README.md`. References in earlier entries to "`data/README.md`, Account labels" now mean
   `docs/account_labelling_guide.md`; those entries are kept as written.
+
+## 2026-11-19: Keep duplicate transactions and flag them
+
+- **Context:** 9 transaction rows are exact copies of an earlier row (`data/README.md`, Table 7).
+  None is laundering, a self-transfer or in the patterns file.
+- **Options considered:** keep them unflagged; keep them with a flag; drop them.
+- **Decision and rationale:** Keep them, with an `is_duplicate` flag on the later copies. No
+  payment that might be real is deleted, the labels and rules see the same rows, and any rule can
+  still exclude the flagged rows.
+
+## 2026-11-19: Keep self-transfers and flag them
+
+- **Context:** 591,212 transactions have the same sender and receiver account, 481,056 of them
+  Reinvestment. Label rule R3 ignores laundering self-transfers, but the rules engine is a separate
+  detector.
+- **Options considered:** keep them unflagged; keep them with a flag; drop them.
+- **Decision and rationale:** Keep them, with an `is_self_transfer` flag. Each rule's
+  specification states whether it excludes them. A self-transfer neither receives money from nor
+  passes money to anyone else, so pass-through rules exclude them; counting them would push money
+  in and money out towards each other.
+
+## 2026-11-19: Convert amounts to US Dollar with rates inferred from the data
+
+- **Context:** Amounts are in 15 currencies, and 664 of 1,003 mules use more than one. The
+  dataset has no exchange rates, but each cross-currency payment implies one.
+- **Options considered:** compare amounts within each currency only; use published September 2022
+  rates; infer rates from cross-currency payments.
+- **Decision and rationale:** Infer one fixed rate per currency to US Dollar: the median rate of
+  its direct pair with US Dollar, from payments of 100 or more. The simulator's rates are fixed,
+  every currency has a direct pair with US Dollar, and converted paid and received amounts agree
+  within 0.48% on those payments. US Dollar is the base because it is the most used currency; every
+  currency has a direct pair with every other, so any base would work.
+
+## 2026-11-19: Tag laundering payments with their scheme's typology
+
+- **Context:** The Stage 2 plan commits to the rules and the temporal split only. A typology
+  coverage matrix (`docs/backlog.md`) needs each laundering payment linked to its scheme's
+  typology.
+- **Options considered:** tag in data preparation now; tag later, when the coverage matrix is
+  built.
+- **Decision and rationale:** Tag in data preparation now, adding a scheme ID and a typology to
+  each laundering payment found in the patterns file. It costs one extra step and keeps the
+  prepared transactions as the single source for later stages. The tags are for evaluation only;
+  the rules engine never reads them.
+
+## 2026-11-20: Flag own-account transfers within a bank only
+
+- **Context:** Pass-through rules can mistake an owner moving money between their own accounts
+  for a mule. AMLworld links owners across all banks, but a real bank knows the owners of its own
+  accounts only.
+- **Options considered:** no flag; flag same-owner transfers at any bank; flag them within the
+  same bank only.
+- **Decision and rationale:** Flag them within the same bank only (`is_own_account_transfer`), so
+  preparation uses only what a bank could know.

@@ -27,8 +27,10 @@ plan and evaluation approach are in `scope_and_rationale.md`.
 
 ## Current state
 
-- **Stage 1 (data understanding) is closed:** merged to `main` and tagged `v0.1`. Next is Stage 2
-  (rules baseline), starting with concepts before code; Stage 2 notes are in `docs/backlog.md`.
+- **Stage 1 (data understanding) is closed:** merged to `main` and tagged `v0.1`.
+- **Stage 2 (rules baseline) is in progress** on `stage-2-rules`. The transaction preparation
+  rules P1 to P9 are set in `docs/transaction_preparation_guide.md`; building them is next. Stage 2
+  notes are in `docs/backlog.md`.
 - **Labels:** load with `mule_detection.data.labels.load_labels()`. Rules R1 to R7 are in
   `docs/account_labelling_guide.md`. Payment order is ignored because AMLworld's timestamps
   within a scheme don't follow the money, so don't build rules on payment order without checking
@@ -88,6 +90,7 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `scope_and_rationale.md` | Upfront plan: rationale, stage objectives, evaluation approach (frozen) |
 | `data/README.md` | Data facts and figures, validation results, limitations |
 | `docs/account_labelling_guide.md` | Account label rules R1 to R7, label columns and label counts |
+| `docs/transaction_preparation_guide.md` | Transaction preparation rules P1 to P9 and prepared columns |
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
 | `docs/solution_architecture.md` | How the system's containers, components, data layers and rules engine design fit together |

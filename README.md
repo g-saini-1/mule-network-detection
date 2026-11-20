@@ -5,7 +5,7 @@ proceeds) in bank transfer networks, using AMLworld, IBM's synthetic dataset of 
 transactions with known laundering.
 
 **Status:** self-directed learning project. Stage 1 (data understanding) is complete; Stage 2
-(rules baseline) is next. Results come from synthetic data and are illustrative only, not claims
+(rules baseline) is in progress. Results come from synthetic data and are illustrative only, not claims
 of production performance.
 
 ![A bank's mule detection pipeline, marked by what this project's data covers and which stage builds each part](docs/figures/detection_pipeline.svg)
@@ -23,7 +23,7 @@ AMLworld stands in for, and why one bank sees only part of a laundering chain.
 | Stage | Focus | Status | Report |
 |---|---|---|---|
 | 1 | Data understanding | Complete (`v0.1`) | [reports/stage1_data_understanding.md](reports/stage1_data_understanding.md) |
-| 2 | Rules baseline | Not started | *Pending* |
+| 2 | Rules baseline | In progress | *Pending* |
 | 3 | Machine learning model | Not started | *Pending* |
 | 4 | Graph features | Not started | *Pending* |
 | 5 | Validation and business case | Not started | *Pending* |
@@ -70,6 +70,7 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | Plan and records | [docs/backlog.md](docs/backlog.md) | Parked ideas and open questions for later stages |
 | Reference | [data/README.md](data/README.md) | Dataset source, structure, validation and limitations |
 | Reference | [docs/account_labelling_guide.md](docs/account_labelling_guide.md) | How each account gets its mule label: rules R1 to R7, label columns and counts |
+| Reference | [docs/transaction_preparation_guide.md](docs/transaction_preparation_guide.md) | How raw transactions are prepared for detection: rules P1 to P9 and the prepared columns |
 | Reference | [DEVELOPMENT.md](DEVELOPMENT.md) | Coding, testing and reproducibility standards |
 | Reference | [docs/test_strategy.md](docs/test_strategy.md) | How the system is tested: principles, test levels, test types, test data and quality gates |
 | How-to | [WORKFLOW.md](WORKFLOW.md) | The steps each stage follows, from branch to release |

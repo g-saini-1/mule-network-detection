@@ -9,6 +9,7 @@ dependencies = [
     "matplotlib",
     "numpy",
     "pandas",
+    "pandera>=0.36.0",
     "pyarrow>=26.0.0",
     "pyyaml",
 ]
@@ -22,6 +23,7 @@ dev = [
     "pandas-stubs>=3.0.5.260914",
     "pre-commit>=4.7.0",
     "pytest",
+    "pytest-cov>=7.1.0",
     "ruff",
     "types-pyyaml>=6.0.12.20260906",
 ]
@@ -35,7 +37,7 @@ packages = ["src/mule_detection"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--strict-markers"
+addopts = "--strict-markers --cov=mule_detection --cov-report=term-missing"
 markers = ["data: needs the downloaded HI-Small files in data/raw (skipped in CI)"]
 
 [tool.ruff]

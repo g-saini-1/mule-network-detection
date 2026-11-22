@@ -1,5 +1,5 @@
-# Stage 1 targets. Later stages add rules, train, graph and evaluate.
-.PHONY: setup data validate-data labels test lint format typecheck check
+# Stage 1 and 2 targets. Later stages add rules, train, graph and evaluate.
+.PHONY: setup data validate-data labels prepare-data test lint format typecheck check
 
 setup:  ## install dependencies into .venv
 	uv sync
@@ -13,6 +13,9 @@ validate-data:  ## run validation checks on the raw files
 
 labels:  ## build account-level mule labels into data/processed
 	uv run python -m mule_detection.data.labels
+
+prepare-data:  ## prepare the raw transactions into data/interim/transactions.parquet
+	uv run python -m mule_detection.data.prepare_transactions
 
 test:  ## run the test suite
 	uv run pytest

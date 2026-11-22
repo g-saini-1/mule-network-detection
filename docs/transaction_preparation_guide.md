@@ -94,5 +94,8 @@ floating-point rounding.
 
 Table 1. Columns in `data/interim/transactions.parquet`.
 
+`make prepare-data` builds the file, and
+`mule_detection.data.prepare_transactions.load_prepared_transactions()` reads it.
+
 `is_laundering`, `scheme_id` and `typology` are for evaluation only. The rules engine never reads
 them ([solution_architecture.md](solution_architecture.md), Figure 3).

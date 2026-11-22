@@ -45,6 +45,7 @@ make setup          # install dependencies (uv sync)
 make data           # download the HI-Small files into data/raw (skipping unchanged files), then validate
 make validate-data  # run validation checks on the raw files only
 make labels         # build account-level mule labels into data/processed/account_labels.parquet
+make prepare-data   # prepare the raw transactions into data/interim/transactions.parquet
 make test           # run the test suite
 make lint           # ruff check on src and tests
 make format         # ruff format src and tests in place

@@ -49,6 +49,7 @@ Requires [uv](https://docs.astral.sh/uv/) and a Kaggle API token saved at
 make setup          # create .venv with Python 3.12 and install dependencies
 make data           # download HI-Small into data/raw (about 510 MB), then validate it
 make labels         # build the account-level mule labels
+make prepare-data   # prepare the transactions for the detection rules
 make test           # run the test suite
 make check          # format check, lint, type check and tests (what CI runs)
 ```

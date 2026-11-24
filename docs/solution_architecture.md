@@ -83,7 +83,7 @@ data/README.md, with an entity relationship diagram under Structure.
 |---|---|---|---|---|
 | Transactions, accounts and patterns | Raw | Source files as downloaded | Data ingestion and validation | Data preparation |
 | Download manifest | Raw | Record of each download | Data ingestion and validation | Data ingestion and validation |
-| Prepared transactions | Interim | The transactions prepared by rules P1 to P9 ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Data preparation, Stage 2 | Rules engine, feature pipeline |
+| Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Data preparation, Stage 2 | Rules engine, feature pipeline |
 | Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Data preparation | Evaluation harness |
 | Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness, Stage 2 | Rules engine, ML model, evaluation harness |
 | Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine, Stage 2 | Evaluation harness |
@@ -140,6 +140,7 @@ every account and splitting by owner, are in [backlog.md](backlog.md) (Later sta
 | Configuration | Values live in `configs/*.yaml`, read with `load_config()` and resolved with `repo_path()` | [DEVELOPMENT.md](../DEVELOPMENT.md), Code |
 | Reproducibility | File hashes and row counts, a release tag per stage, and a run manifest from Stage 3 | DEVELOPMENT.md, Reproducibility |
 | Quality | `make check` runs a format check, lint, type checks and tests, locally and in CI | DEVELOPMENT.md, Checks and tooling |
+| Currency | Amounts are kept as recorded and also given in one base currency; rule thresholds state their currency | [currency_conversion_guide.md](currency_conversion_guide.md) |
 | Data security and licence | No data or credentials committed; credentials stay at `~/.kaggle/access_token` | [scope_and_rationale.md](../scope_and_rationale.md) Section 4 |
 | Change control | A branch per stage, reviews before merge, and a decision log | [WORKFLOW.md](../WORKFLOW.md) |
 

@@ -66,6 +66,7 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | Explanation | [docs/bank_detection_architecture.md](docs/bank_detection_architecture.md) | How a bank detects mule accounts, and what the dataset covers (start here) |
 | Explanation | [docs/solution_architecture.md](docs/solution_architecture.md) | How this project's parts, rules engine and data layers fit together, and which stage builds each |
 | Explanation | [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |
+| Explanation | [docs/currency_conversion_guide.md](docs/currency_conversion_guide.md) | Why amounts in different currencies are converted to one base currency, and the limits of the approach |
 | Plan and records | [scope_and_rationale.md](scope_and_rationale.md) | Rationale, stage plan and evaluation approach, fixed at the start |
 | Plan and records | [docs/decisions.md](docs/decisions.md) | Data and modelling decisions, with the options considered and why |
 | Plan and records | [docs/backlog.md](docs/backlog.md) | Parked ideas and open questions for later stages |

@@ -45,16 +45,9 @@ row is dropped; each detection rule states whether it excludes own-account trans
 same owner; a payment from bank 10, account X to bank 20, account Z is not, whoever owns Z.
 
 **P6. Currency conversion.** Every amount is also given in US Dollar, the base currency set in
-`configs/data.yaml`.
-- Each currency's rate is its number of units per US Dollar: the median of the rates implied by
-  cross-currency payments between that currency and US Dollar, in either direction, using only
-  payments with an amount paid of 100 or more. A payment's implied rate is its amount received
-  divided by its amount paid, inverted when US Dollar is the receiving currency.
-- `amount_paid_usd` is the amount paid divided by the payment currency's rate, and
-  `amount_received_usd` the amount received divided by the receiving currency's rate.
-- Rates are computed from the data on every run, not entered by hand.
-- On cross-currency payments with an amount paid of 100 or more, the two converted amounts must
-  agree within the tolerance set in `configs/data.yaml`; otherwise preparation fails.
+`configs/data.yaml`, as `amount_paid_usd` and `amount_received_usd`, by the method in
+[currency_conversion_guide.md](currency_conversion_guide.md). Preparation fails if that method's
+checks fail.
 
 **P7. Time order.** Transactions are sorted by timestamp, with ties kept in `transaction_id`
 order.

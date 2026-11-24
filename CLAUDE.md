@@ -92,6 +92,7 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `data/README.md` | Data facts and figures, validation results, limitations |
 | `docs/account_labelling_guide.md` | Account label rules R1 to R7, label columns and label counts |
 | `docs/transaction_preparation_guide.md` | Transaction preparation rules P1 to P9 and prepared columns |
+| `docs/currency_conversion_guide.md` | Why and how amounts are converted to one base currency, and its limits |
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
 | `docs/solution_architecture.md` | How the system's containers, components, data layers and rules engine design fit together |

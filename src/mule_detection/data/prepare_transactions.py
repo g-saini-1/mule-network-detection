@@ -88,12 +88,35 @@ def flag_own_account_transfers(tx: pd.DataFrame, accounts: pd.DataFrame) -> pd.S
     `accounts` is `load.load_accounts()`: one row per account, with `bank_id`,
     `account_number` and `entity_id`. Returns a bool Series aligned to `tx.index`.
     """
-    raise NotImplementedError("P5 is not written yet")
+    tx1 = (
+        tx.merge(
+            accounts[["bank_id", "account_number", "entity_id"]],
+            left_on=["from_bank", "from_account"],
+            right_on=["bank_id", "account_number"],
+            how="left",
+        )
+        .set_axis(tx.index)
+        .rename(columns={"entity_id": "from_entity_id"})
+    )
+    tx2 = (
+        tx1.merge(
+            accounts[["bank_id", "account_number", "entity_id"]],
+            left_on=["to_bank", "to_account"],
+            right_on=["bank_id", "account_number"],
+            how="left",
+        )
+        .set_axis(tx1.index)
+        .rename(columns={"entity_id": "to_entity_id"})
+    )
+
+    return (
+        (tx2["from_bank"] == tx2["to_bank"])
+        & (tx2["from_account"] != tx2["to_account"])
+        & (tx2["from_entity_id"] == tx2["to_entity_id"])
+    ).rename("is_own_account_transfer")
 
 
 # --- P6: currency conversion ---------------------------------------------------------
-
-
 def exchange_rates(tx: pd.DataFrame, base_currency: str, min_amount_paid: float) -> pd.Series:
     """P6: units of each currency per one unit of `base_currency`.
 

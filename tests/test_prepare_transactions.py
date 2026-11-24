@@ -4,6 +4,7 @@ import pandas as pd
 
 from mule_detection.data.prepare_transactions import (
     flag_duplicates,
+    flag_own_account_transfers,
     flag_self_transfers,
     transaction_ids,
 )
@@ -11,7 +12,7 @@ from mule_detection.data.prepare_transactions import (
 T1 = pd.Timestamp("2022-09-01 09:00")
 T2 = pd.Timestamp("2022-09-01 12:00")
 
-DEFAULT_ROW = {
+DEFAULT_TXN = {
     "timestamp": T1,
     "from_bank": "10",
     "from_account": "A",
@@ -25,48 +26,107 @@ DEFAULT_ROW = {
     "is_laundering": 0,
 }
 
+DEFAULT_ACCOUNT = {
+    "bank_name": "My Bank",
+    "bank_id": "10",
+    "account_number": "A",
+    "entity_id": "E1",
+    "entity_name": "Entity 1",
+}
 
-def row(**changes):
+
+def txn(**changes):
     """One transaction: the default row with the given columns changed."""
-    return {**DEFAULT_ROW, **changes}
+    return {**DEFAULT_TXN, **changes}
+
+
+def acc(**changes):
+    """One account: the default row with the given columns changed."""
+    return {**DEFAULT_ACCOUNT, **changes}
 
 
 def frame(*rows):
-    """A transactions table from rows built with `row()`, in the order given."""
+    """A transactions table from rows, in the order given."""
     return pd.DataFrame(list(rows))
 
 
 # --- P1 ----------------------------------------------------------------------------------
-
-
 def test_p1_transaction_id_is_the_row_position_in_file_order():
-    tx = frame(row(from_account="A"), row(from_account="B"), row(from_account="C"))
+    tx = frame(txn(from_account="A"), txn(from_account="B"), txn(from_account="C"))
     assert transaction_ids(tx).tolist() == [0, 1, 2]
 
 
+# --- P3 ----------------------------------------------------------------------------------
 def test_p3_only_the_later_copy_is_flagged():
-    tx = frame(row(), row())
+    tx = frame(txn(), txn())
     assert flag_duplicates(tx).tolist() == [False, True]
 
-    tx = frame(row(), row(), row())
+    tx = frame(txn(), txn(), txn())
     assert flag_duplicates(tx).tolist() == [False, True, True]
 
 
 def test_p3_rows_differing_in_one_column_are_not_duplicates():
-    tx = frame(row(), row(amount_paid=500))
+    tx = frame(txn(), txn(amount_paid=500))
     assert flag_duplicates(tx).tolist() == [False, False]
 
 
 def test_p3_a_copy_is_flagged_even_with_rows_in_between():
-    tx = frame(row(), row(amount_paid=500), row())
+    tx = frame(txn(), txn(amount_paid=500), txn())
     assert flag_duplicates(tx).tolist() == [False, False, True]
 
 
 def test_p3_transaction_id_is_ignored():
-    tx = frame(row(transaction_id=1), row(transaction_id=2))
+    tx = frame(txn(transaction_id=1), txn(transaction_id=2))
     assert flag_duplicates(tx).tolist() == [False, True]
 
 
+# --- P4 ----------------------------------------------------------------------------------
 def test_p4_only_same_bank_and_same_account_is_a_self_transfer():
-    tx = frame(row(to_bank="10", to_account="A"), row(), row(to_account="A"), row(to_bank="10"))
+    tx = frame(txn(to_bank="10", to_account="A"), txn(), txn(to_account="A"), txn(to_bank="10"))
     assert flag_self_transfers(tx).tolist() == [True, False, False, False]
+
+
+# --- P5 ----------------------------------------------------------------------------------
+def test_p5_same_entity_different_banks_is_not_own_account_transfer():
+    tx = frame(txn())
+    accs = frame(
+        acc(bank_id="10", account_number="A", entity_id="E1"),
+        acc(bank_id="20", account_number="B", entity_id="E1"),
+    )
+    assert flag_own_account_transfers(tx, accs).tolist() == [False]
+
+
+def test_p5_same_entity_same_bank_is_own_account_transfer():
+    tx = frame(txn(to_bank="10"))
+    accs = frame(
+        acc(bank_id="10", account_number="A", entity_id="E1"),
+        acc(bank_id="10", account_number="B", entity_id="E1"),
+    )
+    assert flag_own_account_transfers(tx, accs).tolist() == [True]
+
+
+def test_p5_different_entity_same_bank_is_not_own_account_transfer():
+    tx = frame(txn(to_bank="10"))
+    accs = frame(
+        acc(bank_id="10", account_number="A", entity_id="E1"),
+        acc(bank_id="10", account_number="B", entity_id="E2"),
+    )
+    assert flag_own_account_transfers(tx, accs).tolist() == [False]
+
+
+def test_p5_unknown_entity_same_bank_is_not_own_account_transfer():
+    tx = frame(txn(to_bank="10", to_account="Z"))
+    accs = frame(acc(bank_id="10", account_number="A", entity_id="E1"))
+    assert flag_own_account_transfers(tx, accs).tolist() == [False]
+
+
+def test_p5_same_entity_same_bank_same_account_is_not_own_account_transfer():
+    tx = frame(txn(to_bank="10", to_account="A"))
+    accs = frame(acc(bank_id="10", account_number="A", entity_id="E1"))
+    assert flag_own_account_transfers(tx, accs).tolist() == [False]
+
+
+def test_p5_result_keeps_the_row_labels_of_tx():
+    tx = frame(txn(to_bank="10", to_account="A")).set_axis([99])
+    accs = frame(acc(bank_id="10", account_number="A", entity_id="E1"))
+    assert flag_own_account_transfers(tx, accs).index.tolist() == [99]

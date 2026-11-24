@@ -158,7 +158,7 @@ def check_conversion(prepared: pd.DataFrame, min_amount_paid: float, tolerance: 
 
 def sort_by_time(tx: pd.DataFrame) -> pd.DataFrame:
     """P7: `tx` sorted by `timestamp`, with ties in `transaction_id` order."""
-    raise NotImplementedError("P7 is not written yet")
+    return tx.sort_values(by=["timestamp", "transaction_id"], ascending=True)
 
 
 # --- P8: scheme tags -----------------------------------------------------------------

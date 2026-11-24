@@ -6,6 +6,7 @@ from mule_detection.data.prepare_transactions import (
     flag_duplicates,
     flag_own_account_transfers,
     flag_self_transfers,
+    sort_by_time,
     transaction_ids,
 )
 
@@ -130,3 +131,18 @@ def test_p5_result_keeps_the_row_labels_of_tx():
     tx = frame(txn(to_bank="10", to_account="A")).set_axis([99])
     accs = frame(acc(bank_id="10", account_number="A", entity_id="E1"))
     assert flag_own_account_transfers(tx, accs).index.tolist() == [99]
+
+
+def test_p7_out_of_time_order():
+    tx = frame(txn(transaction_id=0, timestamp=T2), txn(transaction_id=1, timestamp=T1))
+    assert sort_by_time(tx)["transaction_id"].tolist() == [1, 0]
+
+
+def test_p7_ties_already_in_time_order():
+    tx = frame(txn(transaction_id=0, timestamp=T1), txn(transaction_id=1, timestamp=T1))
+    assert sort_by_time(tx)["transaction_id"].tolist() == [0, 1]
+
+
+def test_p7_ties_out_of_time_order():
+    tx = frame(txn(transaction_id=1, timestamp=T1), txn(transaction_id=0, timestamp=T1))
+    assert sort_by_time(tx)["transaction_id"].tolist() == [0, 1]

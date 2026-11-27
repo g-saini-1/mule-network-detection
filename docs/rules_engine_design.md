@@ -19,7 +19,7 @@ supports. Account labels are never an input: only the evaluation harness reads t
 | Rule evaluator | Applies thresholds and AND/OR logic, and keeps the values that triggered each hit | 3 to 5 account-level rules, with parameters in `configs/*.yaml` |
 | Alert consolidation | Merges several rule hits on one account into one alert | One row per account per period |
 | Prioritisation | Ranks alerts and cuts the queue at the alert budget K | A ranking rule, to be decided in Stage 2 |
-| Run record | Records what produced each alert, so any result can be reproduced | Config and git tag in Stage 2; a run manifest from Stage 3 (DEVELOPMENT.md, Reproducibility) |
+| Run record | Records what produced each alert, so any result can be reproduced | To be confirmed |
 
 Table 1. Parts of the rules engine and their project equivalents.
 

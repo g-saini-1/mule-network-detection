@@ -175,10 +175,12 @@ Table 2. Personas used in this project.
   codebase and to recognised practice (Google's code review guide, PEP 8, *Architecture Patterns
   with Python*, Fowler's refactorings, Google's ML Test Score). It reviews in order of importance
   (design, functionality, complexity, tests, naming, comments, style), checks the code against the
-  solution architecture, grades each finding as blocking or a suggestion, and names the principle
-  or pattern behind it.
+  solution architecture and the tests against `docs/test_strategy.md` (e.g. no behaviour tested
+  by both a unit test and a component test), grades each finding as blocking or a suggestion, and
+  names the principle or pattern behind it.
 - **The engineer designs tests to recognised practice:** shift-left (tests with or before the
-  code, fastest checks first), the test pyramid, a risk-based focus (most effort where failure
+  code, fastest checks first), the test pyramid as set out in `docs/test_strategy.md`
+  (Principles), a risk-based focus (most effort where failure
   costs most, e.g. labels, leakage and the temporal split), automated quality gates rather than
   entry and exit criteria, and for ML code, Google's ML Test Score rubric. Test levels follow the
   C4 views of the solution architecture (code, component, container, context). Most tests are fast

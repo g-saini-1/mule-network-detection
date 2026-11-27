@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 942 490" role="img" aria-label="Test pyramid for the mule detection system. From the base up: unit tests at code level on hand-built frames, covering functional rules and leakage with property-based tests; component tests on fixture tables, covering functional behaviour, leakage and later ML model tests; integration tests at container level on a fixture dataset, covering schemas at zone boundaries and reading and writing the data zones; and end-to-end tests at context level on a fixture dataset, covering a whole-pipeline run and later ML infrastructure tests. Static analysis sits beneath the pyramid and runs first. Lower levels have more, faster tests; higher levels fewer, slower ones.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 942 490" role="img" aria-label="Test pyramid for the mule detection system. From the base up: unit tests at code level on hand-built frames, covering functional rules and leakage with property-based tests; component tests on fixture tables, covering functional behaviour, leakage and later ML model tests; integration tests at container level on a fixture dataset, covering data contracts and reading and writing the data zones; and end-to-end tests at context level on a fixture dataset, covering a whole-pipeline run and later ML infrastructure tests. Static analysis sits beneath the pyramid and runs first. Lower levels have more, faster tests; higher levels fewer, slower ones.">
   <style>
     svg { --bg: #ffffff; --fg: #1b2230; --muted: #5a6475; --line: #c4cad5; --accent: #0d6b62; --accent-soft: #e3f1ef; --tag: #e9ecf2; }
     @media (prefers-color-scheme: dark) {
@@ -74,7 +74,7 @@
   <!-- Test types -->
   <text class="d" x="572" y="91">Whole-pipeline run</text>
   <text class="s" x="572" y="109">ML infrastructure (S3)</text>
-  <text class="d" x="572" y="161">Schemas at zone boundaries (S2)</text>
+  <text class="d" x="572" y="161">Data contracts (S2)</text>
   <text class="s" x="572" y="179">reading and writing the data zones</text>
   <text class="d" x="572" y="231">Functional, per component</text>
   <text class="s" x="572" y="249">leakage (S2), ML model (S3)</text>

@@ -118,8 +118,9 @@ Four principles shape the layers:
 - **Rebuildable derived layers.** Every interim and processed dataset is rebuilt by script from
   earlier layers and never edited by hand, so the derived layers can be deleted and rebuilt
   without loss.
-- **Schemas at layer boundaries.** From Stage 2, data passed between stages is checked against a
-  declared schema ([DEVELOPMENT.md](../DEVELOPMENT.md), Data).
+- **Data contracts between contexts.** Each dataset passed from one bounded context to another
+  is checked against its data contract: its schema and quality rules
+  ([DEVELOPMENT.md](../DEVELOPMENT.md), Data).
 - **Only aggregates are committed.** No data file enters the repository
   ([scope_and_rationale.md](../scope_and_rationale.md) Section 4); reports hold summary results.
 
@@ -143,7 +144,7 @@ Table 6. Datasets: what each holds, which component builds it and which use it.
 | Concern | How it is handled | Where it is set out |
 |---|---|---|
 | Configuration | Values live in `configs/*.yaml`, read with `load_config()` and resolved with `repo_path()` | [DEVELOPMENT.md](../DEVELOPMENT.md), Code |
-| Reproducibility | File hashes and row counts, a release tag per stage, and a run manifest from Stage 3 | DEVELOPMENT.md, Reproducibility |
+| Reproducibility | File hashes and row counts, a release tag per stage, and a run manifest from Stage 3 | [data/README.md](../data/README.md), Validation |
 | Quality | `make check` runs a format check, lint, type checks and tests, locally and in CI | DEVELOPMENT.md, Checks and tooling |
 | Currency | Amounts are kept as recorded and also given in one base currency; rule thresholds state their currency | [currency_conversion_guide.md](currency_conversion_guide.md) |
 | Data security and licence | No data or credentials committed; credentials stay at `~/.kaggle/access_token` | [scope_and_rationale.md](../scope_and_rationale.md) Section 4 |

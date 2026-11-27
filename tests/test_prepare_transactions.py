@@ -30,6 +30,16 @@ def test_p3_transaction_id_is_ignored():
     assert _flag_duplicates(tx).tolist() == [False, True]
 
 
+def test_p3_rows_differing_only_in_the_laundering_flag_are_duplicates():
+    tx = frame(txn(is_laundering=0), txn(is_laundering=1))
+    assert _flag_duplicates(tx).tolist() == [False, True]
+
+
+def test_p3_columns_outside_the_source_columns_are_ignored():
+    tx = frame(txn(extra="a"), txn(extra="b"))
+    assert _flag_duplicates(tx).tolist() == [False, True]
+
+
 # --- P7 -------------------------------------------------------------------------------------------
 
 

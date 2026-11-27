@@ -79,13 +79,15 @@ class PreparedTransactions:
 
 # --- P3: duplicates -------------------------------------------------------------------------------
 
+_DUPLICATE_COLUMNS = [c for c in load.TRANSACTION_COLUMNS if c != "is_laundering"]
+
 
 def _flag_duplicates(tx: pd.DataFrame) -> pd.Series:
-    """P3: True for a row whose every column apart from `transaction_id` equals an earlier row.
+    """P3: True for a row whose source columns, laundering flag aside, equal an earlier row's.
 
     The first copy is False. Returns a bool Series aligned to `tx.index`.
     """
-    return tx.drop(columns=["transaction_id"], errors="ignore").duplicated().rename("is_duplicate")
+    return tx[_DUPLICATE_COLUMNS].duplicated().rename("is_duplicate")
 
 
 # --- P7: time order -------------------------------------------------------------------------------

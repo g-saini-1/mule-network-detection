@@ -75,10 +75,10 @@ The testing approach (test levels, test types, test data and quality gates) is i
 ## Before a pull request
 
 1. `make check` passes.
-2. If code that produces data or reported figures changed (`src/mule_detection/source/` and
-   `evaluation/` now; `payments/` and `detection/` later), the affected `make` targets are re-run on the real
-   data, the `data` tests are run locally (`uv run pytest -m data`), and the headline figures
-   still match the document that owns them.
+2. If code that produces data or reported figures changed (`src/mule_detection/source/`,
+   `payments/` and `evaluation/` now; `detection/` later), the affected `make` targets are re-run
+   on the real data, the `data` tests are run locally (`uv run pytest -m data`), and the headline
+   figures still match the document that owns them.
 3. If a notebook is affected, it runs from top to bottom.
 4. If documentation changed, the documentation checks in `.claude/skills/docs-check/SKILL.md`
    pass.

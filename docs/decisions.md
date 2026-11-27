@@ -276,6 +276,19 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   costs less than later, when the rules engine adds modules. This replaces the `data/` layout
   planned in CLAUDE.md ("Architecture").
 
+## 2026-11-27: Let source import payments, never the reverse
+
+- **Context:** Transaction preparation in `source/` applies the payments rules (P4 to P6), so
+  `source` imports `payments`. No rule said which way imports between the two may go, and an
+  import in each direction would create a cycle.
+- **Options considered:** allow `source` to import `payments` and never the reverse; move the
+  preparation pipeline out of `source/` into a separate orchestration module.
+- **Decision and rationale:** Allow `source` to import `payments`, and never the reverse. It keeps
+  the agreed layout, and the payments rules stay pure functions on any transactions table. Moving
+  the pipeline out of `source/` can be reconsidered when `detection/` adds a second pipeline. An
+  import-boundary test covering this rule and "detection never imports evaluation" is added when
+  `detection/` is created.
+
 ## 2026-11-27: Leave the laundering flag out of the duplicate comparison
 
 - **Context:** P3 compared every column apart from `transaction_id`, so the laundering flag

@@ -37,6 +37,8 @@ packages = ["src/mule_detection"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Makes the shared test builders (tests/builders.py) importable under any pytest import mode.
+pythonpath = ["tests"]
 addopts = "--strict-markers --cov=mule_detection --cov-report=term-missing"
 markers = ["data: needs the downloaded HI-Small files in data/raw (skipped in CI)"]
 

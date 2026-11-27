@@ -5,7 +5,7 @@ Credentials are read by the Kaggle client from outside the repository (e.g.
 SHA-256 hash, size and Kaggle creation date, so a later run can confirm the local copy is
 unchanged and skip the download.
 
-Run with `python -m mule_detection.data.download [--force]`.
+Run with `python -m mule_detection.source.download [--force]`.
 """
 
 import argparse

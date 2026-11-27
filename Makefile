@@ -5,17 +5,17 @@ setup:  ## install dependencies into .venv
 	uv sync
 
 data:  ## download the HI-Small files into data/raw (skips unchanged files), then validate them
-	uv run python -m mule_detection.data.download
+	uv run python -m mule_detection.source.download
 	$(MAKE) validate-data
 
 validate-data:  ## run validation checks on the raw files
-	uv run python -m mule_detection.data.validate
+	uv run python -m mule_detection.source.validate
 
 labels:  ## build account-level mule labels into data/processed
-	uv run python -m mule_detection.data.labels
+	uv run python -m mule_detection.evaluation.account_labels
 
 prepare-data:  ## prepare the raw transactions into data/interim/transactions.parquet
-	uv run python -m mule_detection.data.prepare_transactions
+	uv run python -m mule_detection.source.prepare_transactions
 
 test:  ## run the test suite
 	uv run pytest

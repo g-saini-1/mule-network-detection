@@ -6,7 +6,7 @@ descriptive counts worth knowing but not failing on (e.g. duplicate rows). `vali
 first confirms each file matches the hash and row count expected in `configs/data.yaml`, then
 runs the content checks, and raises `ValidationError` if any file has errors.
 
-Run with `python -m mule_detection.data.validate`.
+Run with `python -m mule_detection.source.validate`.
 """
 
 import json
@@ -15,8 +15,8 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
-from mule_detection.data import load
-from mule_detection.data.download import sha256
+from mule_detection.source import load
+from mule_detection.source.download import sha256
 from mule_detection.utils.config import load_config
 
 PATTERN_BEGIN = re.compile(r"^BEGIN LAUNDERING ATTEMPT - ([A-Z-]+)")

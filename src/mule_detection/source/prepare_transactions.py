@@ -15,7 +15,7 @@ The rules P1 to P9 are in `docs/transaction_preparation_guide.md`; the reasoning
 - P9: the output is checked before it is written.
 
 The rule functions are pure; files and config are read only in `main()`.
-Run with `python -m mule_detection.data.prepare_transactions`.
+Run with `python -m mule_detection.source.prepare_transactions`.
 """
 
 import logging
@@ -23,7 +23,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from mule_detection.data import load
+from mule_detection.source import load
 from mule_detection.utils.config import load_config, repo_path
 
 logger = logging.getLogger(__name__)

@@ -90,6 +90,6 @@ apart from mules, so they are labelled mules.
 make labels     # build data/processed/account_labels.parquet from the raw transactions
 ```
 
-In Python, `mule_detection.data.labels.load_labels()` reads the file with account keys as text
+In Python, `mule_detection.evaluation.account_labels.load_labels()` reads the file with account keys as text
 and timestamps as dates; `build_account_labels(transactions, as_at=...)` builds labels as at a
 point in time. To browse the file, open it in VS Code with the Data Wrangler extension.

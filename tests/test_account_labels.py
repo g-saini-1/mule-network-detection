@@ -3,13 +3,13 @@
 import pandas as pd
 import pytest
 
-from mule_detection.data import load
-from mule_detection.data.labels import (
+from mule_detection.evaluation.account_labels import (
     LABEL_COLUMNS,
     build_account_labels,
     load_labels,
     role_counts,
 )
+from mule_detection.source import load
 
 T1 = pd.Timestamp("2022-09-01 09:00")
 T2 = pd.Timestamp("2022-09-01 12:00")

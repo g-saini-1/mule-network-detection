@@ -133,7 +133,7 @@ one step in a laundering cycle:
 
 Table 3. Transaction columns.
 
-Two details of the raw file shape how it is loaded (`src/mule_detection/data/load.py`):
+Two details of the raw file shape how it is loaded (`src/mule_detection/source/load.py`):
 
 - **Two columns share the name `Account`**, so columns are named by position, and validation
   checks the header matches the expected order exactly before loading.

@@ -3,8 +3,8 @@
 import pandas as pd
 import pytest
 
-from mule_detection.data import load
-from mule_detection.data.validate import (
+from mule_detection.source import load
+from mule_detection.source.validate import (
     check_accounts,
     check_expected,
     check_patterns,

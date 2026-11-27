@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from mule_detection.data.prepare_transactions import (
+from mule_detection.source.prepare_transactions import (
     check_conversion,
     conversion_gaps,
     convert_amounts,

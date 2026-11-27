@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from mule_detection.data.download import download_dataset, read_manifest, sha256
+from mule_detection.source.download import download_dataset, read_manifest, sha256
 
 SLUG = "owner/dataset"
 

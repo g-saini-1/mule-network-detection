@@ -51,8 +51,6 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
 - **Stage 2: explain account labelling in financial crime.** Add an explanation of how account
   labels work in financial crime to `docs/account_labelling_guide.md`.
 - **Stage 2: review the account labelling tests.**
-- **Stage 2 and 3: the transactions file is not in time order.** Sort by timestamp before any
-  rolling-window or as-at computation.
 - **Stage 2 and 3: which label timestamp marks the leakage cut-off.** The first label version
   named one timestamp for leakage tests (`mule_since`, the first laundering payment). The final
   labels have both `mule_at` and `first_laundering_at`, and no decision yet says which one

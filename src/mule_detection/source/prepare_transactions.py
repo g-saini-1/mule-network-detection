@@ -123,18 +123,18 @@ def prepare_transactions(
     prepared["is_self_transfer"] = flag_self_transfers(prepared)
     prepared["is_own_account_transfer"] = flag_own_account_transfers(prepared, accounts)
     logger.info("P6: converting amounts to %s", currency.base_currency)
-    rates = exchange_rates(prepared, currency.base_currency, currency.min_amount_paid)
+    rates = exchange_rates(prepared, currency)
     prepared = prepared.join(convert_amounts(prepared, rates))
-    check_conversion(prepared, currency.min_amount_paid, currency.tolerance)
+    check_conversion(prepared, currency)
     logger.info("P7: sorting by time")
     prepared = _sort_by_time(prepared)
     return PreparedTransactions(prepared[PREPARED_COLUMNS].reset_index(drop=True), rates)
 
 
-def _run_summary(prepared: pd.DataFrame, rates: pd.Series, min_amount_paid: float) -> str:
+def _run_summary(prepared: pd.DataFrame, rates: pd.Series, currency: CurrencySettings) -> str:
     """Figures from a run, printed by `main()` for the Stage 2 report."""
     self_transfers = prepared[prepared["is_self_transfer"]]
-    gaps = conversion_gaps(prepared, min_amount_paid)
+    gaps = conversion_gaps(prepared, currency)
     return "\n".join(
         [
             f"rows: {len(prepared):,}",
@@ -189,7 +189,7 @@ def main() -> None:
     # path = _prepared_path()
     # path.parent.mkdir(parents=True, exist_ok=True)
     # result.transactions.to_parquet(path, index=False)
-    print(_run_summary(result.transactions, result.rates, currency.min_amount_paid))
+    print(_run_summary(result.transactions, result.rates, currency))
     # print(f"saved to {path}")
 
 

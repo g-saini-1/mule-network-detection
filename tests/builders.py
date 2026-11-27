@@ -60,6 +60,17 @@ def frame(*rows):
     return pd.DataFrame(list(rows))
 
 
+def as_loaded(tx):
+    """`tx` with currencies and payment formats as categories, as `load_transactions` types them."""
+    return tx.astype(
+        {
+            "payment_currency": "category",
+            "receiving_currency": "category",
+            "payment_format": "category",
+        }
+    )
+
+
 def raw_transactions_file(tmp_path, *rows):
     """A raw transactions file in `tmp_path`: the expected header, then the text rows given."""
     path = tmp_path / "trans.csv"

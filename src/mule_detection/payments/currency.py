@@ -18,10 +18,16 @@ __all__ = [
     "exchange_rates",
 ]
 
+# The converted columns are named for this currency (`amount_paid_usd`, `amount_received_usd`).
+_SUPPORTED_BASE_CURRENCY = "US Dollar"
+
 
 @dataclass(frozen=True, slots=True)
 class CurrencySettings:
     """P6 settings, read once from the `transaction_preparation` section of `configs/data.yaml`.
+
+    Fails if the base currency is not US Dollar, the currency the converted columns are named
+    for.
 
     Attributes:
         base_currency: Currency every amount is converted to.
@@ -33,6 +39,14 @@ class CurrencySettings:
     min_amount_paid: float
     tolerance: float
 
+    def __post_init__(self) -> None:
+        """Fail on a base currency the converted columns are not named for."""
+        if self.base_currency != _SUPPORTED_BASE_CURRENCY:
+            raise ValueError(
+                f"P6: base currency must be {_SUPPORTED_BASE_CURRENCY}, not {self.base_currency}; "
+                "the converted columns are named for it"
+            )
+
     @classmethod
     def from_config(cls, section: Mapping[str, Any]) -> "CurrencySettings":
         """Build the settings from the config section, converting each value to its type."""
@@ -43,46 +57,29 @@ class CurrencySettings:
         )
 
 
-def exchange_rates(tx: pd.DataFrame, base_currency: str, min_amount_paid: float) -> pd.Series:
-    """P6: units of each currency per one unit of `base_currency`.
+def exchange_rates(tx: pd.DataFrame, currency: CurrencySettings) -> pd.Series:
+    """P6: units of each currency per one unit of the base currency.
 
     The median implied rate of each currency's cross-currency payments with the base currency,
-    in either direction, using only payments with `amount_paid >= min_amount_paid`. Returns a
-    float Series indexed by currency name, with the base currency at 1.0.
+    in either direction, using only payments with an amount paid of at least
+    `currency.min_amount_paid`. Returns a float Series indexed by currency name, with the base
+    currency at 1.0.
     """
-    payment_currency_str = tx["payment_currency"].astype(str)
-    receiving_currency_str = tx["receiving_currency"].astype(str)
+    base = currency.base_currency
+    paid_in = tx["payment_currency"].astype(str)
+    received_in = tx["receiving_currency"].astype(str)
 
-    base_currency_pmt = (payment_currency_str == base_currency) & (
-        receiving_currency_str != base_currency
+    base_paid = (paid_in == base) & (received_in != base)
+    base_received = (paid_in != base) & (received_in == base)
+    usable = (base_paid | base_received) & (tx["amount_paid"] >= currency.min_amount_paid)
+
+    implied_rate = (tx["amount_received"] / tx["amount_paid"]).where(
+        base_paid, other=tx["amount_paid"] / tx["amount_received"]
     )
+    other_currency = received_in.where(base_paid, other=paid_in)
 
-    base_currency_rpt = (payment_currency_str != base_currency) & (
-        receiving_currency_str == base_currency
-    )
-
-    base_currency_txn = (base_currency_pmt | base_currency_rpt) & (
-        tx["amount_paid"] >= min_amount_paid
-    )
-
-    exchg_rate_rpt = (
-        tx["amount_received"] / tx["amount_paid"]
-    )  # includes rate where payment is made in base currency and all other rates
-
-    exch_rate_rpt_pmt = exchg_rate_rpt.where(
-        base_currency_pmt, other=tx["amount_paid"] / tx["amount_received"]
-    )  # includes rates where txn is done with mixed currency
-    exch_rate_useable = exch_rate_rpt_pmt[
-        base_currency_txn
-    ]  # rates for all txns where payment is made or received in base currency
-
-    # Other currency in each payment
-    other_currency = receiving_currency_str.where(base_currency_pmt, payment_currency_str)[
-        base_currency_txn
-    ]
-
-    rates = exch_rate_useable.groupby(other_currency).median()
-    rates[base_currency] = 1.0
+    rates = implied_rate[usable].groupby(other_currency[usable]).median()
+    rates[base] = 1.0
     return rates.sort_index().rename_axis("currency").rename("rate")
 
 
@@ -92,43 +89,57 @@ def convert_amounts(tx: pd.DataFrame, rates: pd.Series) -> pd.DataFrame:
     Each amount is divided by its currency's rate from `exchange_rates`. Fails if a currency in
     `tx` has no rate.
     """
-    pmt_rate = tx["payment_currency"].astype(str).map(rates)
-    rpt_rate = tx["receiving_currency"].astype(str).map(rates)
-    missing = set(tx.loc[pmt_rate.isna(), "payment_currency"].astype(str)) | set(
-        tx.loc[rpt_rate.isna(), "receiving_currency"].astype(str)
-    )
+    paid_in = tx["payment_currency"].astype(str)
+    received_in = tx["receiving_currency"].astype(str)
+    paid_rate = paid_in.map(rates)
+    received_rate = received_in.map(rates)
+    missing = set(paid_in[paid_rate.isna()]) | set(received_in[received_rate.isna()])
     if missing:
         raise ValueError(f"no exchange rate for currencies: {sorted(missing)}")
     return pd.DataFrame(
         {
-            "amount_paid_usd": tx["amount_paid"] / pmt_rate,
-            "amount_received_usd": tx["amount_received"] / rpt_rate,
+            "amount_paid_usd": tx["amount_paid"] / paid_rate,
+            "amount_received_usd": tx["amount_received"] / received_rate,
         },
         index=tx.index,
     )
 
 
-def conversion_gaps(prepared: pd.DataFrame, min_amount_paid: float) -> pd.Series:
+def conversion_gaps(prepared: pd.DataFrame, currency: CurrencySettings) -> pd.Series:
     """P6: relative gap between converted paid and received amounts.
 
-    Covers cross-currency payments with `amount_paid >= min_amount_paid` only. The gap is the
-    absolute difference between the two converted amounts, as a share of the converted amount
-    paid.
+    Covers cross-currency payments with an amount paid of at least `currency.min_amount_paid`
+    only. The gap is the absolute difference between the two converted amounts, as a share of
+    the converted amount paid.
     """
     cross_currency = prepared["payment_currency"].astype(str) != prepared[
         "receiving_currency"
     ].astype(str)
-    covered = cross_currency & (prepared["amount_paid"] >= min_amount_paid)
+    covered = cross_currency & (prepared["amount_paid"] >= currency.min_amount_paid)
     paid = prepared.loc[covered, "amount_paid_usd"]
     received = prepared.loc[covered, "amount_received_usd"]
     return ((paid - received).abs() / paid).rename("conversion_gap")
 
 
-def check_conversion(prepared: pd.DataFrame, min_amount_paid: float, tolerance: float) -> None:
-    """P6: fail if any converted paid and received amounts differ by more than `tolerance`."""
-    gaps = conversion_gaps(prepared, min_amount_paid)
-    if (gaps > tolerance).any():
+def check_conversion(prepared: pd.DataFrame, currency: CurrencySettings) -> None:
+    """P6: fail unless every gap between converted paid and received amounts is within tolerance.
+
+    Also fails if no payment is covered, since the rates would then go unchecked, and if any gap
+    cannot be computed, e.g. from a missing amount.
+    """
+    gaps = conversion_gaps(prepared, currency)
+    if gaps.empty:
         raise ValueError(
-            f"{int((gaps > tolerance).sum())} payments convert with a gap above {tolerance}; "
+            "P6: no cross-currency payment with an amount paid of at least "
+            f"{currency.min_amount_paid} to check the rates against"
+        )
+    if gaps.isna().any():
+        raise ValueError(
+            f"P6: {int(gaps.isna().sum())} payments have a gap that cannot be computed"
+        )
+    above = gaps > currency.tolerance
+    if above.any():
+        raise ValueError(
+            f"{int(above.sum())} payments convert with a gap above {currency.tolerance}; "
             f"largest {gaps.max():.6f}"
         )

@@ -124,23 +124,78 @@ def exchange_rates(tx: pd.DataFrame, base_currency: str, min_amount_paid: float)
     in either direction, using only payments with `amount_paid >= min_amount_paid`. Returns a
     float Series indexed by currency name, with the base currency at 1.0.
     """
-    raise NotImplementedError("P6 rates are not written yet")
+    payment_currency_str = tx["payment_currency"].astype(str)
+    receiving_currency_str = tx["receiving_currency"].astype(str)
+
+    base_currency_pmt = (payment_currency_str == base_currency) & (
+        receiving_currency_str != base_currency
+    )
+
+    base_currency_rpt = (payment_currency_str != base_currency) & (
+        receiving_currency_str == base_currency
+    )
+
+    base_currency_txn = (base_currency_pmt | base_currency_rpt) & (
+        tx["amount_paid"] >= min_amount_paid
+    )
+
+    exchg_rate_rpt = (
+        tx["amount_received"] / tx["amount_paid"]
+    )  # includes rate where payment is made in base currency and all other rates
+
+    exch_rate_rpt_pmt = exchg_rate_rpt.where(
+        base_currency_pmt, other=tx["amount_paid"] / tx["amount_received"]
+    )  # includes rates where txn is done with mixed currency
+    exch_rate_useable = exch_rate_rpt_pmt[
+        base_currency_txn
+    ]  # rates for all txns where payment is made or received in base currency
+
+    # Other currency in each payment
+    other_currency = receiving_currency_str.where(base_currency_pmt, payment_currency_str)[
+        base_currency_txn
+    ]
+
+    rates = exch_rate_useable.groupby(other_currency).median()
+    rates[base_currency] = 1.0
+    return rates.sort_index().rename_axis("currency").rename("rate")
 
 
 def convert_amounts(tx: pd.DataFrame, rates: pd.Series) -> pd.DataFrame:
     """P6: `amount_paid_usd` and `amount_received_usd`, aligned to `tx.index`.
 
-    Each amount is divided by its currency's rate from `exchange_rates`.
+    Each amount is divided by its currency's rate from `exchange_rates`. Fails if a currency in
+    `tx` has no rate.
     """
-    raise NotImplementedError("P6 conversion is not written yet")
+    pmt_rate = tx["payment_currency"].astype(str).map(rates)
+    rpt_rate = tx["receiving_currency"].astype(str).map(rates)
+    missing = set(tx.loc[pmt_rate.isna(), "payment_currency"].astype(str)) | set(
+        tx.loc[rpt_rate.isna(), "receiving_currency"].astype(str)
+    )
+    if missing:
+        raise ValueError(f"no exchange rate for currencies: {sorted(missing)}")
+    return pd.DataFrame(
+        {
+            "amount_paid_usd": tx["amount_paid"] / pmt_rate,
+            "amount_received_usd": tx["amount_received"] / rpt_rate,
+        },
+        index=tx.index,
+    )
 
 
 def conversion_gaps(prepared: pd.DataFrame, min_amount_paid: float) -> pd.Series:
     """P6: relative gap between converted paid and received amounts.
 
-    Covers cross-currency payments with `amount_paid >= min_amount_paid` only.
+    Covers cross-currency payments with `amount_paid >= min_amount_paid` only. The gap is the
+    absolute difference between the two converted amounts, as a share of the converted amount
+    paid.
     """
-    raise NotImplementedError("P6 conversion gaps are not written yet")
+    cross_currency = prepared["payment_currency"].astype(str) != prepared[
+        "receiving_currency"
+    ].astype(str)
+    covered = cross_currency & (prepared["amount_paid"] >= min_amount_paid)
+    paid = prepared.loc[covered, "amount_paid_usd"]
+    received = prepared.loc[covered, "amount_received_usd"]
+    return ((paid - received).abs() / paid).rename("conversion_gap")
 
 
 def check_conversion(prepared: pd.DataFrame, min_amount_paid: float, tolerance: float) -> None:

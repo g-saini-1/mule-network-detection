@@ -27,31 +27,32 @@ def flag_own_account_transfers(tx: pd.DataFrame, accounts: pd.DataFrame) -> pd.S
     """P5: True for different accounts at the same bank with the same owner.
 
     `accounts` is `load.load_accounts()`: one row per account, with `bank_id`,
-    `account_number` and `entity_id`. Returns a bool Series aligned to `tx.index`.
+    `account_number` and `entity_id`. Fails if an account appears in it more than once. Returns
+    a bool Series aligned to `tx.index`.
     """
-    tx1 = (
-        tx.merge(
-            accounts[["bank_id", "account_number", "entity_id"]],
-            left_on=["from_bank", "from_account"],
-            right_on=["bank_id", "account_number"],
-            how="left",
+    if accounts.duplicated(["bank_id", "account_number"]).any():
+        raise ValueError(
+            "P5: an account (bank ID plus account number) appears more than once in accounts"
         )
-        .set_axis(tx.index)
-        .rename(columns={"entity_id": "from_entity_id"})
-    )
-    tx2 = (
-        tx1.merge(
-            accounts[["bank_id", "account_number", "entity_id"]],
-            left_on=["to_bank", "to_account"],
-            right_on=["bank_id", "account_number"],
-            how="left",
-        )
-        .set_axis(tx1.index)
-        .rename(columns={"entity_id": "to_entity_id"})
-    )
-
+    from_owner = _owner_of(tx, "from_bank", "from_account", accounts)
+    to_owner = _owner_of(tx, "to_bank", "to_account", accounts)
     return (
-        (tx2["from_bank"] == tx2["to_bank"])
-        & (tx2["from_account"] != tx2["to_account"])
-        & (tx2["from_entity_id"] == tx2["to_entity_id"])
+        (tx["from_bank"] == tx["to_bank"])
+        & (tx["from_account"] != tx["to_account"])
+        & from_owner.eq(to_owner)
     ).rename("is_own_account_transfer")
+
+
+def _owner_of(tx: pd.DataFrame, bank: str, account: str, accounts: pd.DataFrame) -> pd.Series:
+    """P5: the owner (`entity_id`) of the account in columns `bank` and `account` of each row.
+
+    `accounts` must list each account once, so the merge keeps one row per transaction. Empty
+    where the account is not in `accounts`. Returns a Series aligned to `tx.index`.
+    """
+    side = tx[[bank, account]].merge(
+        accounts[["bank_id", "account_number", "entity_id"]],
+        left_on=[bank, account],
+        right_on=["bank_id", "account_number"],
+        how="left",
+    )
+    return side["entity_id"].set_axis(tx.index)

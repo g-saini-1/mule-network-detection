@@ -34,6 +34,10 @@ Table 1. Automated checks and their tools. Where each runs is set out in
 - **Enforced: Google-style docstrings** on every public module, class and function in `src/`.
   Docstrings cite rule numbers (e.g. R4) rather than restating reasoning.
 - **Enforced: `pathlib` for file paths**, not `os.path` or bare `open()`.
+- **Public and private names.** Every module in `src/` that defines names declares `__all__`,
+  listing the module's interface: names other code uses or is designed to use, and names that
+  describe the shape of a public function's output. Any other module-level name starts with `_`,
+  apart from the module's `logger`. Tests may import a private name to test it directly.
 - **Configuration, not constants.** Paths, dates, thresholds, costs and seeds live in
   `configs/*.yaml`, read with `mule_detection.utils.config.load_config()`.
 - **From Stage 2: pure feature and rule functions.** Each takes a DataFrame and an `as_at`

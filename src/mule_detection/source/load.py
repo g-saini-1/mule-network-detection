@@ -15,6 +15,22 @@ import pandas as pd
 
 from mule_detection.utils.config import load_config, repo_path
 
+__all__ = [
+    "ACCOUNT_COLUMNS",
+    "ACCOUNT_HEADER",
+    "TIMESTAMP_FORMAT",
+    "TRANSACTION_COLUMNS",
+    "TRANSACTION_HEADER",
+    "load_accounts",
+    "load_pattern_lines",
+    "load_raw_accounts",
+    "load_raw_transactions",
+    "load_transactions",
+    "normalise_bank_id",
+    "raw_file",
+    "read_header",
+]
+
 TRANSACTION_HEADER = [
     "Timestamp",
     "From Bank",
@@ -77,7 +93,7 @@ def load_raw_accounts(path: Path | None = None) -> pd.DataFrame:
     return pd.read_csv(path, header=0, names=ACCOUNT_COLUMNS, dtype=str)
 
 
-def transaction_ids(tx: pd.DataFrame) -> pd.Series:
+def _transaction_ids(tx: pd.DataFrame) -> pd.Series:
     """P1: each row's zero-based position in `tx`, which must still be in raw file order."""
     return pd.Series(range(len(tx)), index=tx.index, name="transaction_id", dtype="int64")
 
@@ -90,7 +106,7 @@ def load_transactions(path: Path | None = None) -> pd.DataFrame:
     categories.
     """
     df = load_raw_transactions(path)
-    df.insert(0, "transaction_id", transaction_ids(df))
+    df.insert(0, "transaction_id", _transaction_ids(df))
     df["timestamp"] = pd.to_datetime(df["timestamp"], format=TIMESTAMP_FORMAT)
     for col in ["amount_received", "amount_paid"]:
         df[col] = df[col].astype(float)

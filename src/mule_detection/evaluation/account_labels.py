@@ -23,9 +23,11 @@ import pandas as pd
 from mule_detection.source import load
 from mule_detection.utils.config import load_config, repo_path
 
-KEY = ["bank_id", "account_number"]
+__all__ = ["LABEL_COLUMNS", "build_account_labels", "load_labels", "main"]
+
+_KEY = ["bank_id", "account_number"]
 LABEL_COLUMNS = [
-    *KEY,
+    *_KEY,
     "is_mule",
     "mule_at",
     "first_laundering_at",
@@ -37,7 +39,7 @@ LABEL_COLUMNS = [
 
 
 def _side(tx: pd.DataFrame, bank: str, account: str) -> pd.DataFrame:
-    return tx[[bank, account]].set_axis(KEY, axis=1)
+    return tx[[bank, account]].set_axis(_KEY, axis=1)
 
 
 def _check_unpadded(tx: pd.DataFrame) -> None:
@@ -76,13 +78,13 @@ def build_account_labels(
 
     sends = _side(laundering, "from_bank", "from_account").assign(timestamp=laundering["timestamp"])
     receipts = _side(laundering, "to_bank", "to_account").assign(timestamp=laundering["timestamp"])
-    sent = sends.groupby(KEY)["timestamp"].agg(laundering_sent="size", first_sent_at="min")
-    received = receipts.groupby(KEY)["timestamp"].agg(
+    sent = sends.groupby(_KEY)["timestamp"].agg(laundering_sent="size", first_sent_at="min")
+    received = receipts.groupby(_KEY)["timestamp"].agg(
         laundering_received="size", first_received_at="min"
     )
 
-    labels = accounts.merge(sent.reset_index(), on=KEY, how="left").merge(
-        received.reset_index(), on=KEY, how="left"
+    labels = accounts.merge(sent.reset_index(), on=_KEY, how="left").merge(
+        received.reset_index(), on=_KEY, how="left"
     )
     for col in ["laundering_sent", "laundering_received"]:
         labels[col] = labels[col].fillna(0).astype("int64")
@@ -91,10 +93,10 @@ def build_account_labels(
     labels["mule_at"] = firsts.max(axis=1).where(labels["is_mule"])
     labels["first_laundering_at"] = firsts.min(axis=1)
 
-    return labels[LABEL_COLUMNS].sort_values(KEY).reset_index(drop=True)
+    return labels[LABEL_COLUMNS].sort_values(_KEY).reset_index(drop=True)
 
 
-def role_counts(labels: pd.DataFrame) -> pd.Series:
+def _role_counts(labels: pd.DataFrame) -> pd.Series:
     """Accounts by laundering role, as described in docs/account_labelling_guide.md."""
     received = labels["laundering_received"] > 0
     sent = labels["laundering_sent"] > 0
@@ -114,14 +116,14 @@ def role_counts(labels: pd.DataFrame) -> pd.Series:
     )
 
 
-def labels_path() -> Path:
+def _labels_path() -> Path:
     """Absolute path of the saved labels file."""
     return repo_path(load_config("data")["paths"]["labels"])
 
 
 def load_labels(path: Path | None = None) -> pd.DataFrame:
     """Read the saved labels, keeping account keys as text and timestamps as datetimes."""
-    labels = pd.read_parquet(path or labels_path())
+    labels = pd.read_parquet(path or _labels_path())
     missing = set(LABEL_COLUMNS) - set(labels.columns)
     if missing:
         raise ValueError(f"labels file is missing columns: {sorted(missing)}")
@@ -132,7 +134,7 @@ def main() -> None:
     """Command-line entry point: build, save and summarise the labels."""
     tx = load.load_transactions()
     labels = build_account_labels(tx)
-    path = labels_path()
+    path = _labels_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     labels.to_parquet(path, index=False)
 
@@ -143,7 +145,7 @@ def main() -> None:
     print(f"mules if laundering self-transfers counted: {with_self:,}")
     print(f"mule_at range: {mules['mule_at'].min()} to {mules['mule_at'].max()}")
     print("accounts by laundering role:")
-    print(role_counts(labels).to_string())
+    print(_role_counts(labels).to_string())
     print(f"saved to {path}")
 
 

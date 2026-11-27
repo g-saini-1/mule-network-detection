@@ -17,19 +17,21 @@ from typing import Any
 
 from mule_detection.utils.config import load_config, repo_path
 
-CHUNK_BYTES = 1 << 20
+__all__ = ["download_dataset", "main", "sha256"]
+
+_CHUNK_BYTES = 1 << 20
 
 
 def sha256(path: Path) -> str:
     """Return the SHA-256 hex digest of a file, read in chunks."""
     digest = hashlib.sha256()
     with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(CHUNK_BYTES), b""):
+        for chunk in iter(lambda: fh.read(_CHUNK_BYTES), b""):
             digest.update(chunk)
     return digest.hexdigest()
 
 
-def read_manifest(path: Path) -> dict:
+def _read_manifest(path: Path) -> dict:
     """Return the manifest at `path`, or an empty one if it doesn't exist yet."""
     if not path.exists():
         return {}
@@ -37,7 +39,7 @@ def read_manifest(path: Path) -> dict:
     return manifest
 
 
-def is_current(target: Path, entry: dict | None) -> bool:
+def _is_current(target: Path, entry: dict | None) -> bool:
     """True if `target` exists and its hash matches the manifest entry."""
     return target.exists() and entry is not None and entry.get("sha256") == sha256(target)
 
@@ -65,14 +67,14 @@ def download_dataset(config: dict | None = None, force: bool = False, api: Any =
 
     api = api or _authenticated_api()
     remote = {f.name: f for f in api.dataset_list_files(slug).files}
-    manifest = read_manifest(manifest_path)
+    manifest = _read_manifest(manifest_path)
 
     for file_name in config["files"].values():
         if file_name not in remote:
             raise FileNotFoundError(f"{file_name} is not listed in Kaggle dataset {slug}")
         target = raw_dir / file_name
 
-        if not force and is_current(target, manifest.get(file_name)):
+        if not force and _is_current(target, manifest.get(file_name)):
             print(f"{file_name}: present and unchanged, skipping")
             continue
 

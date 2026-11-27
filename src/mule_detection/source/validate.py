@@ -19,8 +19,15 @@ from mule_detection.source import load
 from mule_detection.source.download import sha256
 from mule_detection.utils.config import load_config
 
-PATTERN_BEGIN = re.compile(r"^BEGIN LAUNDERING ATTEMPT - ([A-Z-]+)")
-PATTERN_END = "END LAUNDERING ATTEMPT"
+__all__ = [
+    "ValidationError",
+    "ValidationReport",
+    "main",
+    "validate_all",
+]
+
+_PATTERN_BEGIN = re.compile(r"^BEGIN LAUNDERING ATTEMPT - ([A-Z-]+)")
+_PATTERN_END = "END LAUNDERING ATTEMPT"
 
 
 class ValidationError(Exception):
@@ -40,7 +47,7 @@ class ValidationReport:
         return not self.errors
 
 
-def check_expected(
+def _check_expected(
     name: str, actual_sha256: str, actual_rows: int | None, expected: dict
 ) -> ValidationReport:
     """Compare a file's hash, and its row count when one is expected, with the config."""
@@ -55,7 +62,7 @@ def check_expected(
     return report
 
 
-def check_transactions(raw: pd.DataFrame, header: list[str]) -> ValidationReport:
+def _check_transactions(raw: pd.DataFrame, header: list[str]) -> ValidationReport:
     """Schema, completeness, timestamp, amount, label and bank-code checks."""
     report = ValidationReport()
     if header != load.TRANSACTION_HEADER:
@@ -104,7 +111,7 @@ def check_transactions(raw: pd.DataFrame, header: list[str]) -> ValidationReport
     return report
 
 
-def check_accounts(
+def _check_accounts(
     raw: pd.DataFrame, header: list[str], transactions: pd.DataFrame | None = None
 ) -> ValidationReport:
     """Schema, completeness and key-uniqueness checks for the accounts file.
@@ -147,7 +154,7 @@ def check_accounts(
     return report
 
 
-def check_patterns(lines: list[str]) -> ValidationReport:
+def _check_patterns(lines: list[str]) -> ValidationReport:
     """Structure checks for the laundering patterns file.
 
     BEGIN/END blocks are balanced and not nested, and every transaction line inside a block has
@@ -159,13 +166,13 @@ def check_patterns(lines: list[str]) -> ValidationReport:
     current = None
 
     for i, line in enumerate(lines, start=1):
-        begin = PATTERN_BEGIN.match(line)
+        begin = _PATTERN_BEGIN.match(line)
         if begin:
             if current is not None:
                 report.errors.append(f"line {i}: BEGIN inside an unclosed block")
             current = begin.group(1)
             typologies[current] = typologies.get(current, 0) + 1
-        elif line.startswith(PATTERN_END):
+        elif line.startswith(_PATTERN_END):
             if current is None:
                 report.errors.append(f"line {i}: END without a matching BEGIN")
             current = None
@@ -196,17 +203,17 @@ def validate_all() -> dict[str, ValidationReport]:
     rows = {"transactions": len(transactions), "accounts": len(accounts), "patterns": None}
     reports = {}
     for key, file_name in config["files"].items():
-        reports[f"{key} file"] = check_expected(
+        reports[f"{key} file"] = _check_expected(
             file_name, sha256(load.raw_file(key)), rows[key], config["expected"][file_name]
         )
     reports |= {
-        "transactions": check_transactions(
+        "transactions": _check_transactions(
             transactions, load.read_header(load.raw_file("transactions"))
         ),
-        "accounts": check_accounts(
+        "accounts": _check_accounts(
             accounts, load.read_header(load.raw_file("accounts")), transactions
         ),
-        "patterns": check_patterns(load.load_pattern_lines()),
+        "patterns": _check_patterns(load.load_pattern_lines()),
     }
     failures = {name: r.errors for name, r in reports.items() if not r.passed}
     if failures:

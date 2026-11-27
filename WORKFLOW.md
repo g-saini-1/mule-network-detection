@@ -28,10 +28,12 @@ approves, drafted as a `docs/decisions.md` entry, or parked in `docs/backlog.md`
 1. **Build only what the stage plan in `scope_and_rationale.md` commits to.**
 2. **Test alongside the code:** label logic, data validation and every feature function, to the
    standards in DEVELOPMENT.md ("Tests"), which also set the leakage test for time-based features.
-3. **Flag assumptions and departures from the stage plan,** each with a `docs/decisions.md` entry.
-4. **Park scope creep** in `docs/backlog.md`.
-5. **Report only numbers produced by running the code;** mark anything unverified as such.
-6. **Run the documentation checks** (`.claude/skills/docs-check/SKILL.md`) whenever documentation
+3. **Review each piece of work before it is committed:** once a rule or module and its tests pass
+   `make check`, the tech lead reviews the code (CLAUDE.md, "Personas").
+4. **Flag assumptions and departures from the stage plan,** each with a `docs/decisions.md` entry.
+5. **Park scope creep** in `docs/backlog.md`.
+6. **Report only numbers produced by running the code;** mark anything unverified as such.
+7. **Run the documentation checks** (`.claude/skills/docs-check/SKILL.md`) whenever documentation
    changes.
 
 ## Close a stage

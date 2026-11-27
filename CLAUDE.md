@@ -29,9 +29,9 @@ plan and evaluation approach are in `scope_and_rationale.md`.
 
 - **Stage 1 (data understanding) is closed:** merged to `main` and tagged `v0.1`.
 - **Stage 2 (rules baseline) is in progress** on `stage-2-rules`. The transaction preparation
-  rules P1 to P9 are set in `docs/transaction_preparation_guide.md`; building them is next. Stage 2
+  rules P1 to P8 are set in `docs/transaction_preparation_guide.md`; building them is next. Stage 2
   notes are in `docs/backlog.md`.
-- **Labels:** load with `mule_detection.data.labels.load_labels()`. Rules R1 to R7 are in
+- **Labels:** load with `mule_detection.evaluation.account_labels.load_labels()`. Rules R1 to R7 are in
   `docs/account_labelling_guide.md`. Payment order is ignored because AMLworld's timestamps
   within a scheme don't follow the money, so don't build rules on payment order without checking
   this first.
@@ -71,13 +71,15 @@ make check          # format check, lint, type check and tests (what CI runs)
   and the temporal train/validation/test split is fixed in Stage 2 and reused unchanged, so each
   stage's lift over the previous one is a fair comparison.
 - **Installed package:** `src/mule_detection/`, imported normally (e.g.
-  `from mule_detection.data import load`). Target submodules: `data/` (download, load, validate,
-  labels), `rules/`, `features/` (account, velocity, graph), `models/` (train, predict),
-  `evaluation/` (metrics, costs, thresholds, stability), `utils/` (config).
+  `from mule_detection.source import load`). One subpackage per bounded context
+  (`docs/decisions.md`, 2026-11-27): `source/` (download, load, validate, prepare transactions),
+  `payments/` (transfer flags, currency conversion), `detection/` (rules, features, models),
+  `evaluation/` (account and transaction labels, metrics, costs, thresholds, stability), and
+  `utils/` (config) shared by all. Nothing in `detection/` imports from `evaluation/`.
 - **Config, not code:** paths, split dates, rule thresholds and cost assumptions live in
   `configs/*.yaml`, read with `mule_detection.utils.config.load_config()` and resolved with
   `repo_path()`.
-- **Data access:** datasets are downloaded only through `src/mule_detection/data/download.py`.
+- **Data access:** datasets are downloaded only through `src/mule_detection/source/download.py`.
 - **Notebooks** follow the stages: `01_eda`, `02_rules_baseline`, `03_ml_model`,
   `04_graph_features`, `05_validation`.
 - **Reports:** each stage adds `reports/stageN_<name>.md` (contents set in `WORKFLOW.md`), linked
@@ -91,7 +93,8 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `scope_and_rationale.md` | Upfront plan: rationale, stage objectives, evaluation approach (frozen) |
 | `data/README.md` | Data facts and figures, validation results, limitations |
 | `docs/account_labelling_guide.md` | Account label rules R1 to R7, label columns and label counts |
-| `docs/transaction_preparation_guide.md` | Transaction preparation rules P1 to P9 and prepared columns |
+| `docs/transaction_preparation_guide.md` | Transaction preparation rules P1 to P8 and prepared columns |
+| `docs/transaction_labelling_guide.md` | Transaction label rules T1 to T3 and transaction label columns |
 | `docs/currency_conversion_guide.md` | Why and how amounts are converted to one base currency, and its limits |
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
@@ -141,7 +144,7 @@ decisions and isn't professional, legal or compliance advice.
 | Domain educator | AML and mule concepts, typologies, how banks detect mules |
 | Financial crime practitioner | Bank fraud and AML practice: scenario tuning and coverage, alert capacity, operational metrics, governance |
 | Data scientist | EDA, splits, features, leakage, models, graph features, cost and alert-budget analysis |
-| Solution architect | Expert skills in system architecture and design: system context, containers, data and component views, architecture documentation |
+| Tech lead | Accountable for technical design and code quality. Expert skills in system architecture and design and in domain-driven design: system context, containers, data and component views, bounded contexts and domain language, architecture documentation. Coding standards and code review: design, patterns, Python and pandas, data and ML engineering practice |
 | Engineer | Data pipeline, package and tests, git commands for the model owner, credentials and permissions |
 | Independent validator | Challenges claims, leakage and synthetic-data artefacts |
 | Communicator | README, data and model documentation, decisions log, later LinkedIn content |
@@ -154,12 +157,20 @@ Table 2. Personas used in this project.
 - **The financial crime practitioner reviews as a bank would,** from public sources (AUSTRAC,
   FATF, NASC, APRA, model risk guidance): typology coverage, alert capacity and the alert budget,
   scenario tuning and governance. Each finding states its risk and operational impact.
-- **The solution architect works to recognised frameworks** (e.g. the C4 model, arc42). It
-  describes the system, not the project (no deliverables, repository or workflow), and stays at
-  architecture level (no code, file paths or commands). Views run system context, containers,
-  components, data, then the internal design of individual components; cross-cutting concerns
-  get their own section, and status is document metadata. Each fact appears once: a caption says
-  what its figure shows, and text doesn't restate a figure or another section.
+- **The tech lead designs the architecture to recognised frameworks** (e.g. the C4 model, arc42,
+  and domain-driven design for bounded contexts, a shared domain language and anti-corruption
+  layers at the system's edges). In the solution architecture, it describes the system, not the
+  project (no deliverables, repository or workflow), and stays at architecture level (no code,
+  file paths or commands). Views run system context, containers, components, data, then the
+  internal design of individual components; cross-cutting concerns get their own section, and
+  status is document metadata. Each fact appears once: a caption says what its figure shows, and
+  text doesn't restate a figure or another section.
+- **The tech lead reviews code as an industry team would,** to the standard of a production
+  codebase and to recognised practice (Google's code review guide, PEP 8, *Architecture Patterns
+  with Python*, Fowler's refactorings, Google's ML Test Score). It reviews in order of importance
+  (design, functionality, complexity, tests, naming, comments, style), checks the code against the
+  solution architecture, grades each finding as blocking or a suggestion, and names the principle
+  or pattern behind it.
 - **The engineer designs tests to recognised practice:** shift-left (tests with or before the
   code, fastest checks first), the test pyramid, a risk-based focus (most effort where failure
   costs most, e.g. labels, leakage and the temporal split), automated quality gates rather than
@@ -170,6 +181,6 @@ Table 2. Personas used in this project.
 - **The independent validator applies effective challenge,** as model risk guidance describes it
   (e.g. SR 11-7): every claim needs evidence from run output or a cited source, and anything
   unverified is reported as such.
-- **The practitioner and validator stay separate from the builder.** Self-review leans towards
-  agreement, so their end-of-stage reviews (`WORKFLOW.md`) offer a fresh-context review when the
-  model owner wants stronger independence.
+- **Reviewers don't review their own work.** The practitioner, validator and tech lead review
+  work another persona produced. Self-review leans towards agreement, so their reviews
+  (`WORKFLOW.md`) offer a fresh-context review when the model owner wants stronger independence.

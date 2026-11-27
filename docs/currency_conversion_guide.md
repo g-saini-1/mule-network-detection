@@ -45,13 +45,14 @@ The base currency, the minimum amount and the tolerance below are set in a confi
 
 ### Checks
 
-Two checks test whether the data fits the method's assumptions. Preparation stops at the first
+Three checks test whether the data fits the method's assumptions. Preparation stops at the first
 failed check and does not write its output; the error names what failed. A failure points to a
 change in the data, not a fault to work around.
 
 | Check | Fails when | Likely causes in the data | Response |
 |---|---|---|---|
 | Missing rate | A currency in the data has no rate | A new currency, or one with no US Dollar payment of 100 or more | Decide how the currency is handled (e.g. a rate through a third currency, or leaving its payments out), with a decisions.md entry |
+| Coverage | No cross-currency payment with an amount paid of 100 or more is available to check, or a gap cannot be computed (e.g. a missing amount received) | A fault in the input or the settings rather than in the rates, e.g. missing amounts or a minimum amount set too high | Fix the input or the setting; the method does not change |
 | Conversion consistency | On any cross-currency payment with an amount paid of 100 or more, the gap between the converted amount paid and the converted amount received, as a share of the converted amount paid, is above the tolerance | Rates that change over time, or fees or spreads in the amounts | Find the pattern in the failing payments (e.g. which currency pairs, which dates), then revise the method (e.g. rates by period), with a decisions.md entry. The tolerance is not raised just to pass the check |
 
 Table 1. Checks on the conversion and the response to each failure.

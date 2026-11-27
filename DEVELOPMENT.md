@@ -4,7 +4,6 @@ How code in this repository is written, checked and tested. Tooling choices and 
 reasoning are in `docs/decisions.md` (2026-10-28, "Adopt automated code-quality checks").
 
 Standards marked **enforced** are checked automatically by `make check`, pre-commit and CI.
-Standards marked **from Stage N** apply to new code from that stage onwards.
 
 ## Checks and tooling
 
@@ -14,7 +13,6 @@ Standards marked **from Stage N** apply to new code from that stage onwards.
 | Lint | `ruff check` with the rule set in `pyproject.toml` |
 | Types | `mypy` on `src/` |
 | Tests | `pytest` |
-| Property-based tests (from Stage 2) | `hypothesis` |
 | Notebook outputs stripped | `nbstripout` |
 | Large files, private keys, YAML/TOML syntax | `pre-commit-hooks` |
 
@@ -40,10 +38,11 @@ Table 1. Automated checks and their tools. Where each runs is set out in
   apart from the module's `logger`. Tests may import a private name to test it directly.
 - **Configuration, not constants.** Paths, dates, thresholds, costs and seeds live in
   `configs/*.yaml`, read with `mule_detection.utils.config.load_config()`.
-- **From Stage 2: pure feature and rule functions.** Each takes a DataFrame and an `as_at`
-  timestamp and returns a DataFrame or Series, with no file reads, config reads or global state
-  inside. File and config access happens only in entry points (`main()` and `make` targets).
-- **From Stage 2: logging, not `print`, in pipeline code.** One logger per module
+- **Pure rule and feature functions.** Each takes DataFrames and returns a DataFrame or Series,
+  with no file reads, config reads or global state inside. File and config access happens only
+  in entry points (`main()` and `make` targets). Detection rules and features also take an
+  `as_at` timestamp and use only transactions before it.
+- **Logging, not `print`, in pipeline code.** One logger per module
   (`logging.getLogger(__name__)`); `print` stays only for deliberate command-line summaries.
 
 ## Tests
@@ -52,27 +51,31 @@ The testing approach (test levels, test types, test data and quality gates) is i
 [docs/test_strategy.md](docs/test_strategy.md); the conventions for writing tests are below.
 
 - **Layout:** `tests/test_<module>.py`, one file per module.
-- **Naming:** a test that checks a numbered rule starts with that rule, e.g.
-  `test_r4_order_of_receipt_and_send_does_not_matter`.
+- **Test behaviour, not implementation.** Each test checks one behaviour, e.g. one condition of
+  a rule, through arrange, act and assert steps.
+- **Naming:** the name states the behaviour and its expected result, not the input, and starts
+  with the rule it checks, e.g. `test_p7_ties_are_sorted_by_transaction_id`, not
+  `test_p7_ties_out_of_time_order`.
+- **Inputs:** minimal hand-built tables from `tests/builders.py`, changing only the fields the
+  behaviour depends on. Cases cover each kind of input and each boundary, e.g. just below, at
+  and just above a threshold.
+- **Expected values are written out,** never computed by logic in the test.
 - **Enforced: registered markers only.** A test that needs the downloaded dataset is marked
   `@pytest.mark.data`; CI skips these.
-- **From Stage 2: coverage measured** with `pytest-cov` on `src/`. A minimum is set from the first
-  measured figure, not chosen in advance.
+- **Enforced: at least 80% branch coverage** of `src/` as a whole, measured with `pytest-cov`.
+  The minimum is raised as coverage rises and never lowered to let a change through.
 
 ## Data
 
-- **From Stage 2: schemas at stage boundaries.** Frames passed between stages (transactions,
-  labels, features, scores) are checked against a `pandera` schema: column names, dtypes,
-  nullability and value ranges.
-- **Sort before time-based computation.** The transactions file is not in time order.
+- **Data contracts between contexts.** Each dataset passed from one bounded context to another
+  (e.g. prepared transactions, labels, features, scores) has a data contract: its producer and
+  consumers, its schema (column names, dtypes, nullability and value ranges) and its quality
+  rules. The schema is declared with `pandera`, and checked by the producer before writing and
+  by the consumer on reading. None is enforced yet; the first covers transactions entering
+  preparation.
 
 ## Reproducibility
 
-- **From Stage 3: a run manifest for every reported number.** Each run that produces figures for a
-  report writes a JSON file beside its output with the git commit, a hash of the config, the data
-  file hashes, the random seed and the run time.
-- **From Stage 3: seeds from config.** Every random operation takes its seed from
-  `configs/*.yaml`.
 - **Notebooks stay thin.** They import from `mule_detection`, and explore or display results;
   logic used more than once moves into `src/`.
 
@@ -91,9 +94,3 @@ The testing approach (test levels, test types, test data and quality gates) is i
 
 The pull request description states what changed, why, and how it was verified, with the
 commands run and the figures they produced.
-
-## Not used
-
-Docker, experiment-tracking servers (e.g. MLflow), data version control (e.g. DVC) and fixed
-100% coverage targets. Each adds upkeep without improving trust in a single-author, one-dataset
-project; the run manifest covers the reproducibility they would add.

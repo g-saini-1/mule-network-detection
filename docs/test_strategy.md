@@ -15,9 +15,17 @@ synthetic public data.
 ## Principles
 
 - **Shift-left.** Tests are written with or before the code. Static checks (formatting, lint,
-  types) and schema checks catch defects before tests run, and the fastest checks run first.
-- **Test pyramid.** Most tests are fast unit tests at code level; each level above has fewer,
-  slower tests.
+  types) and data contract checks catch defects before tests run, and the fastest checks run first.
+- **Test pyramid.** Most tests are fast unit tests; component, integration and end-to-end tests
+  are progressively fewer and slower. Each behaviour is tested once, by the fastest kind of test
+  that can catch it:
+  - **Unit tests** check one function, e.g. a rule.
+  - **Component tests** check only how the functions within one component work together, e.g.
+    that each flag stays with its row through the pipeline, and do not repeat the unit tests.
+  - **Integration tests** check the data contracts and the reading and writing between
+    components and the data stores.
+  - **End-to-end tests** check only that the whole system runs from ingested files to
+    evaluation output.
 - **Risk-based focus.** Most testing effort goes where failure would cost most: the account
   labels, leakage across the scoring time, and the temporal split.
 - **Traceable.** Every test names the rule or risk it covers.
@@ -33,7 +41,7 @@ stage that starts each level.
 |---|---|---|---|---|---|
 | Code | Unit | One function, e.g. a label rule or a rule condition | Hand-built frames | Most | Stage 1 |
 | Component | Component | One component end to end, e.g. the rules engine on fixture tables | Fixture tables | Fewer | Stage 2 |
-| Container | Integration | The application reading and writing the data zones, with schemas checked at each boundary | Fixture dataset | Few | Stage 2 |
+| Container | Integration | The application reading and writing the data zones, with data contracts checked at each boundary between contexts | Fixture dataset | Few | Stage 2 |
 | Context | End-to-end | The whole pipeline, from ingested files to evaluation output | Fixture dataset | Very few | *Pending* |
 
 Table 1. Test levels by C4 view.
@@ -46,7 +54,7 @@ Table 1. Test levels by C4 view.
 | Data validation | Downloaded files match their expected hashes, row counts and content | Stage 1 |
 | Static analysis | Formatting, lint and types | Stage 1 |
 | Regression | Every test runs on every change | Stage 1 |
-| Schema | Data passed between stages, to the standard in [DEVELOPMENT.md](../DEVELOPMENT.md) ("Data") | Stage 2 |
+| Data contract | Datasets passed between bounded contexts, against their data contracts ([DEVELOPMENT.md](../DEVELOPMENT.md), "Data") | Stage 2 |
 | Leakage and point-in-time | Payments at or after the scoring time never change a feature or rule value, checked with property-based tests | Stage 2 |
 | Machine learning | Data, model and infrastructure tests, following Google's ML Test Score rubric | Stage 3 |
 
@@ -66,7 +74,7 @@ Table 2. Test types and the stage each starts in.
 | Gate | When | Checks |
 |---|---|---|
 | Pre-commit | Every commit | Formatting, lint, notebook outputs stripped, large files and private keys |
-| `make check` | Before code is handed over | Format check, lint, types and tests |
+| `make check` | Before code is handed over | Format check, lint, types, and tests with at least 80% branch coverage of the whole codebase |
 | CI | Every pull request and push to `main` | `make check`, without tests marked `data` |
 
 Table 3. Quality gates, from fastest to slowest feedback.

@@ -42,6 +42,13 @@ pythonpath = ["tests"]
 addopts = "--strict-markers --cov=mule_detection --cov-report=term-missing"
 markers = ["data: needs the downloaded HI-Small files in data/raw (skipped in CI)"]
 
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+# Minimum for the whole codebase (DEVELOPMENT.md, "Tests"); raised as coverage rises, never lowered.
+fail_under = 80
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"

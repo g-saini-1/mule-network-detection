@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from mule_detection.source.download import download_dataset, read_manifest, sha256
+from mule_detection.source.download import _read_manifest, download_dataset, sha256
 
 SLUG = "owner/dataset"
 
@@ -45,7 +45,7 @@ def test_first_run_downloads_and_records_manifest(tmp_path):
     assert api.downloads == ["a.csv"]
     assert manifest["a.csv"]["sha256"] == sha256(tmp_path / "raw/a.csv")
     assert manifest["a.csv"]["bytes"] == 4
-    assert read_manifest(tmp_path / "raw/manifest.json") == manifest
+    assert _read_manifest(tmp_path / "raw/manifest.json") == manifest
 
 
 def test_second_run_skips_unchanged_file(tmp_path):

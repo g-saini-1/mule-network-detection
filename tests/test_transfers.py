@@ -4,14 +4,17 @@ from builders import acc, frame, txn
 
 from mule_detection.payments.transfers import flag_own_account_transfers, flag_self_transfers
 
+# --- P4 -------------------------------------------------------------------------------------------
 
-# --- P4 ----------------------------------------------------------------------------------
+
 def test_p4_only_same_bank_and_same_account_is_a_self_transfer():
     tx = frame(txn(to_bank="10", to_account="A"), txn(), txn(to_account="A"), txn(to_bank="10"))
     assert flag_self_transfers(tx).tolist() == [True, False, False, False]
 
 
-# --- P5 ----------------------------------------------------------------------------------
+# --- P5 -------------------------------------------------------------------------------------------
+
+
 def test_p5_same_entity_different_banks_is_not_own_account_transfer():
     tx = frame(txn())
     accs = frame(

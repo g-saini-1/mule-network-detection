@@ -25,7 +25,9 @@ def usd_to_aud(paid, received):
     )
 
 
-# --- P6: settings ------------------------------------------------------------------------
+# --- P6: settings ---------------------------------------------------------------------------------
+
+
 def test_p6_settings_are_read_from_the_config_section_with_their_types():
     section = {
         "base_currency": "US Dollar",
@@ -35,7 +37,9 @@ def test_p6_settings_are_read_from_the_config_section_with_their_types():
     assert CurrencySettings.from_config(section) == CurrencySettings("US Dollar", 100.0, 0.005)
 
 
-# --- P6: rates ---------------------------------------------------------------------------
+# --- P6: rates ------------------------------------------------------------------------------------
+
+
 def test_p6_rate_is_units_received_per_base_unit_paid():
     rates = exchange_rates(frame(usd_to_aud(100.0, 150.0)), "US Dollar", 100)
     assert rates[AUD] == 1.5
@@ -79,7 +83,9 @@ def test_p6_small_same_currency_and_non_base_payments_are_ignored():
     assert rates.to_dict() == {AUD: 1.5, "US Dollar": 1.0}
 
 
-# --- P6: conversion ----------------------------------------------------------------------
+# --- P6: conversion -------------------------------------------------------------------------------
+
+
 RATES = pd.Series({AUD: 1.5, "US Dollar": 1.0})
 
 
@@ -100,7 +106,9 @@ def test_p6_a_currency_without_a_rate_fails():
         convert_amounts(tx, RATES)
 
 
-# --- P6: conversion consistency check ----------------------------------------------------
+# --- P6: conversion consistency check -------------------------------------------------------------
+
+
 def prepared(*rows):
     """Transactions with converted amounts, as `check_conversion` sees them."""
     tx = frame(*rows)

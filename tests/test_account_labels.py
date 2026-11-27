@@ -5,9 +5,9 @@ import pytest
 
 from mule_detection.evaluation.account_labels import (
     LABEL_COLUMNS,
+    _role_counts,
     build_account_labels,
     load_labels,
-    role_counts,
 )
 from mule_detection.source import load
 
@@ -37,7 +37,7 @@ def label_of(labels, bank, account):
     return row.iloc[0]
 
 
-# --- the mule rule ---------------------------------------------------------------------
+# --- the mule rule --------------------------------------------------------------------------------
 
 
 def test_r4_receiving_and_sending_makes_a_mule_and_its_neighbours_are_not():
@@ -67,7 +67,7 @@ def test_r2_normal_transactions_do_not_make_a_mule():
     assert (b["laundering_received"], b["laundering_sent"]) == (0, 0)
 
 
-# --- timing ----------------------------------------------------------------------------
+# --- timing ---------------------------------------------------------------------------------------
 
 
 def test_r5_mule_at_is_when_both_directions_have_happened():
@@ -125,7 +125,7 @@ def test_row_order_does_not_change_the_labels():
     assert label_of(in_order, "2", "X")["first_sent_at"] == T2
 
 
-# --- self-transfers and account identity -----------------------------------------------
+# --- self-transfers and account identity ----------------------------------------------------------
 
 
 def test_r3_laundering_self_transfer_alone_does_not_make_a_mule():
@@ -182,7 +182,7 @@ def test_r1_padded_bank_ids_are_the_same_account_once_loaded(tmp_path):
     assert label_of(labels, "10", "MULE")["is_mule"]
 
 
-# --- output ----------------------------------------------------------------------------
+# --- output ---------------------------------------------------------------------------------------
 
 
 def test_r7_every_transacting_account_gets_exactly_one_row():
@@ -204,7 +204,7 @@ def test_role_counts_cover_every_account_once():
             (T1, "6", "A", "7", "B", 0),
         )
     )
-    counts = role_counts(labels)
+    counts = _role_counts(labels)
     assert counts.sum() == len(labels)
     assert counts["both directions (mule), receipt timestamped first"] == 2  # MULE and Y
     assert counts["both directions (mule), send timestamped first"] == 1  # S

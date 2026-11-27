@@ -246,3 +246,66 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   same bank only.
 - **Decision and rationale:** Flag them within the same bank only (`is_own_account_transfer`), so
   preparation uses only what a bank could know.
+
+## 2026-11-27: Keep ground truth out of prepared transactions
+
+- **Context:** Prepared transactions were to carry three columns for evaluation only:
+  `is_laundering`, `scheme_id` and `typology`. Only a naming convention would keep them away from
+  the rules engine. The solution architecture treats detection and ground truth as separate
+  bounded contexts.
+- **Options considered:** keep the columns in prepared transactions, marked evaluation only; move
+  them to a separate transaction labels dataset keyed by `transaction_id`.
+- **Decision and rationale:** Move them to a separate transaction labels dataset in the processed
+  zone, built with the account labels by `make labels`. Detection's input then holds no ground
+  truth, so these columns cannot leak into the rules. This supersedes the 2026-11-19 entry's point
+  that prepared transactions are the single source for later stages; the typology coverage matrix
+  joins the two datasets on `transaction_id`. Scheme tagging moves from the preparation rules to
+  the transaction labelling rules, and the preparation rules are renumbered P1 to P8.
+
+## 2026-11-27: Organise the package by bounded context
+
+- **Context:** The solution architecture splits the system into bounded contexts (source data,
+  payments, detection, and ground truth and evaluation), and detection must never read ground
+  truth. The package was organised by technical layer, with source loading, payment rules and
+  label building all under `data/`.
+- **Options considered:** keep `data/` and split it into modules; one package per bounded
+  context.
+- **Decision and rationale:** One package per bounded context: `source/`, `payments/`,
+  `detection/` and `evaluation/`, with `utils/` shared. Each context's boundary is then visible
+  in the code, and the rule that detection never imports evaluation can be tested. Moving now
+  costs less than later, when the rules engine adds modules. This replaces the `data/` layout
+  planned in CLAUDE.md ("Architecture").
+
+## 2026-11-27: Leave the laundering flag out of the duplicate comparison
+
+- **Context:** P3 compared every column apart from `transaction_id`, so the laundering flag
+  decided whether a row was a duplicate. Preparation is meant to use only what a bank could know
+  (2026-11-20), and the flag is ground truth.
+- **Options considered:** compare every column; compare a fixed list of source columns without
+  the laundering flag.
+- **Decision and rationale:** Compare a fixed list of source columns without the laundering flag,
+  so a detection input never depends on ground truth and the result does not change with which
+  columns happen to exist. On HI-Small the choice makes no difference: 9 rows are duplicates
+  either way.
+
+## 2026-11-27: Fail if the base currency is not US Dollar
+
+- **Context:** The base currency is set in config, but the converted columns are named
+  `amount_paid_usd` and `amount_received_usd`. Another base would silently mislabel them.
+- **Options considered:** fail if the base is not US Dollar; rename the columns to a neutral
+  name, e.g. `amount_paid_base`.
+- **Decision and rationale:** Fail if the base is not US Dollar. The project uses US Dollar
+  throughout and the currency conversion guide is written for it; a neutral name can follow if
+  another base is ever needed.
+
+## 2026-11-27: Infer exchange rates from the whole period for now
+
+- **Context:** P6 infers rates from payments across the whole period, the test period as well,
+  so amounts in earlier periods are converted with rates learned partly from later
+  payments. While the simulator's rates are fixed, as the conversion consistency check tests,
+  the effect is small, but it departs from point-in-time correctness.
+- **Options considered:** keep whole-period rates and record the departure; infer rates from the
+  train period only.
+- **Decision and rationale:** Keep whole-period rates for now and record the departure in the
+  currency conversion guide (Limitations). Revisit when the temporal split is built, when rates
+  from the train period alone become possible.

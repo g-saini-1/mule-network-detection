@@ -118,13 +118,13 @@ def prepare_transactions(
 ) -> PreparedTransactions:
     """Apply P3 to P7 to transactions from `load.load_transactions` (P1, P2).
 
-    `tx` is left unchanged. The table is never copied in full on purpose, to keep peak memory
-    down on the full dataset; the comments below say where.
+    `tx` is left unchanged. To keep peak memory down on the full dataset, the table is copied
+    once, by the P7 sort, rather than at each step; the comments below say how.
     """
     logger.info("P3 to P5: flagging duplicates, self-transfers and own-account transfers")
-    # `assign` returns a new table without changing `tx`. With copy-on-write (always on from
-    # pandas 3) the new table shares the existing columns instead of copying them, so no
-    # `tx.copy()` is needed to keep the function pure.
+    # `assign` returns a new table and never changes `tx`, so no `tx.copy()` is needed to keep
+    # the function pure. Separately, copy-on-write (always on from pandas 3) lets the new table
+    # share `tx`'s columns instead of copying them, which is where the memory is saved.
     prepared = tx.assign(
         is_duplicate=_flag_duplicates(tx),
         is_self_transfer=flag_self_transfers(tx),
@@ -140,7 +140,8 @@ def prepare_transactions(
     )
     check_conversion(prepared, currency)
     logger.info("P7: sorting by time")
-    # The output columns are selected before sorting, so the sort reorders only the columns kept.
+    # The sort copies the table once. Selecting the output columns first spares it the one
+    # column not kept.
     prepared = _sort_by_time(prepared[PREPARED_COLUMNS])
     return PreparedTransactions(prepared.reset_index(drop=True), rates)
 

@@ -4,6 +4,7 @@ The method is in `docs/currency_conversion_guide.md`; the reasoning is in `docs/
 Tests in `tests/test_currency.py` are named by rule number.
 """
 
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
@@ -27,7 +28,7 @@ class CurrencySettings:
     """P6 settings, read once from the `transaction_preparation` section of `configs/data.yaml`.
 
     Fails if the base currency is not US Dollar, the currency the converted columns are named
-    for.
+    for, if the minimum amount is not above 0, or if the tolerance is not a number of 0 or more.
 
     Attributes:
         base_currency: Currency every amount is converted to.
@@ -40,12 +41,16 @@ class CurrencySettings:
     tolerance: float
 
     def __post_init__(self) -> None:
-        """Fail on a base currency the converted columns are not named for."""
+        """Fail on settings that would convert wrongly or let the checks pass silently."""
         if self.base_currency != _SUPPORTED_BASE_CURRENCY:
             raise ValueError(
                 f"P6: base currency must be {_SUPPORTED_BASE_CURRENCY}, not {self.base_currency}; "
                 "the converted columns are named for it"
             )
+        if not self.min_amount_paid > 0:
+            raise ValueError(f"P6: minimum amount paid must be above 0, not {self.min_amount_paid}")
+        if not (math.isfinite(self.tolerance) and self.tolerance >= 0):
+            raise ValueError(f"P6: tolerance must be a number of 0 or more, not {self.tolerance}")
 
     @classmethod
     def from_config(cls, section: Mapping[str, Any]) -> "CurrencySettings":
@@ -95,7 +100,7 @@ def convert_amounts(tx: pd.DataFrame, rates: pd.Series) -> pd.DataFrame:
     received_rate = received_in.map(rates)
     missing = set(paid_in[paid_rate.isna()]) | set(received_in[received_rate.isna()])
     if missing:
-        raise ValueError(f"no exchange rate for currencies: {sorted(missing)}")
+        raise ValueError(f"P6: no exchange rate for currencies: {sorted(missing)}")
     return pd.DataFrame(
         {
             "amount_paid_usd": tx["amount_paid"] / paid_rate,
@@ -125,7 +130,7 @@ def check_conversion(prepared: pd.DataFrame, currency: CurrencySettings) -> None
     """P6: fail unless every gap between converted paid and received amounts is within tolerance.
 
     Also fails if no payment is covered, since the rates would then go unchecked, and if any gap
-    cannot be computed, e.g. from a missing amount.
+    cannot be computed, e.g. from a missing amount received.
     """
     gaps = conversion_gaps(prepared, currency)
     if gaps.empty:
@@ -140,6 +145,6 @@ def check_conversion(prepared: pd.DataFrame, currency: CurrencySettings) -> None
     above = gaps > currency.tolerance
     if above.any():
         raise ValueError(
-            f"{int(above.sum())} payments convert with a gap above {currency.tolerance}; "
+            f"P6: {int(above.sum())} payments convert with a gap above {currency.tolerance}; "
             f"largest {gaps.max():.6f}"
         )

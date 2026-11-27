@@ -43,6 +43,20 @@ def test_p6_a_base_currency_other_than_us_dollar_fails():
         CurrencySettings(base_currency="Euro", min_amount_paid=100.0, tolerance=0.005)
 
 
+@pytest.mark.parametrize("min_amount_paid", [0.0, -1.0, float("nan")])
+def test_p6_a_minimum_amount_not_above_zero_fails(min_amount_paid):
+    with pytest.raises(ValueError, match="minimum amount paid must be above 0"):
+        CurrencySettings(
+            base_currency="US Dollar", min_amount_paid=min_amount_paid, tolerance=0.005
+        )
+
+
+@pytest.mark.parametrize("tolerance", [-0.001, float("nan"), float("inf")])
+def test_p6_a_tolerance_that_is_not_a_number_of_zero_or_more_fails(tolerance):
+    with pytest.raises(ValueError, match="tolerance must be a number of 0 or more"):
+        CurrencySettings(base_currency="US Dollar", min_amount_paid=100.0, tolerance=tolerance)
+
+
 # --- P6: rates ------------------------------------------------------------------------------------
 
 

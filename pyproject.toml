@@ -8,7 +8,7 @@ dependencies = [
     "kaggle",
     "matplotlib",
     "numpy",
-    "pandas",
+    "pandas>=3",
     "pandera>=0.36.0",
     "pyarrow>=26.0.0",
     "pyyaml",

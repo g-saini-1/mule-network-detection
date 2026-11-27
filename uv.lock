@@ -1420,7 +1420,7 @@ requires-dist = [
     { name = "kaggle" },
     { name = "matplotlib" },
     { name = "numpy" },
-    { name = "pandas" },
+    { name = "pandas", specifier = ">=3" },
     { name = "pandera", specifier = ">=0.36.0" },
     { name = "pyarrow", specifier = ">=26.0.0" },
     { name = "pyyaml" },

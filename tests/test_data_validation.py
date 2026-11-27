@@ -69,6 +69,21 @@ def test_load_transactions_parses_types(tmp_path):
     assert (df.loc[0, "from_bank"], df.loc[0, "to_bank"]) == ("10", "10")
 
 
+def test_p1_transaction_id_is_the_row_position_in_file_order():
+    tx = pd.DataFrame({"from_account": ["A", "B", "C"]})
+    assert load.transaction_ids(tx).tolist() == [0, 1, 2]
+
+
+def test_p1_load_transactions_puts_transaction_id_first(tmp_path):
+    path = tmp_path / "trans.csv"
+    path.write_text(
+        ",".join(load.TRANSACTION_HEADER) + "\n" + ",".join(GOOD_ROW) + "\n" + ",".join(GOOD_ROW)
+    )
+    df = load.load_transactions(path)
+    assert df.columns[0] == "transaction_id"
+    assert df["transaction_id"].tolist() == [0, 1]
+
+
 # --- transactions --------------------------------------------------------------------------
 
 

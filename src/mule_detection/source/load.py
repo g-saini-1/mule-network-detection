@@ -4,6 +4,9 @@ The transactions file has two columns both named `Account` (sender, then receive
 columns are named by position rather than by header. Bank codes are zero-padded
 inconsistently in the transactions file (e.g. `010` and `0010` are both bank 10), while the
 accounts file stores them unpadded; `normalise_bank_id` maps both to the unpadded form.
+
+`load_transactions` assigns each transaction its `transaction_id` (P1) and types its columns
+(P2), as set in `docs/transaction_preparation_guide.md`.
 """
 
 from pathlib import Path
@@ -74,9 +77,20 @@ def load_raw_accounts(path: Path | None = None) -> pd.DataFrame:
     return pd.read_csv(path, header=0, names=ACCOUNT_COLUMNS, dtype=str)
 
 
+def transaction_ids(tx: pd.DataFrame) -> pd.Series:
+    """P1: each row's zero-based position in `tx`, which must still be in raw file order."""
+    return pd.Series(range(len(tx)), index=tx.index, name="transaction_id", dtype="int64")
+
+
 def load_transactions(path: Path | None = None) -> pd.DataFrame:
-    """Typed transactions: parsed timestamps, float amounts, 0/1 label, unpadded bank IDs."""
+    """P1 and P2: transactions with a `transaction_id` and typed columns.
+
+    `transaction_id` is the first column. Timestamps are parsed, amounts are floats, the
+    laundering flag is 0 or 1, bank IDs are unpadded, and currencies and payment formats are
+    categories.
+    """
     df = load_raw_transactions(path)
+    df.insert(0, "transaction_id", transaction_ids(df))
     df["timestamp"] = pd.to_datetime(df["timestamp"], format=TIMESTAMP_FORMAT)
     for col in ["amount_received", "amount_paid"]:
         df[col] = df[col].astype(float)

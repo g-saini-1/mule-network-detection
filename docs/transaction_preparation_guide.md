@@ -7,12 +7,13 @@ The raw transactions file is not ready for detection rules:
 - It has no transaction identifier.
 - It is not in time order.
 - It holds amounts in several currencies.
-- It does not say which scheme a laundering payment belongs to.
 - It does not mark duplicates, self-transfers or own-account transfers.
 
 Preparation turns it into one prepared transactions file that the rules engine and later stages
-read. The raw data is described in [data/README.md](../data/README.md), and the reasoning behind
-each rule is in [decisions.md](decisions.md).
+read. The file holds no ground truth: the laundering flag and scheme tags are in the transaction
+labels ([transaction_labelling_guide.md](transaction_labelling_guide.md)). The raw data is
+described in [data/README.md](../data/README.md), and the reasoning behind each rule is in
+[decisions.md](decisions.md).
 
 ## Rules
 
@@ -25,8 +26,9 @@ timestamps, amounts as numbers, the laundering flag as 0 or 1, bank IDs without 
 currencies and payment formats as categories. An account is a bank ID plus an account number
 ([account_labelling_guide.md](account_labelling_guide.md), R1), kept as two columns on each side.
 
-**P3. Duplicates.** A transaction whose every column apart from `transaction_id` equals an
-earlier transaction in file order is a duplicate, and `is_duplicate` is true for it. The first
+**P3. Duplicates.** A transaction whose source columns, apart from the laundering flag, all
+equal an earlier transaction's in file order is a duplicate, and `is_duplicate` is true for it.
+The laundering flag is ground truth, so it never decides a duplicate. The first
 copy is not flagged, and no row is dropped.
 *Example:* if rows 10 and 11 are identical, row 11 is flagged and row 10 is not.
 
@@ -52,19 +54,10 @@ checks fail.
 **P7. Time order.** Transactions are sorted by timestamp, with ties kept in `transaction_id`
 order.
 
-**P8. Scheme tags.** Each block in the patterns file is one scheme. Its `scheme_id` is the
-block's position in the file, starting at 1, and its `typology` is the name on the block's
-`BEGIN LAUNDERING ATTEMPT` line. Each row in a block is matched to the transaction with the same
-raw text, which then takes the block's `scheme_id` and `typology`. Transactions in no block have
-both empty. A laundering payment with an empty typology is one the patterns file does not cover,
-not a normal payment. Preparation fails if a pattern row matches no transaction, matches more
-than one, or matches a transaction whose laundering flag is 0.
-
-**P9. Output checks.** Before the file is written, preparation fails unless the output matches
+**P8. Output checks.** Before the file is written, preparation fails unless the output matches
 its declared schema (column names, types, empty values and value ranges), has the same number of
-rows as the raw file, has the same number of laundering payments, and has the same total amount
-paid per payment currency and amount received per receiving currency as the raw file, within
-floating-point rounding.
+rows as the raw file, and has the same total amount paid per payment currency and amount received
+per receiving currency as the raw file, within floating-point rounding.
 
 ## Columns
 
@@ -77,18 +70,12 @@ floating-point rounding.
 | `amount_paid`, `payment_currency` | Amount leaving, in the sender's currency | P2 |
 | `amount_received`, `receiving_currency` | Amount arriving, in the receiver's currency | P2 |
 | `payment_format` | e.g. ACH, Wire, Reinvestment | P2 |
-| `is_laundering` | 1 if the payment is part of a laundering scheme | P2 |
 | `is_duplicate` | True for a later copy of an earlier transaction | P3 |
 | `is_self_transfer` | True if sender and receiver are the same account | P4 |
 | `is_own_account_transfer` | True if sender and receiver are different accounts at the same bank with the same owner | P5 |
 | `amount_paid_usd`, `amount_received_usd` | The two amounts in US Dollar | P6 |
-| `scheme_id` | The patterns-file block the payment belongs to; empty if none | P8 |
-| `typology` | The scheme's typology, e.g. Fan-in or Cycle; empty if none | P8 |
 
 Table 1. Columns in `data/interim/transactions.parquet`.
 
 `make prepare-data` builds the file, and
-`mule_detection.data.prepare_transactions.load_prepared_transactions()` reads it.
-
-`is_laundering`, `scheme_id` and `typology` are for evaluation only. The rules engine never reads
-them ([solution_architecture.md](solution_architecture.md), Figure 3).
+`mule_detection.source.prepare_transactions.load_prepared_transactions()` reads it.

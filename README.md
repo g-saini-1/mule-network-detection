@@ -72,7 +72,8 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | Plan and records | [docs/backlog.md](docs/backlog.md) | Parked ideas and open questions for later stages |
 | Reference | [data/README.md](data/README.md) | Dataset source, structure, validation and limitations |
 | Reference | [docs/account_labelling_guide.md](docs/account_labelling_guide.md) | How each account gets its mule label: rules R1 to R7, label columns and counts |
-| Reference | [docs/transaction_preparation_guide.md](docs/transaction_preparation_guide.md) | How raw transactions are prepared for detection: rules P1 to P9 and the prepared columns |
+| Reference | [docs/transaction_preparation_guide.md](docs/transaction_preparation_guide.md) | How raw transactions are prepared for detection: rules P1 to P8 and the prepared columns |
+| Reference | [docs/transaction_labelling_guide.md](docs/transaction_labelling_guide.md) | How each transaction gets its laundering flag and scheme tags: rules T1 to T3 and the label columns |
 | Reference | [DEVELOPMENT.md](DEVELOPMENT.md) | Coding, testing and reproducibility standards |
 | Reference | [docs/test_strategy.md](docs/test_strategy.md) | How the system is tested: principles, test levels, test types, test data and quality gates |
 | How-to | [WORKFLOW.md](WORKFLOW.md) | The steps each stage follows, from branch to release |

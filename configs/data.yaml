@@ -28,7 +28,7 @@ paths:
   labels: data/processed/account_labels.parquet
   prepared_transactions: data/interim/transactions.parquet
 
-# Transaction preparation rules P1 to P9 (docs/transaction_preparation_guide.md).
+# Transaction preparation rules P1 to P8 (docs/transaction_preparation_guide.md).
 transaction_preparation:
   base_currency: US Dollar     # P6: currency every amount is converted to
   rate_min_amount_paid: 100    # P6: smallest amount paid used to infer rates

@@ -85,6 +85,7 @@ data/README.md, with an entity relationship diagram under Structure.
 | Download manifest | Raw | Record of each download | Data ingestion and validation | Data ingestion and validation |
 | Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Data preparation, Stage 2 | Rules engine, feature pipeline |
 | Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Data preparation | Evaluation harness |
+| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and typology where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Data preparation, Stage 2 | Evaluation harness |
 | Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness, Stage 2 | Rules engine, ML model, evaluation harness |
 | Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine, Stage 2 | Evaluation harness |
 

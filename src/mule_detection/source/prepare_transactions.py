@@ -116,19 +116,33 @@ def _check_output(prepared: pd.DataFrame, raw: pd.DataFrame) -> None:
 def prepare_transactions(
     tx: pd.DataFrame, accounts: pd.DataFrame, *, currency: CurrencySettings
 ) -> PreparedTransactions:
-    """Apply P3 to P7 to transactions from `load.load_transactions` (P1, P2)."""
-    prepared = tx.copy()
+    """Apply P3 to P7 to transactions from `load.load_transactions` (P1, P2).
+
+    `tx` is left unchanged. The table is never copied in full on purpose, to keep peak memory
+    down on the full dataset; the comments below say where.
+    """
     logger.info("P3 to P5: flagging duplicates, self-transfers and own-account transfers")
-    prepared["is_duplicate"] = _flag_duplicates(prepared)
-    prepared["is_self_transfer"] = flag_self_transfers(prepared)
-    prepared["is_own_account_transfer"] = flag_own_account_transfers(prepared, accounts)
+    # `assign` returns a new table without changing `tx`. With copy-on-write (always on from
+    # pandas 3) the new table shares the existing columns instead of copying them, so no
+    # `tx.copy()` is needed to keep the function pure.
+    prepared = tx.assign(
+        is_duplicate=_flag_duplicates(tx),
+        is_self_transfer=flag_self_transfers(tx),
+        is_own_account_transfer=flag_own_account_transfers(tx, accounts),
+    )
     logger.info("P6: converting amounts to %s", currency.base_currency)
     rates = exchange_rates(prepared, currency)
-    prepared = prepared.join(convert_amounts(prepared, rates))
+    converted = convert_amounts(prepared, rates)
+    # Adding the two columns with `assign` rather than `join` avoids building another full table.
+    prepared = prepared.assign(
+        amount_paid_usd=converted["amount_paid_usd"],
+        amount_received_usd=converted["amount_received_usd"],
+    )
     check_conversion(prepared, currency)
     logger.info("P7: sorting by time")
-    prepared = _sort_by_time(prepared)
-    return PreparedTransactions(prepared[PREPARED_COLUMNS].reset_index(drop=True), rates)
+    # The output columns are selected before sorting, so the sort reorders only the columns kept.
+    prepared = _sort_by_time(prepared[PREPARED_COLUMNS])
+    return PreparedTransactions(prepared.reset_index(drop=True), rates)
 
 
 def _run_summary(prepared: pd.DataFrame, rates: pd.Series, currency: CurrencySettings) -> str:

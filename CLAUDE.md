@@ -98,7 +98,8 @@ make check          # format check, lint, type check and tests (what CI runs)
 | `docs/currency_conversion_guide.md` | Why and how amounts are converted to one base currency, and its limits |
 | `docs/decisions.md` | Why each decision was made, with options considered; history kept as written |
 | `docs/backlog.md` | Parked ideas and open questions for later stages |
-| `docs/solution_architecture.md` | How the system's containers, components, data layers and rules engine design fit together |
+| `docs/solution_architecture.md` | How the system's containers, components, bounded contexts and data layers fit together |
+| `docs/<component>_design.md` | The internal design of one component, e.g. `rules_engine_design.md`, `evaluation_harness_design.md` |
 | `docs/test_strategy.md` | Test approach: principles, test levels by C4 view, test types, test data, quality gates |
 | `WORKFLOW.md` | The steps each stage follows, from branch to release tag |
 | `DEVELOPMENT.md` | Coding, testing, data and reproducibility standards |
@@ -161,9 +162,10 @@ Table 2. Personas used in this project.
   and domain-driven design for bounded contexts, a shared domain language and anti-corruption
   layers at the system's edges). In the solution architecture, it describes the system, not the
   project (no deliverables, repository or workflow), and stays at architecture level (no code,
-  file paths or commands). Views run system context, containers, components, data, then the
-  internal design of individual components; cross-cutting concerns get their own section, and
-  status is document metadata. Each fact appears once: a caption says what its figure shows, and
+  file paths or commands). Views run system context, containers, components, domain model, then
+  data; cross-cutting concerns get their own section, and status is document metadata. A
+  component's internal design goes in its own design document (`<component>_design.md`), linked
+  from the components table and written to the same rules. Each fact appears once: a caption says what its figure shows, and
   text doesn't restate a figure or another section.
 - **The tech lead reviews code as an industry team would,** to the standard of a production
   codebase and to recognised practice (Google's code review guide, PEP 8, *Architecture Patterns

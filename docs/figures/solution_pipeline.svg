@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 942 560" role="img" aria-label="The mule detection system's pipeline: AMLworld HI-Small files pass through data ingestion and validation and data preparation, then to the rules engine, the feature pipeline and the ML model, whose scores go to the evaluation harness. Each component reads from and writes to the raw, interim and processed data zones. Tuning uses the validation period only, and the test period is scored once.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1002 580" role="img" aria-label="Context map of the mule detection system. AMLworld HI-Small files enter the source data context, where data ingestion and validation feed transaction preparation, which uses the payment rules of the payments context. Prepared transactions go to the detection context: the rules engine, the feature pipeline and the ML model. Their scores go to the ground truth and evaluation context, where ground truth, the account and transaction labels, feeds the evaluation harness. The evaluation context sends scoring times to detection, tunes on the validation period only and scores the test period once. No flow goes from ground truth to detection. Source data, detection and evaluation read and write the raw, interim and processed data zones; payments reads and writes none.">
   <style>
     svg { --bg: #ffffff; --fg: #1b2230; --muted: #5a6475; --line: #c4cad5; --accent: #0d6b62; --accent-soft: #e3f1ef; --tag: #e9ecf2; }
     @media (prefers-color-scheme: dark) {
@@ -31,107 +31,123 @@
     <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0 0 L10 5 L0 10 z"/></marker>
     <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="ah-mut" d="M0 0 L10 5 L0 10 z"/></marker>
   </defs>
-  <rect class="bg" x="0" y="0" width="942" height="560"/>
+  <rect class="bg" x="0" y="0" width="1002" height="580"/>
 
-  <!-- Tuning loop -->
-  <path class="loop" d="M831 60 V40 H591 V58" marker-end="url(#a2)"/>
-  <text class="loop-l" x="711" y="32" text-anchor="middle">tuning on validation only; test period scored once</text>
+  <!-- Scoring times and tuning, from evaluation to detection -->
+  <path class="loop" d="M898.5 60 V40 H693.5 V58" marker-end="url(#a2)"/>
+  <text class="loop-l" x="796" y="32" text-anchor="middle">scoring times; tuning on validation only; test scored once</text>
 
-  <!-- Group frames -->
-  <rect class="grp" x="16" y="60" width="190" height="270" rx="6"/>
-  <rect class="grp" x="256" y="60" width="190" height="270" rx="6"/>
-  <rect class="grp" x="496" y="60" width="190" height="270" rx="6"/>
-  <rect class="grp" x="736" y="60" width="190" height="270" rx="6"/>
-  <text class="grp-t" x="111" y="86" text-anchor="middle">SOURCE</text>
-  <text class="grp-t" x="351" y="86" text-anchor="middle">INGEST, PREPARE</text>
-  <text class="grp-t" x="591" y="86" text-anchor="middle">DETECTION</text>
-  <text class="grp-t" x="831" y="86" text-anchor="middle">EVALUATION</text>
+  <!-- Context frames -->
+  <rect class="grp" x="16" y="60" width="150" height="292" rx="6"/>
+  <rect class="grp" x="196" y="60" width="175" height="292" rx="6"/>
+  <rect class="grp" x="401" y="60" width="175" height="292" rx="6"/>
+  <rect class="grp" x="606" y="60" width="175" height="292" rx="6"/>
+  <rect class="grp" x="811" y="60" width="175" height="292" rx="6"/>
+  <text class="grp-t" x="91" y="86" text-anchor="middle">EXTERNAL</text>
+  <text class="grp-t" x="283.5" y="86" text-anchor="middle">SOURCE DATA</text>
+  <text class="grp-t" x="488.5" y="86" text-anchor="middle">PAYMENTS</text>
+  <text class="grp-t" x="693.5" y="86" text-anchor="middle">DETECTION</text>
+  <text class="grp-t" x="898.5" y="82" text-anchor="middle">GROUND TRUTH</text>
+  <text class="grp-t" x="898.5" y="98" text-anchor="middle">AND EVALUATION</text>
 
-  <!-- Source -->
-  <rect class="box has" x="31" y="104" width="160" height="62" rx="4"/>
-  <text class="t" x="111" y="130" text-anchor="middle">AMLworld HI-Small</text>
-  <text class="s" x="111" y="148" text-anchor="middle">Kaggle, synthetic</text>
-  <rect class="box none" x="31" y="180" width="160" height="62" rx="4"/>
-  <text class="t none-t" x="111" y="206" text-anchor="middle">Bank-only data</text>
-  <text class="s" x="111" y="224" text-anchor="middle">KYC, devices, reports</text>
+  <!-- External -->
+  <rect class="box has" x="21" y="120" width="140" height="62" rx="4"/>
+  <text class="t" x="91" y="146" text-anchor="middle">AMLworld HI-Small</text>
+  <text class="s" x="91" y="164" text-anchor="middle">Kaggle, synthetic</text>
+  <rect class="box none" x="21" y="196" width="140" height="62" rx="4"/>
+  <text class="t none-t" x="91" y="222" text-anchor="middle">Bank-only data</text>
+  <text class="s" x="91" y="240" text-anchor="middle">KYC, devices, reports</text>
 
-  <!-- Ingest and prepare -->
-  <rect class="box has" x="271" y="104" width="160" height="62" rx="4"/>
-  <text class="t" x="351" y="129" text-anchor="middle">Data ingestion</text>
-  <text class="t" x="351" y="146" text-anchor="middle">and validation</text>
-  <rect class="pill" x="389" y="96" width="28" height="16" rx="3"/><text class="pill-t" x="403" y="108" text-anchor="middle">S1</text>
-  <rect class="box has" x="271" y="180" width="160" height="62" rx="4"/>
-  <text class="t" x="351" y="206" text-anchor="middle">Data preparation</text>
-  <text class="s" x="351" y="224" text-anchor="middle">labels, prepared data</text>
-  <rect class="pill" x="357" y="172" width="28" height="16" rx="3"/><text class="pill-t" x="371" y="184" text-anchor="middle">S1</text>
-  <rect class="pill" x="389" y="172" width="28" height="16" rx="3"/><text class="pill-t" x="403" y="184" text-anchor="middle">S2</text>
-  <line class="flow" x1="351" y1="166" x2="351" y2="178" marker-end="url(#a1)"/>
+  <!-- Source data -->
+  <rect class="box has" x="208" y="120" width="151" height="62" rx="4"/>
+  <text class="t" x="283.5" y="145" text-anchor="middle">Data ingestion</text>
+  <text class="t" x="283.5" y="162" text-anchor="middle">and validation</text>
+  <rect class="pill" x="317" y="112" width="28" height="16" rx="3"/><text class="pill-t" x="331" y="124" text-anchor="middle">S1</text>
+  <rect class="box" x="208" y="196" width="151" height="62" rx="4"/>
+  <text class="t" x="283.5" y="221" text-anchor="middle">Transaction</text>
+  <text class="t" x="283.5" y="238" text-anchor="middle">preparation</text>
+  <rect class="pill" x="317" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="331" y="200" text-anchor="middle">S2</text>
+  <line class="flow" x1="283.5" y1="182" x2="283.5" y2="194" marker-end="url(#a1)"/>
+
+  <!-- Payments -->
+  <rect class="box has" x="413" y="196" width="151" height="62" rx="4"/>
+  <text class="t" x="488.5" y="222" text-anchor="middle">Payment rules</text>
+  <text class="s" x="488.5" y="240" text-anchor="middle">transfer flags, currency</text>
+  <rect class="pill" x="522" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="536" y="200" text-anchor="middle">S2</text>
 
   <!-- Detection -->
-  <rect class="box" x="511" y="104" width="160" height="62" rx="4"/>
-  <text class="t" x="591" y="130" text-anchor="middle">Rules engine</text>
-  <text class="s" x="591" y="148" text-anchor="middle">explainable account rules</text>
-  <rect class="pill" x="629" y="96" width="28" height="16" rx="3"/><text class="pill-t" x="643" y="108" text-anchor="middle">S2</text>
-  <rect class="box" x="511" y="180" width="160" height="62" rx="4"/>
-  <text class="t" x="591" y="206" text-anchor="middle">Feature pipeline</text>
-  <text class="s" x="591" y="224" text-anchor="middle">account, velocity, graph</text>
-  <rect class="pill" x="597" y="172" width="28" height="16" rx="3"/><text class="pill-t" x="611" y="184" text-anchor="middle">S3</text>
-  <rect class="pill" x="629" y="172" width="28" height="16" rx="3"/><text class="pill-t" x="643" y="184" text-anchor="middle">S4</text>
-  <rect class="box" x="511" y="256" width="160" height="62" rx="4"/>
-  <text class="t" x="591" y="282" text-anchor="middle">ML model</text>
-  <text class="s" x="591" y="300" text-anchor="middle">account risk score</text>
-  <rect class="pill" x="629" y="248" width="28" height="16" rx="3"/><text class="pill-t" x="643" y="260" text-anchor="middle">S3</text>
-  <line class="flow" x1="591" y1="242" x2="591" y2="254" marker-end="url(#a1)"/>
+  <rect class="box" x="618" y="120" width="151" height="62" rx="4"/>
+  <text class="t" x="693.5" y="146" text-anchor="middle">Rules engine</text>
+  <text class="s" x="693.5" y="164" text-anchor="middle">explainable account rules</text>
+  <rect class="pill" x="727" y="112" width="28" height="16" rx="3"/><text class="pill-t" x="741" y="124" text-anchor="middle">S2</text>
+  <rect class="box" x="618" y="196" width="151" height="62" rx="4"/>
+  <text class="t" x="693.5" y="222" text-anchor="middle">Feature pipeline</text>
+  <text class="s" x="693.5" y="240" text-anchor="middle">account, velocity, graph</text>
+  <rect class="pill" x="695" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="709" y="200" text-anchor="middle">S3</text>
+  <rect class="pill" x="727" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="741" y="200" text-anchor="middle">S4</text>
+  <rect class="box" x="618" y="272" width="151" height="62" rx="4"/>
+  <text class="t" x="693.5" y="298" text-anchor="middle">ML model</text>
+  <text class="s" x="693.5" y="316" text-anchor="middle">account risk score</text>
+  <rect class="pill" x="727" y="264" width="28" height="16" rx="3"/><text class="pill-t" x="741" y="276" text-anchor="middle">S3</text>
+  <line class="flow" x1="693.5" y1="258" x2="693.5" y2="270" marker-end="url(#a1)"/>
 
-  <!-- Evaluation -->
-  <rect class="box" x="751" y="104" width="160" height="214" rx="4"/>
-  <text class="t" x="831" y="134" text-anchor="middle">Evaluation harness</text>
-  <text class="s" x="831" y="170" text-anchor="middle">temporal split</text>
-  <text class="s" x="831" y="190" text-anchor="middle">alert budget metrics</text>
-  <text class="s" x="831" y="210" text-anchor="middle">cost and thresholds</text>
-  <text class="s" x="831" y="230" text-anchor="middle">stability and errors</text>
-  <rect class="pill" x="805" y="96" width="28" height="16" rx="3"/><text class="pill-t" x="819" y="108" text-anchor="middle">S2</text>
-  <rect class="pill" x="837" y="96" width="28" height="16" rx="3"/><text class="pill-t" x="851" y="108" text-anchor="middle">S3</text>
-  <rect class="pill" x="869" y="96" width="28" height="16" rx="3"/><text class="pill-t" x="883" y="108" text-anchor="middle">S5</text>
+  <!-- Ground truth and evaluation -->
+  <rect class="box has" x="823" y="120" width="151" height="62" rx="4"/>
+  <text class="t" x="898.5" y="146" text-anchor="middle">Ground truth</text>
+  <text class="s" x="898.5" y="164" text-anchor="middle">account, transaction labels</text>
+  <rect class="pill" x="900" y="112" width="28" height="16" rx="3"/><text class="pill-t" x="914" y="124" text-anchor="middle">S1</text>
+  <rect class="pill" x="932" y="112" width="28" height="16" rx="3"/><text class="pill-t" x="946" y="124" text-anchor="middle">S2</text>
+  <rect class="box" x="823" y="196" width="151" height="138" rx="4"/>
+  <text class="t" x="898.5" y="224" text-anchor="middle">Evaluation harness</text>
+  <text class="s" x="898.5" y="252" text-anchor="middle">temporal split</text>
+  <text class="s" x="898.5" y="270" text-anchor="middle">alert budget metrics</text>
+  <text class="s" x="898.5" y="288" text-anchor="middle">cost and thresholds</text>
+  <text class="s" x="898.5" y="306" text-anchor="middle">stability and errors</text>
+  <rect class="pill" x="868" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="882" y="200" text-anchor="middle">S2</text>
+  <rect class="pill" x="900" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="914" y="200" text-anchor="middle">S3</text>
+  <rect class="pill" x="932" y="188" width="28" height="16" rx="3"/><text class="pill-t" x="946" y="200" text-anchor="middle">S5</text>
+  <line class="flow" x1="845" y1="182" x2="845" y2="194" marker-end="url(#a1)"/>
 
-  <!-- Flows between groups -->
-  <line class="flow" x1="206" y1="135" x2="254" y2="135" marker-end="url(#a1)"/>
-  <text class="flow-l" x="231" y="126" text-anchor="middle">files</text>
-  <line class="flow" x1="446" y1="195" x2="494" y2="195" marker-end="url(#a1)"/>
-  <text class="flow-l" x="471" y="186" text-anchor="middle">data</text>
-  <line class="flow" x1="686" y1="195" x2="734" y2="195" marker-end="url(#a1)"/>
-  <text class="flow-l" x="711" y="186" text-anchor="middle">scores</text>
+  <!-- Flows between contexts -->
+  <line class="flow" x1="161" y1="151" x2="206" y2="151" marker-end="url(#a1)"/>
+  <text class="flow-l" x="181" y="142" text-anchor="middle">files</text>
+  <line class="flow" x1="359" y1="227" x2="411" y2="227" marker-end="url(#a1)"/>
+  <text class="flow-l" x="385" y="218" text-anchor="middle">uses</text>
+  <path class="flow" d="M283.5 258 V303 H604" marker-end="url(#a1)"/>
+  <text class="flow-l" x="488.5" y="296" text-anchor="middle">prepared transactions</text>
+  <line class="flow" x1="769" y1="265" x2="821" y2="265" marker-end="url(#a1)"/>
+  <text class="flow-l" x="795" y="256" text-anchor="middle">scores</text>
 
   <!-- Data stores band -->
-  <rect class="grp" x="256" y="380" width="670" height="110" rx="6"/>
-  <text class="grp-t" x="591" y="404" text-anchor="middle">DATA STORES</text>
-  <rect class="box has" x="271" y="418" width="160" height="56" rx="4"/>
-  <text class="t" x="351" y="442" text-anchor="middle">Raw zone</text>
-  <text class="s" x="351" y="460" text-anchor="middle">as downloaded</text>
-  <rect class="pill" x="389" y="410" width="28" height="16" rx="3"/><text class="pill-t" x="403" y="422" text-anchor="middle">S1</text>
-  <rect class="box" x="511" y="418" width="160" height="56" rx="4"/>
-  <text class="t" x="591" y="442" text-anchor="middle">Interim zone</text>
-  <text class="s" x="591" y="460" text-anchor="middle">prepared transactions</text>
-  <rect class="pill" x="629" y="410" width="28" height="16" rx="3"/><text class="pill-t" x="643" y="422" text-anchor="middle">S2</text>
-  <rect class="box has" x="751" y="418" width="160" height="56" rx="4"/>
-  <text class="t" x="831" y="442" text-anchor="middle">Processed zone</text>
-  <text class="s" x="831" y="460" text-anchor="middle">labels, split, scores</text>
-  <rect class="pill" x="837" y="410" width="28" height="16" rx="3"/><text class="pill-t" x="851" y="422" text-anchor="middle">S1</text>
-  <rect class="pill" x="869" y="410" width="28" height="16" rx="3"/><text class="pill-t" x="883" y="422" text-anchor="middle">S2</text>
+  <rect class="grp" x="196" y="402" width="790" height="110" rx="6"/>
+  <text class="grp-t" x="591" y="426" text-anchor="middle">DATA STORES</text>
+  <rect class="box has" x="208" y="440" width="151" height="56" rx="4"/>
+  <text class="t" x="283.5" y="464" text-anchor="middle">Raw zone</text>
+  <text class="s" x="283.5" y="482" text-anchor="middle">as downloaded</text>
+  <rect class="pill" x="317" y="432" width="28" height="16" rx="3"/><text class="pill-t" x="331" y="444" text-anchor="middle">S1</text>
+  <rect class="box" x="515.5" y="440" width="151" height="56" rx="4"/>
+  <text class="t" x="591" y="464" text-anchor="middle">Interim zone</text>
+  <text class="s" x="591" y="482" text-anchor="middle">prepared transactions</text>
+  <rect class="pill" x="624.5" y="432" width="28" height="16" rx="3"/><text class="pill-t" x="638.5" y="444" text-anchor="middle">S2</text>
+  <rect class="box has" x="823" y="440" width="151" height="56" rx="4"/>
+  <text class="t" x="898.5" y="464" text-anchor="middle">Processed zone</text>
+  <text class="s" x="898.5" y="482" text-anchor="middle">labels, split, scores</text>
+  <rect class="pill" x="900" y="432" width="28" height="16" rx="3"/><text class="pill-t" x="914" y="444" text-anchor="middle">S1</text>
+  <rect class="pill" x="932" y="432" width="28" height="16" rx="3"/><text class="pill-t" x="946" y="444" text-anchor="middle">S2</text>
 
   <!-- Read and write links -->
-  <line class="rw" x1="351" y1="330" x2="351" y2="378" marker-start="url(#a3)" marker-end="url(#a3)"/>
-  <line class="rw" x1="591" y1="330" x2="591" y2="378" marker-start="url(#a3)" marker-end="url(#a3)"/>
-  <line class="rw" x1="831" y1="330" x2="831" y2="378" marker-start="url(#a3)" marker-end="url(#a3)"/>
-  <text class="flow-l" x="600" y="358">reads and writes</text>
+  <line class="rw" x1="240" y1="352" x2="240" y2="400" marker-start="url(#a3)" marker-end="url(#a3)"/>
+  <line class="rw" x1="693.5" y1="352" x2="693.5" y2="400" marker-start="url(#a3)" marker-end="url(#a3)"/>
+  <line class="rw" x1="898.5" y1="352" x2="898.5" y2="400" marker-start="url(#a3)" marker-end="url(#a3)"/>
+  <text class="flow-l" x="702.5" y="380">reads and writes</text>
 
   <!-- Legend -->
-  <rect class="box has" x="16" y="522" width="26" height="14" rx="3"/>
-  <text class="leg" x="50" y="533">Built so far</text>
-  <rect class="box" x="170" y="522" width="26" height="14" rx="3"/>
-  <text class="leg" x="204" y="533">Planned</text>
-  <rect class="box none" x="300" y="522" width="26" height="14" rx="3"/>
-  <text class="leg" x="334" y="533">Outside the project</text>
-  <rect class="pill" x="490" y="521" width="28" height="16" rx="3"/><text class="pill-t" x="504" y="533" text-anchor="middle">S2</text>
-  <text class="leg" x="526" y="533">Project stage that builds it</text>
+  <rect class="box has" x="16" y="544" width="26" height="14" rx="3"/>
+  <text class="leg" x="50" y="555">Built so far</text>
+  <rect class="box" x="170" y="544" width="26" height="14" rx="3"/>
+  <text class="leg" x="204" y="555">Planned</text>
+  <rect class="box none" x="300" y="544" width="26" height="14" rx="3"/>
+  <text class="leg" x="334" y="555">Outside the project</text>
+  <rect class="pill" x="490" y="543" width="28" height="16" rx="3"/><text class="pill-t" x="504" y="555" text-anchor="middle">S2</text>
+  <text class="leg" x="526" y="555">Project stage that builds it</text>
 </svg>

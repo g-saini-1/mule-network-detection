@@ -2,16 +2,18 @@
 
 **Status:** Draft, Stage 2
 
-How this project's own detection system is put together: its main parts, the rules engine inside
-it, and how data moves from download to reported results.
+How this project's own detection system is put together: its main parts, how they are grouped
+into bounded contexts, and how data moves from download to reported results.
 [bank_detection_architecture.md](bank_detection_architecture.md) describes the generic bank
 pipeline this mirrors and which parts AMLworld covers; this document describes only what the
 project builds.
 
 The views follow the C4 model, which describes software at increasing levels of zoom: system
 context (the system and what sits around it), containers (the parts that run or store data on
-their own) and components (the building blocks inside one container). The data design is a
-layered data architecture, in which each layer is built only from the layer before it.
+their own) and components (the building blocks inside one container). The domain model follows
+domain-driven design: the system is split into bounded contexts, each owning one part of the
+domain and its terms. The data design is a layered data architecture, in which each layer is
+built only from the layer before it.
 
 ## System context
 
@@ -31,32 +33,77 @@ Table 1. External systems the mule detection system depends on.
 | Mule detection application | Batch application | Python, run one job at a time | Ingests and prepares data, builds labels, scores accounts and evaluates the scores | 1 to 5 |
 | Raw zone | Data store | Files as downloaded | Holds the source files unchanged | 1 |
 | Interim zone | Data store | Parquet files | Holds prepared transactions | 2 |
-| Processed zone | Data store | Parquet files | Holds account labels, the temporal split and scores | 1, 2 |
+| Processed zone | Data store | Parquet files | Holds account and transaction labels, the temporal split and scores | 1, 2 |
 
 Table 2. Containers of the mule detection system.
 
 ## Components
 
-The mule detection application is made up of the components below; the application's code is
-organised the same way.
+The mule detection application is made up of the components below. Each belongs to one bounded
+context (Table 4), and the application's code is organised by context. A component's internal
+design, where it has one, is in its own design document.
 
-| Component | Responsibility | Stage |
-|---|---|---|
-| Data ingestion and validation | Download the source files and check hashes, row counts and content | 1 |
-| Data preparation | Load typed data, build account labels and write prepared transactions | 1, 2 |
-| Rules engine | Score accounts with explainable rules | 2 |
-| Feature pipeline | Account, velocity and graph features | 3, 4 |
-| ML model | Train and score the account model | 3 |
-| Evaluation harness | Temporal split, metrics at the alert budget, costs, thresholds and stability | 2 to 5 |
+| Component | Responsibility | Stage | Design |
+|---|---|---|---|
+| Data ingestion and validation | Download the source files and check hashes, row counts and content | 1 | |
+| Transaction preparation | Load typed transactions, apply the preparation rules and write prepared transactions | 2 | |
+| Payment rules | Classify each transfer by the accounts on each side, and give its amounts in one currency | 2 | |
+| Rules engine | Score accounts with explainable rules | 2 | [rules_engine_design.md](rules_engine_design.md) |
+| Feature pipeline | Account, velocity and graph features | 3, 4 | From Stage 3 |
+| ML model | Train and score the account model | 3 | From Stage 3 |
+| Ground truth | Build account and transaction labels | 1, 2 | |
+| Evaluation harness | Temporal split, metrics at the alert budget, costs, thresholds and stability | 2 to 5 | [evaluation_harness_design.md](evaluation_harness_design.md) |
 
 Table 3. Components of the mule detection application.
 
-## Detection pipeline
+## Domain model
 
-![Figure 1. This project's detection pipeline, marked by what is built and which stage builds each part](figures/solution_pipeline.svg)
+Each bounded context owns one part of the domain and its terms, and passes data to another
+context only through the datasets in Table 6. All four contexts run inside the mule detection
+application: they are boundaries of meaning and ownership within one container, not separate
+deployments. The data stores are shared and organised by how refined the data is; each dataset
+belongs to the context of the component that builds it (Table 6).
 
-Figure 1. The mule detection system's pipeline from source data to evaluation, marked by what is
-built so far and the stage that builds each part.
+| Context | Responsibility | Components |
+|---|---|---|
+| Source data | Turns the source files into clean, typed records: validated, with a stable transaction ID, duplicates flagged and in time order. It is the anti-corruption layer that keeps the source's quirks out of the other contexts | Data ingestion and validation, transaction preparation |
+| Payments | Says what kind of transfer each payment is, and gives its amounts in one currency | Payment rules |
+| Detection | Scores accounts from prepared transactions | Rules engine, feature pipeline, ML model |
+| Ground truth and evaluation | Records what is known to be laundering, and measures detection against it | Ground truth, evaluation harness |
+
+Table 4. Bounded contexts and the components in each.
+
+![Figure 1. The bounded contexts of the mule detection system and the flows between them](figures/solution_pipeline.svg)
+
+Figure 1. The bounded contexts and the flows between them, marked by what is built so far and
+the stage that builds each part.
+
+Three rules govern how the contexts relate ([decisions.md](decisions.md), 2026-11-27):
+
+- **Detection never reads ground truth.** No flow runs from ground truth to detection; only the
+  evaluation harness reads the labels.
+- **Source data uses payments, never the reverse.** Transaction preparation applies the payment
+  rules, and the payment rules depend on no other context.
+- **Detection takes only scoring times from evaluation.** The temporal split sets when each
+  account is scored; the labels stay in evaluation.
+
+The terms below have one meaning across every context.
+
+| Term | Meaning | Set out in |
+|---|---|---|
+| Account | A bank ID plus an account number | [account_labelling_guide.md](account_labelling_guide.md), R1 |
+| Entity | The owner of one or more accounts | [transaction_preparation_guide.md](transaction_preparation_guide.md), P5 |
+| Self-transfer | A payment from an account to itself | P4 |
+| Own-account transfer | A payment between two accounts of the same entity at the same bank | P5 |
+| Base currency | The one currency every amount is also given in | [currency_conversion_guide.md](currency_conversion_guide.md) |
+| Laundering payment | A payment whose laundering flag is 1 | R2 |
+| Mule | An account that receives at least one laundering payment and sends at least one | R4 |
+| Scheme | One laundering attempt in the patterns file | [transaction_labelling_guide.md](transaction_labelling_guide.md), T2 |
+| Typology | The pattern a scheme follows, e.g. fan-in or cycle | T2 |
+| Scoring time | The time an account is scored at; detection sees only transactions before it | [evaluation_harness_design.md](evaluation_harness_design.md) |
+| Alert budget | The fixed number of alerts, K, at which the alert queue is cut | [scope_and_rationale.md](../scope_and_rationale.md) Section 5 |
+
+Table 5. Domain terms and where each is set out.
 
 ## Data architecture
 
@@ -81,58 +128,15 @@ data/README.md, with an entity relationship diagram under Structure.
 
 | Dataset | Zone | Contents | Built by | Used by |
 |---|---|---|---|---|
-| Transactions, accounts and patterns | Raw | Source files as downloaded | Data ingestion and validation | Data preparation |
+| Transactions, accounts and patterns | Raw | Source files as downloaded | Data ingestion and validation | Transaction preparation, ground truth |
 | Download manifest | Raw | Record of each download | Data ingestion and validation | Data ingestion and validation |
-| Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Data preparation, Stage 2 | Rules engine, feature pipeline |
-| Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Data preparation | Evaluation harness |
-| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and typology where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Data preparation, Stage 2 | Evaluation harness |
+| Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Transaction preparation, Stage 2 | Rules engine, feature pipeline |
+| Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Ground truth | Evaluation harness |
+| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and typology where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Ground truth, Stage 2 | Evaluation harness |
 | Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness, Stage 2 | Rules engine, ML model, evaluation harness |
 | Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine, Stage 2 | Evaluation harness |
 
-Table 4. Datasets: what each holds, which component builds it and which use it.
-
-## Rules engine design
-
-![Figure 3. Internal design of the rules engine, with its inputs and outputs](figures/rules_engine_design.svg)
-
-Figure 3. The parts follow a typical transaction monitoring design, trimmed to what AMLworld
-supports. Account labels are never an input: only the evaluation harness reads them.
-
-| Part | Responsibility | Project equivalent |
-|---|---|---|
-| Run controller | Sets the scoring time and lookback windows for a run | Scoring times from the temporal split |
-| Window aggregation | Computes per-account values over each window, from transactions before the scoring time | Pure rule functions that take an `as_at` time ([DEVELOPMENT.md](../DEVELOPMENT.md), Code) |
-| Population filter | Restricts each rule to the accounts it is meant for | e.g. account age from the first observed transaction, since AMLworld has no opening date |
-| Rule evaluator | Applies thresholds and AND/OR logic, and keeps the values that triggered each hit | 3 to 5 account-level rules, with parameters in `configs/*.yaml` |
-| Alert consolidation | Merges several rule hits on one account into one alert | One row per account per period |
-| Prioritisation | Ranks alerts and cuts the queue at the alert budget K | A ranking rule, to be decided in Stage 2 |
-| Run record | Records what produced each alert, so any result can be reproduced | Config and git tag in Stage 2; a run manifest from Stage 3 (DEVELOPMENT.md, Reproducibility) |
-
-Table 5. Parts of the rules engine and their project equivalents.
-
-Alert suppression and case management are left out: AMLworld has no alert or investigation
-history for them to act on
-([bank_detection_architecture.md](bank_detection_architecture.md), Table 1). Whether rules are
-written in Python or as SQL run with DuckDB is open ([backlog.md](backlog.md), Later stages); the
-parts are the same either way.
-
-## Evaluation and backtesting
-
-The evaluation harness plays the part of the backtesting environment a bank uses to test rule
-changes on past data before they go live.
-
-- **Point-in-time correctness.** Each period of the temporal split has a scoring time. Rules and
-  features see only transactions before it, the same cut-off the labels use
-  ([account_labelling_guide.md](account_labelling_guide.md), R6), and the label for that period
-  comes from an outcome window after it.
-- **Tuning and testing kept apart.** Rule thresholds and model settings are chosen on the train
-  and validation periods. The test period is scored once, for the stage's reported result.
-- **Champion and challenger.** Every detector writes scores in the same shape, so each stage's
-  challenger is compared with the previous stage's champion on the same unit, label, split and
-  alert budget ([scope_and_rationale.md](../scope_and_rationale.md) Section 5).
-
-The open choices that fix the split, e.g. the tail after 10 September, one scoring time rule for
-every account and splitting by owner, are in [backlog.md](backlog.md) (Later stages).
+Table 6. Datasets: what each holds, which component builds it and which use it.
 
 ## Cross-cutting concerns
 
@@ -145,7 +149,7 @@ every account and splitting by owner, are in [backlog.md](backlog.md) (Later sta
 | Data security and licence | No data or credentials committed; credentials stay at `~/.kaggle/access_token` | [scope_and_rationale.md](../scope_and_rationale.md) Section 4 |
 | Change control | A branch per stage, reviews before merge, and a decision log | [WORKFLOW.md](../WORKFLOW.md) |
 
-Table 6. Cross-cutting concerns and where each is set out.
+Table 7. Cross-cutting concerns and where each is set out.
 
 ## Architecture decisions
 

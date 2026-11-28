@@ -1,6 +1,7 @@
 """Tests for transaction preparation, using small hand-built transaction tables."""
 
 import pandas as pd
+import pandera.pandas as pa
 import pytest
 from builders import T1, T2, acc, as_loaded, frame, txn
 
@@ -105,3 +106,10 @@ def test_pipeline_leaves_the_input_table_unchanged():
     before = tx.copy(deep=True)
     prepare_transactions(tx, accounts, currency=SETTINGS)
     pd.testing.assert_frame_equal(tx, before)
+
+
+def test_pipeline_rejects_input_that_breaks_the_typed_transactions_contract():
+    tx, accounts = pipeline_input()
+    padded = tx.assign(from_bank="010")
+    with pytest.raises(pa.errors.SchemaErrors, match="from_bank"):
+        prepare_transactions(padded, accounts, currency=SETTINGS)

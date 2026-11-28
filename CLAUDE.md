@@ -40,7 +40,7 @@ plan and evaluation approach are in `scope_and_rationale.md`.
   timestamps within a scheme don't follow the money, so don't build rules on payment order
   without checking this first.
 - **Environment:** `uv` with Python 3.12, virtual environment in `.venv`. Stage 2 has added
-  `pandera` (not yet used) and `pytest-cov`.
+  `pandera` (for data contracts) and `pytest-cov`.
 
 ## Commands
 

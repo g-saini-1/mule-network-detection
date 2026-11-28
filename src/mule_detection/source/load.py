@@ -21,6 +21,7 @@ __all__ = [
     "TIMESTAMP_FORMAT",
     "TRANSACTION_COLUMNS",
     "TRANSACTION_HEADER",
+    "UNPADDED_BANK_ID",
     "load_accounts",
     "load_pattern_lines",
     "load_raw_accounts",
@@ -61,6 +62,8 @@ ACCOUNT_HEADER = ["Bank Name", "Bank ID", "Account Number", "Entity ID", "Entity
 ACCOUNT_COLUMNS = ["bank_name", "bank_id", "account_number", "entity_id", "entity_name"]
 
 TIMESTAMP_FORMAT = "%Y/%m/%d %H:%M"
+# A bank ID as `normalise_bank_id` returns it: digits without zero-padding, or "0" (P2).
+UNPADDED_BANK_ID = r"^(0|[1-9][0-9]*)\Z"
 
 
 def raw_file(key: str) -> Path:

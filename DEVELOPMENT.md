@@ -67,12 +67,14 @@ The testing approach (test levels, test types, test data and quality gates) is i
 
 ## Data
 
-- **Data contracts between contexts.** Each dataset passed from one bounded context to another
-  (e.g. prepared transactions, labels, features, scores) has a data contract: its producer and
-  consumers, its schema (column names, dtypes, nullability and value ranges) and its quality
-  rules. The schema is declared with `pandera`, and checked by the producer before writing and
-  by the consumer on reading. None is enforced yet; the first covers transactions entering
-  preparation.
+- **Data contracts.** Each dataset passed from one bounded context to another (e.g. prepared
+  transactions, labels, features, scores), and each input a component relies on (e.g. typed
+  transactions entering preparation), has a data contract: its producer and consumers, its
+  schema (column names, dtypes, nullability and value ranges) and its quality rules. The schema
+  is declared with `pandera`, and checked by the producer before writing and by the consumer on
+  reading. So far the typed transactions contract is checked when preparation starts; the
+  prepared transactions contract is declared and will be checked by P8 before the file is
+  written; no check on reading exists yet.
 
 ## Reproducibility
 

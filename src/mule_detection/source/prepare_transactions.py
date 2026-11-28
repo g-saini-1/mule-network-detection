@@ -30,6 +30,8 @@ from mule_detection.payments.currency import (
 )
 from mule_detection.payments.transfers import flag_own_account_transfers, flag_self_transfers
 from mule_detection.source import load
+from mule_detection.source.prepared_transactions_contract import PreparedTransactionsContract
+from mule_detection.source.typed_transactions_contract import TypedTransactionsContract
 from mule_detection.utils.config import load_config, repo_path
 
 __all__ = [
@@ -42,24 +44,8 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-PREPARED_COLUMNS = [
-    "transaction_id",
-    "timestamp",
-    "from_bank",
-    "from_account",
-    "to_bank",
-    "to_account",
-    "amount_paid",
-    "payment_currency",
-    "amount_received",
-    "receiving_currency",
-    "payment_format",
-    "is_duplicate",
-    "is_self_transfer",
-    "is_own_account_transfer",
-    "amount_paid_base",
-    "amount_received_base",
-]
+# The output columns, in order, as the prepared transactions contract declares them.
+PREPARED_COLUMNS = list(PreparedTransactionsContract.to_schema().columns)
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -118,9 +104,14 @@ def prepare_transactions(
 ) -> PreparedTransactions:
     """Apply P3 to P7 to transactions from `load.load_transactions` (P1, P2).
 
-    `tx` is left unchanged. To keep peak memory down on the full dataset, the table is copied
-    once, by the P7 sort, rather than at each step; the comments below say how.
+    Fails before any rule runs if `tx` breaks the typed transactions contract. `tx` is left
+    unchanged. To keep peak memory down on the full dataset, the table is copied once, by the P7
+    sort, rather than at each step; the comments below say how.
     """
+    logger.info("Checking the typed transactions contract")
+    # `inplace=True` stops pandera copying the whole table to check it. The contract does not
+    # convert types, so the check never changes `tx`.
+    TypedTransactionsContract.validate(tx, lazy=True, inplace=True)
     logger.info("P3 to P5: flagging duplicates, self-transfers and own-account transfers")
     # `assign` returns a new table and never changes `tx`, so no `tx.copy()` is needed to keep
     # the function pure. Separately, copy-on-write (always on from pandas 3) lets the new table

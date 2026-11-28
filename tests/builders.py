@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from mule_detection.source.load import TRANSACTION_HEADER
+from mule_detection.source.load import TRANSACTION_COLUMNS, TRANSACTION_HEADER
 
 # One valid raw transaction row as text, in file column order, for loader and validation tests.
 GOOD_ROW = [
@@ -61,14 +61,24 @@ def frame(*rows):
 
 
 def as_loaded(tx):
-    """`tx` with currencies and payment formats as categories, as `load_transactions` types them."""
-    return tx.astype(
+    """`tx` typed as `load_transactions` returns it (P1, P2).
+
+    Currencies and payment formats become categories and the laundering flag an 8-bit integer.
+    If `tx` has `transaction_id`, it becomes the first column, followed by the source columns;
+    any other column is kept, after them.
+    """
+    typed = tx.astype(
         {
             "payment_currency": "category",
             "receiving_currency": "category",
             "payment_format": "category",
+            "is_laundering": "int8",
         }
     )
+    if "transaction_id" in typed.columns:
+        leading = ["transaction_id", *TRANSACTION_COLUMNS]
+        typed = typed[leading + [c for c in typed.columns if c not in leading]]
+    return typed
 
 
 def raw_transactions_file(tmp_path, *rows):

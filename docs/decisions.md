@@ -392,3 +392,20 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   file. `load_prepared_transactions` checks the full contract on reading, in pandas, which settles
   the consumer's check for pandas readers; for DuckDB it stays open (2026-11-28, "Use pandera for
   data contract checks").
+
+## 2026-11-28: Build the typology coverage matrix in Stage 2
+
+- **Context:** The Stage 2 plan (`scope_and_rationale.md` Section 3) commits to 3 to 5 rules, the
+  temporal split and evaluation at a fixed alert budget. Precision and recall at the budget do
+  not show which kinds of laundering the rules catch. A typology coverage matrix does: for each
+  typology in the patterns file, the share of its mule accounts each rule flags at the alert
+  budget. It was a backlog item, with later versions planned for Stages 3 to 5. It needs the
+  transaction labels (T1 to T3) and a rule for attributing accounts to typologies: 38.01% of
+  laundering transactions sit in no scheme (`data/README.md`, Patterns), and one account can
+  sit in schemes of several typologies.
+- **Options considered:** build it in Stage 2 with the rules baseline; defer it to Stage 3 or to
+  the Stage 5 detection effectiveness report.
+- **Decision and rationale:** Build it in Stage 2, departing from the plan. The rules baseline
+  is what every later stage is compared against, so its coverage matrix lets each later stage
+  show which gaps it closes, not only how much better it scores. The attribution rule is decided
+  before the matrix is built.

@@ -43,11 +43,6 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
   from Python (e.g. with DuckDB), so the rules read like the detection scenarios bank monitoring
   teams write and tune. Needs a `docs/decisions.md` entry (tooling choice, new dependency) and
   tests that run each query on small fixture tables.
-- **Stage 2: typology coverage matrix.** For each typology in the patterns file
-  (`data/README.md`, Table 6), the share of its mule accounts each rule flags at the alert budget;
-  uncovered typologies are the detection gaps. Needs a decision on attributing accounts to
-  typologies: 38.01% of laundering transactions sit in no scheme (`data/README.md`, Patterns), so
-  the matrix needs a "no typology" row, and one account can sit in schemes of several typologies.
 - **Stage 2: explain account labelling in financial crime.** Add an explanation of how account
   labels work in financial crime to `docs/account_labelling_guide.md`.
 - **Stage 2: review the account labelling tests.**

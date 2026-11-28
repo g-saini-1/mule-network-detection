@@ -1,7 +1,7 @@
 """Data contract for prepared transactions, the output of transaction preparation (P8).
 
 Produced by `prepare_transactions` (P3 to P7) and consumed by detection, e.g. the rules engine.
-Declared here; P8 will check it before the file is written, and no check on reading exists yet.
+P8 checks it before the file would be written; no check on reading exists yet.
 It holds no ground truth (T1 to T3, `docs/transaction_labelling_guide.md`): the laundering flag
 is not among its columns, and no other column is allowed. Contracts are described in
 DEVELOPMENT.md ("Data"); tests are in `tests/test_prepared_transactions_contract.py`.

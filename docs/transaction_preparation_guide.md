@@ -55,9 +55,9 @@ checks fail.
 order.
 
 **P8. Output checks.** Before the file is written, preparation fails unless the output matches
-its declared schema (column names, types, empty values and value ranges), has the same number of
-rows as the raw file, and has the same total amount paid per payment currency and amount received
-per receiving currency as the raw file, within floating-point rounding.
+its declared schema (column names, types, empty values and value ranges), has one row for each
+raw transaction (`transaction_id` from 0 to one less than the number of raw rows, once each),
+and each row's amounts and currencies equal those of its raw transaction exactly.
 
 ## Columns
 

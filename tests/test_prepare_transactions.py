@@ -1,12 +1,16 @@
 """Tests for transaction preparation, using small hand-built transaction tables."""
 
+import re
+
 import pandas as pd
 import pandera.pandas as pa
 import pytest
-from builders import T1, T2, acc, as_loaded, frame, txn
+from builders import T1, T2, acc, as_loaded, frame, prepared, raw_text, txn
 
 from mule_detection.payments.currency import CurrencySettings
+from mule_detection.source import load
 from mule_detection.source.prepare_transactions import (
+    _check_output,
     _flag_duplicates,
     _sort_by_time,
     prepare_transactions,
@@ -113,3 +117,72 @@ def test_pipeline_rejects_input_that_breaks_the_typed_transactions_contract():
     padded = tx.assign(from_bank="010")
     with pytest.raises(pa.errors.SchemaErrors, match="from_bank"):
         prepare_transactions(padded, accounts, currency=SETTINGS)
+
+
+# --- P8 -------------------------------------------------------------------------------------------
+
+
+def test_p8_pipeline_output_meets_its_contract_and_matches_the_raw_file():
+    tx, accounts = pipeline_input()
+    output = prepare_transactions(tx, accounts, currency=SETTINGS).transactions
+    _check_output(output, tx[load.TRANSACTION_COLUMNS].astype(str))
+
+
+def test_p8_output_that_breaks_its_contract_fails():
+    with pytest.raises(pa.errors.SchemaErrors, match="is_laundering"):
+        _check_output(prepared().assign(is_laundering=0), raw_text())
+
+
+def test_p8_rows_are_matched_to_the_raw_file_by_transaction_id_not_position():
+    # In time order, ID 1 comes first; its raw row is the second.
+    output = prepared(
+        txn(transaction_id=1, timestamp=T1, amount_paid=200.0),
+        txn(transaction_id=0, timestamp=T2, amount_paid=100.0),
+    )
+    raw_rows = raw_text(txn(amount_paid=100.0), txn(amount_paid=200.0))
+    _check_output(output, raw_rows)
+
+
+@pytest.mark.parametrize(
+    ("output", "raw_rows", "message"),
+    [
+        pytest.param(
+            prepared(txn(transaction_id=0)),
+            raw_text(),
+            "found 1 row for 2 rows, e.g. no row at position 1",
+            id="a raw row with no prepared row",
+        ),
+        pytest.param(
+            prepared(),
+            raw_text(txn()),
+            "found 2 rows for 1 row, e.g. ID 1 at position 1",
+            id="a prepared row with no raw row",
+        ),
+        pytest.param(
+            prepared(txn(transaction_id=0), txn(transaction_id=2, timestamp=T2)),
+            raw_text(),
+            "found 2 rows for 2 rows, e.g. ID 2 at position 1",
+            id="an ID outside the raw rows",
+        ),
+    ],
+)
+def test_p8_output_without_exactly_one_row_per_raw_row_fails(output, raw_rows, message):
+    with pytest.raises(ValueError, match=re.escape(message)):
+        _check_output(output, raw_rows)
+
+
+@pytest.mark.parametrize(
+    ("column", "raw_value"),
+    [
+        pytest.param("amount_paid", "101.0", id="amount paid"),
+        pytest.param("payment_currency", "Euro", id="payment currency"),
+        pytest.param("amount_received", "101.0", id="amount received"),
+        pytest.param("receiving_currency", "Euro", id="receiving currency"),
+    ],
+)
+def test_p8_a_value_different_from_the_raw_file_fails(column, raw_value):
+    raw_rows = raw_text()
+    raw_rows.loc[1, column] = raw_value
+    message = f"P8: {column} differs from the raw file in 1 row, e.g. transaction 1"
+    with pytest.raises(ValueError, match=re.escape(message)):
+        _check_output(prepared(), raw_rows)

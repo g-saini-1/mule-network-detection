@@ -87,3 +87,55 @@ def raw_transactions_file(tmp_path, *rows):
     lines = [",".join(TRANSACTION_HEADER), *(",".join(row) for row in rows)]
     path.write_text("\n".join(lines) + "\n")
     return path
+
+
+# The output columns in order, as the preparation guide (Table 1) lists them.
+GUIDE_COLUMNS = [
+    "transaction_id",
+    "timestamp",
+    "from_bank",
+    "from_account",
+    "to_bank",
+    "to_account",
+    "amount_paid",
+    "payment_currency",
+    "amount_received",
+    "receiving_currency",
+    "payment_format",
+    "is_duplicate",
+    "is_self_transfer",
+    "is_own_account_transfer",
+    "amount_paid_base",
+    "amount_received_base",
+]
+
+
+# Two transactions in time order, with IDs 0 and 1: the default rows of `prepared` and `raw_text`.
+DEFAULT_ROWS = (txn(transaction_id=0), txn(transaction_id=1, timestamp=T2))
+
+
+def prepared(*rows):
+    """Prepared transactions from typed rows: no laundering flag, flags false, base amounts 100.
+
+    `DEFAULT_ROWS` if no rows are given.
+    """
+    rows = rows or DEFAULT_ROWS
+    added = {
+        "is_duplicate": False,
+        "is_self_transfer": False,
+        "is_own_account_transfer": False,
+        "amount_paid_base": 100.0,
+        "amount_received_base": 100.0,
+    }
+    return as_loaded(frame(*rows)).assign(**added)[GUIDE_COLUMNS]
+
+
+def raw_text(*rows):
+    """Raw transactions from rows, every column as text, for P8 tests; `DEFAULT_ROWS` if none.
+
+    Only the amounts and currencies, the columns P8 compares, are in the raw file's form; e.g.
+    timestamps and bank IDs are not. Raw rows have no `transaction_id`: a row's ID is its
+    position, so any `transaction_id` in the rows given is dropped.
+    """
+    rows = rows or DEFAULT_ROWS
+    return frame(*rows)[TRANSACTION_COLUMNS].astype(str)

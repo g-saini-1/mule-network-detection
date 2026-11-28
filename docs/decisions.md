@@ -355,3 +355,18 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   checked with. This supersedes the 2026-11-27 entry's choice of names; allowing another base
   would be a separate decision, with the checks re-run on it. No prepared file had been written,
   so no stored data changed.
+
+## 2026-11-28: Reconcile prepared transactions with the raw file row by row
+
+- **Context:** P8 was first built to compare the total amount paid and received per currency
+  with the raw file, within a relative tolerance. Preparation never changes the amounts, so any difference points
+  to a fault, e.g. rows dropped, duplicated or misaligned. Totals cannot catch faults that offset
+  each other, e.g. two amounts swapped, and the tolerance allowed about 696 US Dollar of
+  difference in the US Dollar total paid (10⁻⁹ of about 696 billion).
+- **Options considered:** keep the totals with a tighter tolerance; compare each prepared row's
+  amounts and currencies with its raw transaction by `transaction_id`; both.
+- **Decision and rationale:** Compare row by row, exactly, with `transaction_id` required to run
+  from 0 to one less than the number of raw rows. It catches everything the totals catch and
+  offsetting faults as well, and needs no tolerance. On the real data the comparison itself,
+  after the raw file is read, took 2.13 s against 1.72 s for the totals. Keeping the totals as
+  well would add no protection, since matching rows imply matching totals.

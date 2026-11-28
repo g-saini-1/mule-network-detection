@@ -19,6 +19,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from mule_detection.payments.currency import (
@@ -87,13 +88,57 @@ def _sort_by_time(tx: pd.DataFrame) -> pd.DataFrame:
 # --- P8: output checks ----------------------------------------------------------------------------
 
 
-def _check_output(prepared: pd.DataFrame, raw: pd.DataFrame) -> None:
-    """P8: fail unless `prepared` matches its schema and reconciles with `raw`.
+# The raw columns P8 compares row by row; `main()` reads only these from the raw file.
+_RECONCILED_COLUMNS = ["amount_paid", "payment_currency", "amount_received", "receiving_currency"]
 
-    `raw` is `load.load_raw_transactions()`, all text. Checks row count and total amounts paid
-    and received per currency, within floating-point rounding.
+
+def _check_output(prepared: pd.DataFrame, raw: pd.DataFrame) -> None:
+    """P8: fail unless `prepared` meets its contract and matches `raw` row for row.
+
+    `raw` is `load.load_raw_transactions()`, all text, with at least `_RECONCILED_COLUMNS`.
+    `transaction_id` must run from 0 to one less than the number of raw rows, once each, and
+    each row's amounts and currencies must equal those of the raw row at that position, exactly.
+    Other columns are not compared, e.g. bank IDs, which P2 unpads, and the columns P3 to P6 add.
+    The raw file is read the same way as by the loader, so a fault in that shared reading, e.g.
+    in `load.TRANSACTION_COLUMNS`, is not caught here but by the header check and the loader
+    tests.
     """
-    raise NotImplementedError("P8 is not written yet")
+    # `inplace=True` stops pandera copying the whole table to check it. The contract does not
+    # convert types, so the check never changes `prepared`.
+    PreparedTransactionsContract.validate(prepared, lazy=True, inplace=True)
+    # Only the columns compared are sorted, so the sort does not copy the whole table.
+    by_id = prepared[["transaction_id", *_RECONCILED_COLUMNS]].sort_values("transaction_id")
+    ids = by_id["transaction_id"].to_numpy()
+    expected = np.arange(len(raw))
+    if not np.array_equal(ids, expected):
+        position = _first_difference(ids, expected)
+        found = f"ID {ids[position]:,}" if position < len(ids) else "no row"
+        raise ValueError(
+            f"P8: transaction IDs must run from 0 to {len(raw) - 1:,}, one per raw row; found "
+            f"{_rows(len(prepared))} for {_rows(len(raw))}, e.g. {found} at position {position:,}"
+        )
+    for column in _RECONCILED_COLUMNS:
+        if pd.api.types.is_float_dtype(by_id[column]):
+            differs = by_id[column].to_numpy() != raw[column].astype(float).to_numpy()
+        else:
+            differs = by_id[column].astype(str).to_numpy() != raw[column].to_numpy()
+        if differs.any():
+            raise ValueError(
+                f"P8: {column} differs from the raw file in {_rows(int(differs.sum()))}, "
+                f"e.g. transaction {int(ids[differs][0])}"
+            )
+
+
+def _first_difference(ids: np.ndarray, expected: np.ndarray) -> int:
+    """P8: the first position where `ids` differs from `expected`, or the shorter length."""
+    shared = min(len(ids), len(expected))
+    mismatched = np.flatnonzero(ids[:shared] != expected[:shared])
+    return int(mismatched[0]) if len(mismatched) else shared
+
+
+def _rows(count: int) -> str:
+    """`count` with "row" or "rows", for messages, e.g. "1 row" or "1,000 rows"."""
+    return f"{count:,} row" if count == 1 else f"{count:,} rows"
 
 
 # --- pipeline -------------------------------------------------------------------------------------
@@ -187,7 +232,7 @@ def main() -> None:
             load.load_transactions(), load.load_accounts(), currency=currency
         )
         logger.info("P8: checking the output")
-        _check_output(result.transactions, load.load_raw_transactions())
+        _check_output(result.transactions, load.load_raw_transactions(columns=_RECONCILED_COLUMNS))
     except Exception:
         logger.exception("transaction preparation failed")
         raise SystemExit(1) from None

@@ -84,10 +84,17 @@ def normalise_bank_id(banks: pd.Series) -> pd.Series:
     return banks.str.lstrip("0").replace("", "0")
 
 
-def load_raw_transactions(path: Path | None = None) -> pd.DataFrame:
-    """Transactions with every column as an unparsed string, named by position."""
+def load_raw_transactions(
+    path: Path | None = None, *, columns: list[str] | None = None
+) -> pd.DataFrame:
+    """Transactions with every column as an unparsed string, named by position.
+
+    `columns` reads only those columns, by their names in `TRANSACTION_COLUMNS`; all by default.
+    They come back in file order, whatever order they are given in, and a name not in
+    `TRANSACTION_COLUMNS` raises a `ValueError`.
+    """
     path = path or raw_file("transactions")
-    return pd.read_csv(path, header=0, names=TRANSACTION_COLUMNS, dtype=str)
+    return pd.read_csv(path, header=0, names=TRANSACTION_COLUMNS, dtype=str, usecols=columns)
 
 
 def load_raw_accounts(path: Path | None = None) -> pd.DataFrame:

@@ -30,11 +30,11 @@ plan and evaluation approach are in `scope_and_rationale.md`.
 - **Stage 1 (data understanding) is closed:** merged to `main` and tagged `v0.1`.
 - **Stage 2 (rules baseline) is in progress** on `stage-2-rules`. The package is organised by
   bounded context (`docs/solution_architecture.md`, Domain model). Transaction preparation rules
-  P1 to P7 are built (`docs/transaction_preparation_guide.md`); P8 (output checks) and the
-  transaction labels T1 to T3 (`docs/transaction_labelling_guide.md`) are specified but not
-  built, so `make prepare-data` stops at P8 and writes nothing yet. Improvements to P1 to P6 from
-  the tech lead review come first; the rules engine follows. Stage 2 notes are in
-  `docs/backlog.md`.
+  P1 to P8 are built (`docs/transaction_preparation_guide.md`), with data contracts for typed
+  and prepared transactions, but `make prepare-data` does not save its output yet: the save,
+  with an atomic write, is next. The transaction labels T1 to T3
+  (`docs/transaction_labelling_guide.md`) are specified but not built; the rules engine follows.
+  Stage 2 notes are in `docs/backlog.md`.
 - **Labels:** load with `mule_detection.evaluation.account_labels.load_labels()`. Rules R1 to R7
   are in `docs/account_labelling_guide.md`. Payment order is ignored because AMLworld's
   timestamps within a scheme don't follow the money, so don't build rules on payment order

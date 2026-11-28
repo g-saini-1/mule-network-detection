@@ -19,6 +19,14 @@ def test_load_raw_transactions_names_duplicate_account_columns_by_position(tmp_p
     assert load.read_header(path) == load.TRANSACTION_HEADER
 
 
+def test_load_raw_transactions_reads_only_the_columns_asked_for_in_file_order(tmp_path):
+    received_differs = [*GOOD_ROW[:5], "50.00", "Euro", *GOOD_ROW[7:]]
+    path = raw_transactions_file(tmp_path, received_differs)
+    df = load.load_raw_transactions(path, columns=["payment_currency", "amount_paid"])
+    assert df.columns.tolist() == ["amount_paid", "payment_currency"]
+    assert df.to_dict("records") == [{"amount_paid": "3697.34", "payment_currency": "US Dollar"}]
+
+
 # --- P1 -------------------------------------------------------------------------------------------
 
 

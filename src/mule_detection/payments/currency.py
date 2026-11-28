@@ -19,7 +19,7 @@ __all__ = [
     "exchange_rates",
 ]
 
-# The converted columns are named for this currency (`amount_paid_usd`, `amount_received_usd`).
+# The only base currency the method has been checked with (decisions.md, 2026-11-28).
 _SUPPORTED_BASE_CURRENCY = "US Dollar"
 
 
@@ -27,8 +27,8 @@ _SUPPORTED_BASE_CURRENCY = "US Dollar"
 class CurrencySettings:
     """P6 settings, read once from the `transaction_preparation` section of `configs/data.yaml`.
 
-    Fails if the base currency is not US Dollar, the currency the converted columns are named
-    for, if the minimum amount is not above 0, or if the tolerance is not a number of 0 or more.
+    Fails if the base currency is not US Dollar, the only base the method has been checked with,
+    if the minimum amount is not above 0, or if the tolerance is not a number of 0 or more.
 
     Attributes:
         base_currency: Currency every amount is converted to.
@@ -45,7 +45,7 @@ class CurrencySettings:
         if self.base_currency != _SUPPORTED_BASE_CURRENCY:
             raise ValueError(
                 f"P6: base currency must be {_SUPPORTED_BASE_CURRENCY}, not {self.base_currency}; "
-                "the converted columns are named for it"
+                "it is the only base the method has been checked with"
             )
         if not self.min_amount_paid > 0:
             raise ValueError(f"P6: minimum amount paid must be above 0, not {self.min_amount_paid}")
@@ -89,7 +89,7 @@ def exchange_rates(tx: pd.DataFrame, currency: CurrencySettings) -> pd.Series:
 
 
 def convert_amounts(tx: pd.DataFrame, rates: pd.Series) -> pd.DataFrame:
-    """P6: `amount_paid_usd` and `amount_received_usd`, aligned to `tx.index`.
+    """P6: `amount_paid_base` and `amount_received_base`, aligned to `tx.index`.
 
     Each amount is divided by its currency's rate from `exchange_rates`. Fails if a currency in
     `tx` has no rate.
@@ -103,8 +103,8 @@ def convert_amounts(tx: pd.DataFrame, rates: pd.Series) -> pd.DataFrame:
         raise ValueError(f"P6: no exchange rate for currencies: {sorted(missing)}")
     return pd.DataFrame(
         {
-            "amount_paid_usd": tx["amount_paid"] / paid_rate,
-            "amount_received_usd": tx["amount_received"] / received_rate,
+            "amount_paid_base": tx["amount_paid"] / paid_rate,
+            "amount_received_base": tx["amount_received"] / received_rate,
         },
         index=tx.index,
     )
@@ -121,8 +121,8 @@ def conversion_gaps(prepared: pd.DataFrame, currency: CurrencySettings) -> pd.Se
         "receiving_currency"
     ].astype(str)
     covered = cross_currency & (prepared["amount_paid"] >= currency.min_amount_paid)
-    paid = prepared.loc[covered, "amount_paid_usd"]
-    received = prepared.loc[covered, "amount_received_usd"]
+    paid = prepared.loc[covered, "amount_paid_base"]
+    received = prepared.loc[covered, "amount_received_base"]
     return ((paid - received).abs() / paid).rename("conversion_gap")
 
 

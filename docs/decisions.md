@@ -342,3 +342,16 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   column names and storage types but not the contract's rules. How consumers check the
   contract when reading is left open, to be decided with the pandas or DuckDB choice for the
   rules engine.
+
+## 2026-11-28: Name converted amounts for the base currency
+
+- **Context:** The 2026-11-27 entry kept the converted columns as `amount_paid_usd` and
+  `amount_received_usd` and failed on any other base currency. Names tied to one currency would
+  have to change if the base ever changed.
+- **Options considered:** keep the `_usd` names; rename to `amount_paid_base` and
+  `amount_received_base` and keep US Dollar as the only allowed base; rename and allow any base.
+- **Decision and rationale:** Rename to `amount_paid_base` and `amount_received_base`, and keep
+  failing on any base other than US Dollar, now because it is the only base the method has been
+  checked with. This supersedes the 2026-11-27 entry's choice of names; allowing another base
+  would be a separate decision, with the checks re-run on it. No prepared file had been written,
+  so no stored data changed.

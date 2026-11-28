@@ -125,8 +125,8 @@ RATES = pd.Series({AUD: 1.5, "US Dollar": 1.0})
 
 def test_p6_amounts_are_divided_by_their_currency_rate():
     converted = convert_amounts(frame(usd_to_aud(100.0, 150.0)), RATES)
-    assert converted["amount_paid_usd"].tolist() == [100.0]
-    assert converted["amount_received_usd"].tolist() == [100.0]
+    assert converted["amount_paid_base"].tolist() == [100.0]
+    assert converted["amount_received_base"].tolist() == [100.0]
 
 
 def test_p6_converted_amounts_keep_the_row_labels_of_tx():
@@ -148,8 +148,8 @@ def test_p6_a_payment_between_two_non_base_currencies_converts_each_side_by_its_
         )
     )
     converted = convert_amounts(tx, rates)
-    assert converted["amount_paid_usd"].tolist() == pytest.approx([100.0])
-    assert converted["amount_received_usd"].tolist() == pytest.approx([100.0])
+    assert converted["amount_paid_base"].tolist() == pytest.approx([100.0])
+    assert converted["amount_received_base"].tolist() == pytest.approx([100.0])
 
 
 def test_p6_rates_and_conversion_work_on_currencies_typed_as_categories():

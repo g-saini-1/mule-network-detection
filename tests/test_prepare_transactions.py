@@ -95,7 +95,7 @@ def test_pipeline_keeps_each_row_with_its_own_flags_and_amounts():
     assert by_id.loc[1, ["is_self_transfer", "is_duplicate"]].tolist() == [True, False]
     assert by_id.loc[2, ["is_self_transfer", "is_duplicate"]].tolist() == [True, True]
     assert by_id.loc[0, ["is_self_transfer", "is_duplicate"]].tolist() == [False, False]
-    assert by_id.loc[0, ["amount_paid_usd", "amount_received_usd"]].tolist() == pytest.approx(
+    assert by_id.loc[0, ["amount_paid_base", "amount_received_base"]].tolist() == pytest.approx(
         [100.0, 100.0]
     )
 

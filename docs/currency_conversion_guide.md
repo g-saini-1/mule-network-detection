@@ -38,8 +38,8 @@ The base currency, the minimum amount and the tolerance below are set in a confi
   using only payments with an amount paid of 100 or more. A payment's implied rate is its amount
   received divided by its amount paid, inverted when US Dollar is the receiving currency. Rates
   are computed from the data on every run, not entered by hand.
-- **Conversion.** `amount_paid_usd` is the amount paid divided by the payment currency's rate,
-  and `amount_received_usd` the amount received divided by the receiving currency's rate. Each
+- **Conversion.** `amount_paid_base` is the amount paid divided by the payment currency's rate,
+  and `amount_received_base` the amount received divided by the receiving currency's rate. Each
   side uses its own currency's rate, so a payment between two other currencies, e.g. Euro to
   Australian Dollar, is converted like any other.
 
@@ -64,7 +64,8 @@ whether the inferred rates hold across all of them.
 
 A bank would normally use its home currency, e.g. Australian Dollar for an Australian bank. This
 project uses US Dollar, the most used currency in the data. The converted columns are named for
-it, so preparation fails if another base currency is set.
+the base currency in general (`_base`), but US Dollar is the only base the method has been
+checked with, so preparation fails if another base currency is set.
 
 With fixed rates, changing the base multiplies every converted amount by the same factor. Ratios
 and rankings between amounts do not change, e.g. money sent as a share of money received, but a

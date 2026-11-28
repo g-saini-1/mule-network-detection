@@ -57,8 +57,8 @@ PREPARED_COLUMNS = [
     "is_duplicate",
     "is_self_transfer",
     "is_own_account_transfer",
-    "amount_paid_usd",
-    "amount_received_usd",
+    "amount_paid_base",
+    "amount_received_base",
 ]
 
 
@@ -135,8 +135,8 @@ def prepare_transactions(
     converted = convert_amounts(prepared, rates)
     # Adding the two columns with `assign` rather than `join` avoids building another full table.
     prepared = prepared.assign(
-        amount_paid_usd=converted["amount_paid_usd"],
-        amount_received_usd=converted["amount_received_usd"],
+        amount_paid_base=converted["amount_paid_base"],
+        amount_received_base=converted["amount_received_base"],
     )
     check_conversion(prepared, currency)
     logger.info("P7: sorting by time")

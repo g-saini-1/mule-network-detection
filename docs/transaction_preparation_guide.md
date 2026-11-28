@@ -47,7 +47,7 @@ row is dropped; each detection rule states whether it excludes own-account trans
 same owner; a payment from bank 10, account X to bank 20, account Z is not, whoever owns Z.
 
 **P6. Currency conversion.** Every amount is also given in US Dollar, the base currency set in
-`configs/data.yaml`, as `amount_paid_usd` and `amount_received_usd`, by the method in
+`configs/data.yaml`, as `amount_paid_base` and `amount_received_base`, by the method in
 [currency_conversion_guide.md](currency_conversion_guide.md). Preparation fails if that method's
 checks fail.
 
@@ -73,7 +73,7 @@ per receiving currency as the raw file, within floating-point rounding.
 | `is_duplicate` | True for a later copy of an earlier transaction | P3 |
 | `is_self_transfer` | True if sender and receiver are the same account | P4 |
 | `is_own_account_transfer` | True if sender and receiver are different accounts at the same bank with the same owner | P5 |
-| `amount_paid_usd`, `amount_received_usd` | The two amounts in US Dollar | P6 |
+| `amount_paid_base`, `amount_received_base` | The two amounts in the base currency, US Dollar | P6 |
 
 Table 1. Columns in `data/interim/transactions.parquet`.
 

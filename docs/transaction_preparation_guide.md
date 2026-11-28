@@ -78,4 +78,6 @@ and each row's amounts and currencies equal those of its raw transaction exactly
 Table 1. Columns in `data/interim/transactions.parquet`.
 
 `make prepare-data` builds the file, and
-`mule_detection.source.prepare_transactions.load_prepared_transactions()` reads it.
+`mule_detection.source.prepare_transactions.load_prepared_transactions()` reads it. The file is
+written only after P8 passes, as set out in [DEVELOPMENT.md](../DEVELOPMENT.md) ("Data", Write,
+audit, publish).

@@ -12,7 +12,9 @@ from mule_detection.source import load
 from mule_detection.source.prepare_transactions import (
     _check_output,
     _flag_duplicates,
+    _publish,
     _sort_by_time,
+    load_prepared_transactions,
     prepare_transactions,
 )
 
@@ -186,3 +188,28 @@ def test_p8_a_value_different_from_the_raw_file_fails(column, raw_value):
     message = f"P8: {column} differs from the raw file in 1 row, e.g. transaction 1"
     with pytest.raises(ValueError, match=re.escape(message)):
         _check_output(prepared(), raw_rows)
+
+
+# --- saving and reading the prepared file ---------------------------------------------------------
+
+
+def test_published_file_reads_back_unchanged_and_meets_the_contract(tmp_path):
+    path = tmp_path / "transactions.parquet"
+    _publish(prepared(), path)
+    pd.testing.assert_frame_equal(load_prepared_transactions(path), prepared())
+
+
+def test_a_failed_publish_leaves_the_previous_file_and_no_temporary_file(tmp_path):
+    path = tmp_path / "transactions.parquet"
+    _publish(prepared(), path)
+    with pytest.raises(pa.errors.SchemaErrors, match="is_laundering"):
+        _publish(prepared().assign(is_laundering=0), path)
+    pd.testing.assert_frame_equal(load_prepared_transactions(path), prepared())
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["transactions.parquet"]
+
+
+def test_reading_a_file_that_breaks_the_contract_fails(tmp_path):
+    path = tmp_path / "transactions.parquet"
+    prepared().assign(is_laundering=0).to_parquet(path, index=False)
+    with pytest.raises(pa.errors.SchemaErrors, match="is_laundering"):
+        load_prepared_transactions(path)

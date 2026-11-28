@@ -205,23 +205,45 @@ def _prepared_path() -> Path:
     return repo_path(load_config("data")["paths"]["prepared_transactions"])
 
 
+def _publish(prepared: pd.DataFrame, path: Path) -> None:
+    """Write `prepared` to `path` by write, audit, publish (DEVELOPMENT.md, "Data").
+
+    The temporary file sits beside `path`, so the rename that publishes it is atomic. If any step
+    fails, the temporary file is removed and the file at `path`, if there is one, is left as it
+    was.
+    """
+    temporary = path.with_name(path.name + ".tmp")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        prepared.to_parquet(temporary, index=False)
+        # The audit reads the written file exactly as consumers do, so a change in the Parquet
+        # round trip, e.g. to a column's type, is caught before the file is published.
+        load_prepared_transactions(temporary)
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def load_prepared_transactions(path: Path | None = None) -> pd.DataFrame:
-    """Read the prepared transactions, checking every expected column is present.
+    """Read the prepared transactions and check them against their contract.
 
     Returns the transactions only, not a `PreparedTransactions`: the P6 rates are not saved.
+
+    Raises:
+        pandera.errors.SchemaErrors: The file breaks the prepared transactions contract, e.g. a
+            missing or extra column, a wrong type or rows out of time order.
     """
     prepared = pd.read_parquet(path or _prepared_path())
-    missing = set(PREPARED_COLUMNS) - set(prepared.columns)
-    if missing:
-        raise ValueError(f"prepared transactions file is missing columns: {sorted(missing)}")
+    PreparedTransactionsContract.validate(prepared, lazy=True, inplace=True)
     return prepared
 
 
 def main() -> None:
-    """Command-line entry point: prepare, check, save and summarise the transactions.
+    """Command-line entry point: prepare, check, publish and summarise the transactions.
 
-    The one place errors are handled: a failure in configuration, preparation or the P8 check
-    is logged once and ends the run with exit code 1, before anything is saved.
+    The one place errors are handled: a failure in configuration, preparation, the P8 check or
+    publishing is logged once and ends the run with exit code 1. The published file is replaced
+    only once every step has passed.
     """
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s: %(message)s"
@@ -233,15 +255,15 @@ def main() -> None:
         )
         logger.info("P8: checking the output")
         _check_output(result.transactions, load.load_raw_transactions(columns=_RECONCILED_COLUMNS))
+        path = _prepared_path()
+        logger.info("Publishing %s", path)
+        _publish(result.transactions, path)
     except Exception:
         logger.exception("transaction preparation failed")
         raise SystemExit(1) from None
 
-    # path = _prepared_path()
-    # path.parent.mkdir(parents=True, exist_ok=True)
-    # result.transactions.to_parquet(path, index=False)
     print(_run_summary(result.transactions, result.rates, currency))
-    # print(f"saved to {path}")
+    print(f"published to {path}")
 
 
 if __name__ == "__main__":

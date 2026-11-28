@@ -19,7 +19,8 @@ synthetic public data.
 - **Test pyramid.** Most tests are fast unit tests; component, integration and end-to-end tests
   are progressively fewer and slower. Each behaviour is tested once, by the fastest kind of test
   that can catch it:
-  - **Unit tests** check one function, e.g. a rule.
+  - **Unit tests** check one function, e.g. a rule. A function that writes or reads a file is
+    unit tested on hand-built tables in a temporary folder.
   - **Component tests** check only how the functions within one component work together, e.g.
     that each flag stays with its row through the pipeline, and do not repeat the unit tests.
   - **Integration tests** check the data contracts and the reading and writing between

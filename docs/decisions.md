@@ -370,3 +370,25 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   offsetting faults as well, and needs no tolerance. On the real data the comparison itself,
   after the raw file is read, took 2.13 s against 1.72 s for the totals. Keeping the totals as
   well would add no protection, since matching rows imply matching totals.
+
+## 2026-11-28: Write, audit, then publish the prepared transactions file
+
+- **Context:** `make prepare-data` publishes prepared transactions, the first dataset passed
+  between contexts with a data contract. A write that fails part way would leave a half-written
+  file, and a failed run must not replace a good one.
+  Writing to Parquet and reading back could also change a column's type without P8, which
+  checks the table in memory, noticing.
+- **Options considered:** write straight to the target; write to a temporary file and rename it
+  (atomic write); write, audit the written file, then publish by renaming; success marker files
+  or versioned outputs (e.g. Delta Lake, Apache Iceberg); lineage metadata in the file.
+- **Decision and rationale:** Write, audit, publish: write to a temporary file beside the
+  target, read it back and check it against the prepared transactions contract, then rename it
+  onto the target, which is atomic on one file system. On the real data the audit took 0.44 to
+  0.46 s (read back about 0.13 s, contract about 0.31 s) against about 1.1 s for the write.
+  Success markers and versioned outputs are built for folders of many files written by many
+  jobs; one file written by one job does not need them. Lineage metadata was not adopted. The
+  written file is not forced to disk (`fsync`), so a power cut, unlike a failed run, could leave
+  it cut short; the derived layers are rebuildable and the check on reading would reject such a
+  file. `load_prepared_transactions` checks the full contract on reading, in pandas, which settles
+  the consumer's check for pandas readers; for DuckDB it stays open (2026-11-28, "Use pandera for
+  data contract checks").

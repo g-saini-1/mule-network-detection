@@ -64,7 +64,7 @@ The exploratory analysis is in [notebooks/01_eda.ipynb](notebooks/01_eda.ipynb);
 | Type | Document | Contents |
 |---|---|---|
 | Explanation | [docs/bank_detection_architecture.md](docs/bank_detection_architecture.md) | How a bank detects mule accounts, and what the dataset covers (start here) |
-| Explanation | [docs/solution_architecture.md](docs/solution_architecture.md) | How this project's parts, bounded contexts and data layers fit together, and which stage builds each |
+| Explanation | [docs/solution_architecture.md](docs/solution_architecture.md) | How this project's parts, bounded contexts and data layers fit together |
 | Explanation | [docs/rules_engine_design.md](docs/rules_engine_design.md) | The internal design of the rules engine |
 | Explanation | [docs/evaluation_harness_design.md](docs/evaluation_harness_design.md) | How the evaluation harness backtests detection: point-in-time scoring, tuning kept apart from testing, champion and challenger |
 | Explanation | [docs/domain_primer.md](docs/domain_primer.md) | Fraud, scams, money laundering and mules explained |

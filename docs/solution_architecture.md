@@ -28,12 +28,12 @@ Table 1. External systems the mule detection system depends on.
 
 ## Containers
 
-| Container | Type | Technology | Responsibility | Stage |
-|---|---|---|---|---|
-| Mule detection application | Batch application | Python, run one job at a time | Ingests and prepares data, builds labels, scores accounts and evaluates the scores | 1 to 5 |
-| Raw zone | Data store | Files as downloaded | Holds the source files unchanged | 1 |
-| Interim zone | Data store | Parquet files | Holds prepared transactions | 2 |
-| Processed zone | Data store | Parquet files | Holds account and transaction labels, the temporal split and scores | 1, 2 |
+| Container | Type | Technology | Responsibility |
+|---|---|---|---|
+| Mule detection application | Batch application | Python, run one job at a time | Ingests and prepares data, builds labels, scores accounts and evaluates the scores |
+| Raw zone | Data store | Files as downloaded | Holds the source files unchanged |
+| Interim zone | Data store | Parquet files | Holds prepared transactions |
+| Processed zone | Data store | Parquet files | Holds account and transaction labels, the temporal split and scores |
 
 Table 2. Containers of the mule detection system.
 
@@ -43,23 +43,23 @@ The mule detection application is made up of the components below. Each belongs 
 context (Table 4), and the application's code is organised by context. A component's internal
 design, where it has one, is in its own design document.
 
-| Component | Responsibility | Stage | Design |
-|---|---|---|---|
-| Data ingestion and validation | Download the source files and check hashes, row counts and content | 1 | |
-| Transaction preparation | Load typed transactions, apply the preparation rules and write prepared transactions | 2 | |
-| Payment rules | Classify each transfer by the accounts on each side, and give its amounts in one currency | 2 | |
-| Rules engine | Score accounts with explainable rules | 2 | [rules_engine_design.md](rules_engine_design.md) |
-| Feature pipeline | Account, velocity and graph features | 3, 4 | From Stage 3 |
-| ML model | Train and score the account model | 3 | From Stage 3 |
-| Ground truth | Build account and transaction labels | 1, 2 | |
-| Evaluation harness | Temporal split, metrics at the alert budget, costs, thresholds and stability | 2 to 5 | [evaluation_harness_design.md](evaluation_harness_design.md) |
+| Component | Responsibility | Design |
+|---|---|---|
+| Data ingestion and validation | Download the source files and check hashes, row counts and content | |
+| Transaction preparation | Load typed transactions, apply the preparation rules and write prepared transactions | |
+| Payment rules | Flag self-transfers and own-account transfers, and give both amounts in the base currency ([transaction_preparation_guide.md](transaction_preparation_guide.md), P4 to P6) | |
+| Rules engine | Score accounts with explainable rules | [rules_engine_design.md](rules_engine_design.md) |
+| Feature pipeline | Account, velocity and graph features | |
+| ML model | Train and score the account model | |
+| Ground truth | Build account labels from typed transactions, and transaction labels from typed transactions and the patterns file ([account_labelling_guide.md](account_labelling_guide.md), [transaction_labelling_guide.md](transaction_labelling_guide.md)) | |
+| Evaluation harness | Temporal split, metrics at the alert budget, costs, thresholds and stability | [evaluation_harness_design.md](evaluation_harness_design.md) |
 
 Table 3. Components of the mule detection application.
 
 ## Domain model
 
 Each bounded context owns one part of the domain and its terms, and passes data to another
-context only through the datasets in Table 6. All four contexts run inside the mule detection
+context only through the datasets in Table 6, or through source data's typed loader. All four contexts run inside the mule detection
 application: they are boundaries of meaning and ownership within one container, not separate
 deployments. The data stores are shared and organised by how refined the data is; each dataset
 belongs to the context of the component that builds it (Table 6).
@@ -67,7 +67,7 @@ belongs to the context of the component that builds it (Table 6).
 | Context | Responsibility | Components |
 |---|---|---|
 | Source data | Turns the source files into clean, typed records: validated, with a stable transaction ID, duplicates flagged and in time order. It is the anti-corruption layer that keeps the source's quirks out of the other contexts | Data ingestion and validation, transaction preparation |
-| Payments | Says what kind of transfer each payment is, and gives its amounts in one currency | Payment rules |
+| Payments | Holds the banking rules about payments, apart from how the source data records them: what kind of transfer each payment is, and its amounts in the base currency | Payment rules |
 | Detection | Scores accounts from prepared transactions | Rules engine, feature pipeline, ML model |
 | Ground truth and evaluation | Records what is known to be laundering, and measures detection against it | Ground truth, evaluation harness |
 
@@ -75,8 +75,7 @@ Table 4. Bounded contexts and the components in each.
 
 ![Figure 1. The bounded contexts of the mule detection system and the flows between them](figures/solution_pipeline.svg)
 
-Figure 1. The bounded contexts and the flows between them, marked by what is built so far and
-the stage that builds each part.
+Figure 1. The bounded contexts and the flows between them.
 
 Three rules govern how the contexts relate ([decisions.md](decisions.md), 2026-11-27):
 
@@ -93,10 +92,12 @@ The terms below have one meaning across every context.
 |---|---|---|
 | Account | A bank ID plus an account number | [account_labelling_guide.md](account_labelling_guide.md), R1 |
 | Entity | The owner of one or more accounts | [transaction_preparation_guide.md](transaction_preparation_guide.md), P5 |
+| Transaction | One record in the source transactions file, identified by its transaction ID | P1 |
+| Payment | The movement of money a transaction records: from a sending account to a receiving account, in a payment currency and a receiving currency | [data/README.md](../data/README.md), Transactions |
 | Self-transfer | A payment from an account to itself | P4 |
 | Own-account transfer | A payment between two accounts of the same entity at the same bank | P5 |
 | Base currency | The one currency every amount is also given in | [currency_conversion_guide.md](currency_conversion_guide.md) |
-| Laundering payment | A payment whose laundering flag is 1 | R2 |
+| Laundering payment | A payment whose transaction has a laundering flag of 1 | R2 |
 | Mule | An account that receives at least one laundering payment and sends at least one | R4 |
 | Scheme | One laundering attempt in the patterns file | [transaction_labelling_guide.md](transaction_labelling_guide.md), T2 |
 | Typology | The pattern a scheme follows, e.g. fan-in or cycle | T2 |
@@ -131,11 +132,11 @@ data/README.md, with an entity relationship diagram under Structure.
 |---|---|---|---|---|
 | Transactions, accounts and patterns | Raw | Source files as downloaded | Data ingestion and validation | Transaction preparation, ground truth |
 | Download manifest | Raw | Record of each download | Data ingestion and validation | Data ingestion and validation |
-| Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Transaction preparation, Stage 2 | Rules engine, feature pipeline |
+| Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Transaction preparation | Rules engine, feature pipeline |
 | Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Ground truth | Evaluation harness |
-| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and typology where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Ground truth, Stage 2 | Evaluation harness |
-| Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness, Stage 2 | Rules engine, ML model, evaluation harness |
-| Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine, Stage 2 | Evaluation harness |
+| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and typology where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Ground truth | Evaluation harness |
+| Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness | Rules engine, ML model, evaluation harness |
+| Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine | Evaluation harness |
 
 Table 6. Datasets: what each holds, which component builds it and which use it.
 
@@ -144,7 +145,7 @@ Table 6. Datasets: what each holds, which component builds it and which use it.
 | Concern | How it is handled | Where it is set out |
 |---|---|---|
 | Configuration | Values live in `configs/*.yaml`, read with `load_config()` and resolved with `repo_path()` | [DEVELOPMENT.md](../DEVELOPMENT.md), Code |
-| Reproducibility | File hashes and row counts, a release tag per stage, and a run manifest from Stage 3 | [data/README.md](../data/README.md), Validation |
+| Reproducibility | File hashes and row counts, and a release tag per stage | [data/README.md](../data/README.md), Validation |
 | Quality | `make check` runs a format check, lint, type checks and tests, locally and in CI | DEVELOPMENT.md, Checks and tooling |
 | Currency | Amounts are kept as recorded and also given in one base currency; rule thresholds state their currency | [currency_conversion_guide.md](currency_conversion_guide.md) |
 | Data security and licence | No data or credentials committed; credentials stay at `~/.kaggle/access_token` | [scope_and_rationale.md](../scope_and_rationale.md) Section 4 |

@@ -53,17 +53,17 @@ items (GNN, simulated scam payments, BAF fairness audit, LI robustness check) ar
 - **Stage 3: simulator artefacts.** ACH, Wire, Reinvestment and cross-currency signals are cleaner
   than real behaviour is likely to be; compare model performance with and without payment format
   and currency features.
-- **Stage 3: add the model to the coverage matrix,** on the same split, alert budget and typology
-  attribution as Stage 2, to show which gaps the model closes.
-- **Stage 4: add ML with graph features to the coverage matrix,** for both the full and the
-  partial view, to show which typologies network context helps with and how much of that survives
-  when one bank sees only part of the network.
+- **Stage 3: add the model to detection effectiveness by typology,** on the same split, alert
+  budget and typology attribution as Stage 2, to show which gaps the model closes.
+- **Stage 4: add ML with graph features to detection effectiveness by typology,** for both the
+  full and the partial view, to show which typologies network context helps with and how much of
+  that survives when one bank sees only part of the network.
 - **Stage 5: detection effectiveness report.** A one-page report generated from the code: for each
   detection approach (rules, ML, ML with graph features), alert volume at the budget, precision,
-  recall, the false positive ratio (false positives per true mule) and the final coverage matrix.
-  Section 3 commits Stage 5 to `model_card.md` and `business_case.md` only, so a
-  `docs/decisions.md` entry should settle whether this is a separate report or a section of the
-  business case.
+  recall, the false positive ratio (false positives per true mule) and the final detection
+  effectiveness by typology. Section 3 commits Stage 5 to `model_card.md` and
+  `business_case.md` only, so a `docs/decisions.md` entry should settle whether this is a
+  separate report or a section of the business case.
 - **Stage 5: scheme-starting accounts in the mule label.** The label cannot separate mules from
   accounts where a scheme starts and its money returns (e.g. the start of a cycle), because
   AMLworld's timestamps do not follow the money. If an error analysis needs them, identify them

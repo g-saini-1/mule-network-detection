@@ -322,3 +322,23 @@ rules as worded at the time; R4 now states the order-ignored rule.*
 - **Decision and rationale:** Keep whole-period rates for now and record the departure in the
   currency conversion guide (Limitations). Revisit when the temporal split is built, when rates
   from the train period alone become possible.
+
+## 2026-11-28: Use pandera for data contract checks
+
+- **Context:** DEVELOPMENT.md ("Data") sets data contracts between contexts. The 2026-10-28
+  decision adopted `pandera` after comparing it only with hand-written checks. Prepared
+  transactions are written to Parquet, and whether the rules engine uses pandas or DuckDB is
+  open ([backlog.md](backlog.md), Later stages).
+- **Options considered:** pandera; hand-written pandas checks; Great Expectations; Pydantic;
+  Soda Core; Frictionless Table Schema; the Data Contract CLI (Open Data Contract Standard).
+- **Decision and rationale:** Use pandera, declaring each contract's schema as a
+  `DataFrameModel`, for the checks made on pandas tables: the input to preparation and the
+  prepared transactions before they are written to Parquet. It validates a whole table in one
+  call, can report every failure at once, and runs inside pytest and `make check`. It supports
+  pandas 3 from version 0.30.0; the installed 0.36.0 validated pandas 3.1 tables in a check on
+  2026-11-28. Great Expectations and Soda Core are built for monitored pipelines and
+  warehouses, Pydantic validates row by row, which is slow for millions of rows, and
+  Frictionless and the Data Contract CLI add a separate YAML specification. Parquet keeps
+  column names and storage types but not the contract's rules. How consumers check the
+  contract when reading is left open, to be decided with the pandas or DuckDB choice for the
+  rules engine.

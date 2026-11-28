@@ -411,3 +411,20 @@ rules as worded at the time; R4 now states the order-ignored rule.*
   scores. "Typology coverage" names the design view, which typologies each rule targets. The
   transaction labels are built first; the metrics and the attribution rule are decided with the
   evaluation harness design. This replaces the term "coverage matrix" used in earlier entries.
+
+## 2026-11-29: Call AMLworld's scheme shapes laundering patterns, not typologies
+
+- **Context:** The patterns file names each scheme's shape, e.g. `FAN-IN` or `CYCLE`, and the
+  project called these typologies. The IBM AMLworld paper calls them patterns throughout
+  ([Altman et al., 2023](https://arxiv.org/abs/2306.16424), Section 3.2), while FATF uses
+  "typologies" for laundering methods and trends (seen in search results; FATF's own wording is
+  not yet confirmed). Nothing in AMLworld says which method a scheme
+  follows, so the data can hold a pattern for each transaction but not a typology.
+- **Options considered:** keep `typology` and define it; rename to `pattern`; rename to
+  `laundering_pattern`.
+- **Decision and rationale:** Rename to `laundering_pattern`, the data source's own term, made
+  explicit. The transaction label column becomes `laundering_pattern`, and "detection
+  effectiveness by typology" (2026-11-28) becomes "detection effectiveness by laundering
+  pattern", and "typology coverage", the design view of which patterns each rule targets, becomes
+  "laundering pattern coverage". Typology stays a project-level term for the method the project targets, money mule
+  activity. Earlier entries keep their wording.

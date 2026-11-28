@@ -80,7 +80,7 @@ erDiagram
     }
     LAUNDERING_ATTEMPT {
         int attempt_id PK "surrogate: block order"
-        string typology "e.g. FAN-OUT"
+        string laundering_pattern "e.g. FAN-OUT"
     }
 ```
 
@@ -190,10 +190,10 @@ Table 5. Account columns.
 ### Patterns
 
 The patterns file groups laundering transactions into 370 schemes ("laundering attempts").
-Each block starts with a `BEGIN LAUNDERING ATTEMPT - <TYPOLOGY>` line, lists its transactions in
+Each block starts with a `BEGIN LAUNDERING ATTEMPT - <PATTERN>` line, lists its transactions in
 the same format as the transactions file, and ends with an `END LAUNDERING ATTEMPT` line.
 
-| Typology | Attempts | Transactions |
+| Laundering pattern | Attempts | Transactions |
 |---|---|---|
 | Bipartite | 49 | 263 |
 | Cycle | 54 | 287 |
@@ -204,7 +204,7 @@ the same format as the transactions file, and ends with an `END LAUNDERING ATTEM
 | Scatter-gather | 44 | 626 |
 | Stack | 43 | 466 |
 
-Table 6. Laundering attempts by typology.
+Table 6. Laundering attempts by laundering pattern.
 
 The patterns file is a partial record: it covers 3,209 laundering transactions, and the other
 1,968 (38.01%) are flagged as laundering but sit in no block. The transaction flag, not the

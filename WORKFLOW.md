@@ -16,8 +16,8 @@ following [CLAUDE.md](CLAUDE.md). Coding and testing standards are in
    ("Personas"), and check understanding before any code is proposed.
 3. **Review the parked notes** for the stage in `docs/backlog.md`.
 4. **Plan, review, then confirm.** The plan states what will be built and which files change. The
-   financial crime practitioner reviews it for realism and typology coverage, and work starts once
-   the model owner confirms.
+   financial crime practitioner reviews it for realism and laundering pattern coverage, and work
+   starts once the model owner confirms.
 5. **Add only the dependencies the stage needs.**
 
 Findings from every review, here and at the close of the stage, are fixed once the model owner

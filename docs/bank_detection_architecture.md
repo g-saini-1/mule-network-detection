@@ -50,7 +50,7 @@ and nothing in between. Details of each file are in [data/README.md](../data/REA
 | Payments | Transactions file: each payment's time, accounts, amount, currency and format | Covers every bank at once, over 18 days, with no channel detail beyond a payment format |
 | Accounts and owners | Accounts file: each account's bank and owner (entity) | Owners have only a simulated type (e.g. Corporation); there is no identity, age, income or opening date |
 | Confirmed labels | `is_laundering` flag on each payment | Complete, immediate and certain, unlike real labels (data/README.md, Table 4) |
-| Case and typology knowledge | Patterns file: laundering schemes by typology | A partial answer key; in a bank this knowledge sits in case files and intelligence reports, and covers only what was caught |
+| Case and typology knowledge | Patterns file: laundering schemes by laundering pattern | A partial answer key; in a bank this knowledge sits in case files and intelligence reports, and covers only what was caught |
 | Transaction graph | Buildable from the transactions file | Shows the whole network across banks; a bank sees only its own side (Figure 2) |
 | Everything else | None | No devices, external intelligence, alerts, investigations or interventions |
 

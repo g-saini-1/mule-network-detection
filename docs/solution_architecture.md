@@ -100,7 +100,7 @@ The terms below have one meaning across every context.
 | Laundering payment | A payment whose transaction has a laundering flag of 1 | R2 |
 | Mule | An account that receives at least one laundering payment and sends at least one | R4 |
 | Scheme | One laundering attempt in the patterns file | [transaction_labelling_guide.md](transaction_labelling_guide.md), T2 |
-| Typology | The pattern a scheme follows, e.g. fan-in or cycle | T2 |
+| Laundering pattern | The shape a scheme's payments take between accounts, e.g. fan-in or cycle, as named by AMLworld ([Altman et al., 2023](https://arxiv.org/abs/2306.16424), Section 3.2) | T2 |
 | Scoring time | The time an account is scored at; detection sees only transactions before it | [evaluation_harness_design.md](evaluation_harness_design.md) |
 | Alert budget | The fixed number of alerts, K, at which the alert queue is cut | [scope_and_rationale.md](../scope_and_rationale.md) Section 5 |
 
@@ -134,7 +134,7 @@ data/README.md, with an entity relationship diagram under Structure.
 | Download manifest | Raw | Record of each download | Data ingestion and validation | Data ingestion and validation |
 | Prepared transactions | Interim | Transactions standardised for detection ([transaction_preparation_guide.md](transaction_preparation_guide.md)) | Transaction preparation | Rules engine, feature pipeline |
 | Account labels | Processed | One row per account: whether it is a mule, and when it was first involved in laundering | Ground truth | Evaluation harness |
-| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and typology where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Ground truth | Evaluation harness |
+| Transaction labels | Processed | One row per transaction: whether it is laundering, and its scheme and laundering pattern where known ([transaction_labelling_guide.md](transaction_labelling_guide.md)) | Ground truth | Evaluation harness |
 | Temporal split | Processed | Each account's period (train, validation or test) and its scoring time | Evaluation harness | Rules engine, ML model, evaluation harness |
 | Rule scores | Processed | For each account and period: the rules that fired, the values that triggered them, and the account's rank against the alert budget | Rules engine | Evaluation harness |
 

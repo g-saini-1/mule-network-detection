@@ -160,8 +160,8 @@ Table 2. Personas used in this project.
   paper): in plain language, with a cited source for each claim, Australian practice kept apart
   from general practice, and a check of understanding before moving on.
 - **The financial crime practitioner reviews as a bank would,** from public sources (AUSTRAC,
-  FATF, NASC, APRA, model risk guidance): typology coverage, alert capacity and the alert budget,
-  scenario tuning and governance. Each finding states its risk and operational impact.
+  FATF, NASC, APRA, model risk guidance): laundering pattern coverage, alert capacity and the
+  alert budget, scenario tuning and governance. Each finding states its risk and operational impact.
 - **The tech lead designs the architecture to recognised frameworks** (e.g. the C4 model, arc42,
   and domain-driven design for bounded contexts, a shared domain language and anti-corruption
   layers at the system's edges). In the solution architecture, it describes the system, not the

@@ -103,7 +103,7 @@ def test_transacting_account_missing_from_accounts_file_fails():
 PATTERN_TXN = ",".join([*GOOD_ROW[:-1], "1"])
 
 
-def test_clean_patterns_pass_and_count_typologies():
+def test_clean_patterns_pass_and_count_laundering_patterns():
     lines = [
         "BEGIN LAUNDERING ATTEMPT - FAN-OUT:  Max 16-degree Fan-Out",
         PATTERN_TXN,
@@ -115,7 +115,7 @@ def test_clean_patterns_pass_and_count_typologies():
     ]
     report = _check_patterns(lines)
     assert report.passed, report.errors
-    assert report.info["attempts_by_typology"] == {"CYCLE": 1, "FAN-OUT": 1}
+    assert report.info["attempts_by_laundering_pattern"] == {"CYCLE": 1, "FAN-OUT": 1}
 
 
 @pytest.mark.parametrize(

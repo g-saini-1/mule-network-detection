@@ -162,7 +162,7 @@ def _check_patterns(lines: list[str]) -> ValidationReport:
     """
     report = ValidationReport()
     n_fields = len(load.TRANSACTION_HEADER)
-    typologies: dict[str, int] = {}
+    laundering_patterns: dict[str, int] = {}
     current = None
 
     for i, line in enumerate(lines, start=1):
@@ -171,7 +171,7 @@ def _check_patterns(lines: list[str]) -> ValidationReport:
             if current is not None:
                 report.errors.append(f"line {i}: BEGIN inside an unclosed block")
             current = begin.group(1)
-            typologies[current] = typologies.get(current, 0) + 1
+            laundering_patterns[current] = laundering_patterns.get(current, 0) + 1
         elif line.startswith(_PATTERN_END):
             if current is None:
                 report.errors.append(f"line {i}: END without a matching BEGIN")
@@ -189,8 +189,8 @@ def _check_patterns(lines: list[str]) -> ValidationReport:
         report.errors.append("file ends inside an unclosed block")
 
     report.info = {
-        "attempts": sum(typologies.values()),
-        "attempts_by_typology": dict(sorted(typologies.items())),
+        "attempts": sum(laundering_patterns.values()),
+        "attempts_by_laundering_pattern": dict(sorted(laundering_patterns.items())),
     }
     return report
 
